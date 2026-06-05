@@ -1,3 +1,4 @@
+// components/dashboard/layout/blogs/BlogForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -14,7 +15,7 @@ import Link from "next/link";
 import DashboardHeader from "../common/Header";
 import { Separator } from "@/components/ui/separator";
 import TiptapEditor from "@/components/Editor/TiptapEditor";
-import TableOfContents from "@/components/Editor/TableOfContents";
+import TableOfContents, { HeadingItem } from "@/components/Editor/TableOfContents";
 
 enum BlogStatus {
     DRAFT = "DRAFT",
@@ -69,6 +70,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     const [authors, setAuthors] = useState<Author[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
     const [loadingAuthors, setLoadingAuthors] = useState(true);
+    const [headings, setHeadings] = useState<HeadingItem[]>([]);
 
     const [thumbnailFiles, setThumbnailFiles] = useState<File[]>([]);
     const [bannerFiles, setBannerFiles] = useState<File[]>([]);
@@ -268,6 +270,10 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     const handleEditorChange = (content: string) => {
         setEditorContent(content);
         setFormData((prev) => ({ ...prev, content }));
+    };
+
+    const handleHeadingsChange = (newHeadings: HeadingItem[]) => {
+        setHeadings(newHeadings);
     };
 
     // ✅ FIX: Handle save as draft
@@ -580,7 +586,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-6">
-                                <TiptapEditor content={editorContent} onChange={handleEditorChange} />
+                                <TiptapEditor content={editorContent} onChange={handleEditorChange} onHeadingsChange={handleHeadingsChange} />
                             </CardContent>
                         </Card>
 
@@ -813,7 +819,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                     <CardDescription>Article structure</CardDescription>
                                 </CardHeader>
                                 <CardContent className="pt-4">
-                                    <TableOfContents content={editorContent} />
+                                    <TableOfContents headings={headings} />
                                     {/* Type '{ content: string; }' is not assignable to type 'IntrinsicAttributes & TableOfContentsProps'.
   Property 'content' does not exist on type 'IntrinsicAttributes & TableOfContentsProps'.ts(2322)
 ⚠ Error (TS2322)  |  |  | 
@@ -825,7 +831,8 @@ Type
 
 Property content does not exist on type 
  .
-(property) content: string */}
+(property) content: string
+*/}
                                 </CardContent>
                             </Card>
 

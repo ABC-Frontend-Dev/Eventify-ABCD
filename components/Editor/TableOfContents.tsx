@@ -1,55 +1,40 @@
 // components/Editor/TableOfContents.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface Heading {
+export interface HeadingItem {
     id: string;
     text: string;
     level: number;
 }
 
 interface TableOfContentsProps {
-    content: string;
+    headings?: HeadingItem[]; // ← Made optional
+    levels?: number[];
+    showIndentation?: boolean;
 }
 
-export default function TableOfContents({ content }: TableOfContentsProps) {
-    const [headings, setHeadings] = useState<Heading[]>([]);
+export default function TableOfContents({
+    headings = [], // ← Added default empty array
+    levels,
+    showIndentation = true,
+}: TableOfContentsProps) {
     const [activeId, setActiveId] = useState<string>("");
 
-    useEffect(() => {
-        // Extract headings from HTML content
-        const extractHeadings = () => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(content, "text/html");
-            const headingElements = doc.querySelectorAll("h1, h2, h3, h4, h5, h6");
-
-            const extractedHeadings: Heading[] = [];
-            headingElements.forEach((heading, index) => {
-                const level = parseInt(heading.tagName.substring(1));
-                const text = heading.textContent || "";
-                const id = heading.id || `heading-${index}`;
-
-                extractedHeadings.push({ id, text, level });
-            });
-
-            setHeadings(extractedHeadings);
-        };
-
-        if (content) {
-            extractHeadings();
-        } else {
-            setHeadings([]);
-        }
-    }, [content]);
+    // Filter headings by levels if specified - with safety check
+    const filteredHeadings = levels ? (headings || []).filter((h) => levels.includes(h.level)) : headings || [];
 
     const scrollToHeading = (id: string) => {
         setActiveId(id);
-        // Note: This won't work in the editor preview, but will work in the actual blog page
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     };
 
-    if (headings.length === 0) {
+    if (!filteredHeadings || filteredHeadings.length === 0) {
         return (
             <div className="text-center py-8">
                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
@@ -66,16 +51,16 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
     return (
         <ScrollArea className="h-[calc(100vh-250px)]">
             <nav className="space-y-1">
-                {headings.map((heading, index) => (
+                {filteredHeadings.map((heading, index) => (
                     <button
-                        key={index}
+                        key={`${heading.id}-${index}`}
                         onClick={() => scrollToHeading(heading.id)}
                         className={`
                             w-full text-left px-3 py-2 rounded-md text-sm transition-colors
                             ${activeId === heading.id ? "bg-blue-100 text-blue-900 font-medium" : "text-slate-700 hover:bg-slate-100"}
                         `}
                         style={{
-                            paddingLeft: `${(heading.level - 1) * 12 + 12}px`,
+                            paddingLeft: showIndentation ? `${(heading.level - 1) * 12 + 12}px` : "12px",
                         }}
                     >
                         <div className="flex items-start gap-2">

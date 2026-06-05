@@ -1,108 +1,76 @@
+// components/Editor/TableOfContents.tsx
 "use client";
 
 import { useState } from "react";
-import TiptapEditor, { HeadingItem } from "@/components/Editor/TiptapEditor";
-import { TableOfContents } from "@/components/Editor/TableOfContents";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-export default function EditorTestPage() {
-    const [content, setContent] = useState("");
-    const [headings, setHeadings] = useState<HeadingItem[]>([]);
+export interface HeadingItem {
+    id: string;
+    text: string;
+    level: number;
+}
+
+interface TableOfContentsProps {
+    headings: HeadingItem[];
+    levels?: number[];
+    showIndentation?: boolean;
+}
+
+export default function TableOfContents({ headings, levels, showIndentation = true }: TableOfContentsProps) {
+    const [activeId, setActiveId] = useState<string>("");
+
+    // Filter headings by levels if specified
+    const filteredHeadings = levels ? headings.filter((h) => levels.includes(h.level)) : headings;
+
+    const scrollToHeading = (id: string) => {
+        setActiveId(id);
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
+
+    if (filteredHeadings.length === 0) {
+        return (
+            <div className="text-center py-8">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </div>
+                <p className="text-sm font-medium text-slate-600">No headings yet</p>
+                <p className="text-xs text-slate-500 mt-1">Add headings to your content to see the table of contents</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="container max-w-7xl mx-auto py-8">
-            <h1 className="text-3xl font-bold mb-6">Rich Text Editor Test</h1>
-
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Editor */}
-                <div className="lg:col-span-3">
-                    <TiptapEditor content={content} onChange={setContent} onHeadingsChange={setHeadings} />
-                </div>
-
-                {/* Table of Contents - Multiple Variants */}
-                <div className="lg:col-span-1 space-y-4">
-                    <Tabs defaultValue="all" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="all">All</TabsTrigger>
-                            <TabsTrigger value="h1">H1</TabsTrigger>
-                            <TabsTrigger value="h2">H2</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="all">
-                            <Card className="sticky top-4">
-                                <CardHeader>
-                                    <CardTitle className="text-sm">All Headings</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <TableOfContents headings={headings} />
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-
-                        <TabsContent value="h1">
-                            <Card className="sticky top-4">
-                                <CardHeader>
-                                    <CardTitle className="text-sm">H1 Only</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <TableOfContents headings={headings} levels={[1]} />
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-
-                        <TabsContent value="h2">
-                            <Card className="sticky top-4">
-                                <CardHeader>
-                                    <CardTitle className="text-sm">H2 Only</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <TableOfContents headings={headings} levels={[2]} />
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-                    </Tabs>
-
-                    {/* Additional TOC Variants */}
-                    <Card className="sticky top-4">
-                        <CardHeader>
-                            <CardTitle className="text-sm">H1 + H2 Only</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <TableOfContents headings={headings} levels={[1, 2]} />
-                        </CardContent>
-                    </Card>
-
-                    <Card className="sticky top-4">
-                        <CardHeader>
-                            <CardTitle className="text-sm">H3 (No Indent)</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <TableOfContents headings={headings} levels={[3]} showIndentation={false} />
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-
-            {/* Heading Count Stats */}
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle>Heading Statistics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-6 gap-4">
-                        {[1, 2, 3, 4, 5, 6].map((level) => {
-                            const count = headings.filter((h) => h.level === level).length;
-                            return (
-                                <div key={level} className="text-center">
-                                    <div className="text-2xl font-bold">{count}</div>
-                                    <div className="text-sm text-muted-foreground">H{level}</div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+        <ScrollArea className="h-[calc(100vh-250px)]">
+            <nav className="space-y-1">
+                {filteredHeadings.map((heading, index) => (
+                    <button
+                        key={`${heading.id}-${index}`}
+                        onClick={() => scrollToHeading(heading.id)}
+                        className={`
+                            w-full text-left px-3 py-2 rounded-md text-sm transition-colors
+                            ${activeId === heading.id ? "bg-blue-100 text-blue-900 font-medium" : "text-slate-700 hover:bg-slate-100"}
+                        `}
+                        style={{
+                            paddingLeft: showIndentation ? `${(heading.level - 1) * 12 + 12}px` : "12px",
+                        }}
+                    >
+                        <div className="flex items-start gap-2">
+                            <span
+                                className={`
+                                    shrink-0 w-1.5 h-1.5 rounded-full mt-1.5
+                                    ${activeId === heading.id ? "bg-blue-600" : "bg-slate-400"}
+                                `}
+                            />
+                            <span className="line-clamp-2">{heading.text}</span>
+                        </div>
+                    </button>
+                ))}
+            </nav>
+        </ScrollArea>
     );
 }

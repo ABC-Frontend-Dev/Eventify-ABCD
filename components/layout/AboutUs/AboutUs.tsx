@@ -6,7 +6,7 @@ import CardFlip from "@/components/ui/flip-card";
 
 export default function AboutUs() {
     return (
-        <section className="max-w-360 w-full mx-auto px-20 py-9">
+        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9">
             <header>
                 <HeadingWithoutLogo title="About Us" />
                 <SubHeading title="The team behind every celebration" />
@@ -16,7 +16,7 @@ export default function AboutUs() {
                 />
             </header>
 
-            <div className="flex items-center justify-center w-full mt-9 gap-2.5">
+            <div className="flex items-center justify-center flex-col-reverse lg:flex-row w-full mt-5 lg:mt-9 gap-2.5">
                 <div className="max-w-full">
                     <div className="space-y-2.5">
                         <CardFlip
@@ -41,7 +41,7 @@ Its Audience And Purpose."
                 </div>
                 <div>
                     <figure className="w-full h-full">
-                        <Image src={"/images/about-bg.png"} alt="about us" loading="eager" width={1000} height={1000} className="w-full h-[635px] object-cover" />
+                        <Image src={"/images/about-bg.png"} alt="about us" loading="eager" width={1000} height={1000} className="w-full h-full lg:h-158.75 object-cover" />
                     </figure>
                 </div>
             </div>
