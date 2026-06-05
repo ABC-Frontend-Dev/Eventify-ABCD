@@ -1,0 +1,46 @@
+```
+└── 📁eventify
+    └── 📁app
+        ├── favicon.ico
+        ├── globals.css
+        ├── layout.tsx
+        ├── not-found.tsx
+        ├── page.tsx
+    └── 📁components
+        └── 📁card-grid
+            ├── CardGrid.tsx
+        └── 📁cards
+            ├── Card.tsx
+        └── 📁model
+            ├── Modal.tsx
+        └── 📁navbar
+            ├── Navbar.tsx
+        └── 📁ui
+            ├── flip-card.tsx
+            ├── navbar.tsx
+    └── 📁data
+        ├── cards.data.ts
+    └── 📁lib
+        ├── utils.ts
+    └── 📁public
+        ├── file.svg
+        ├── globe.svg
+        ├── next.svg
+        ├── vercel.svg
+        ├── window.svg
+    └── 📁types
+        ├── card.types.ts
+    ├── .gitignore
+    ├── AGENTS.md
+    ├── CLAUDE.md
+    ├── components.json
+    ├── eslint.config.mjs
+    ├── folder-structure.md
+    ├── next-env.d.ts
+    ├── next.config.ts
+    ├── package-lock.json
+    ├── package.json
+    ├── postcss.config.mjs
+    ├── README.md
+    └── tsconfig.json
+```

@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Model {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Clients {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  image       String
+}
+
+model ProjectCategory {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  project Project[]
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  bannerImage String
+  images      String[]
+
+  categoryId Int
+  category   ProjectCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+}
+
+model Author {
+  id           Int     @id @default(autoincrement())
+  name         String
+  email        String  @unique
+  bio          String?
+  avatar       String?
+  blogs        Blog[]
+}
+
+// enum for blog status
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model BlogCategory {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  blogs       Blog[]
+}
+
+model Blog {
+  id          Int    @id @default(autoincrement())
+  title       String @db.VarChar(100)
+  slug        String @unique @db.VarChar(100)
+  description String @db.VarChar(160)
+  content     String @db.Text
+
+  status BlogStatus @default(DRAFT)
+
+  publishedAt DateTime?
+
+  // SEO & Images
+  metaTitle       String   @db.VarChar(60)
+  metaDescription String   @db.VarChar(160)
+  keywords        String[]
+  thumbnail       String
+  banner_image    String
+  canonical       String
+  schemaScript    String   @db.Text
+
+  // MetaData
+  timeToRead String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  authorId   Int
+  author     Author       @relation(fields: [authorId], references: [id])
+  categoryId Int
+  category   BlogCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([status])
+}
