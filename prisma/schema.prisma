@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -28,40 +23,31 @@ model Clients {
 }
 
 model ProjectCategory {
-  id          Int     @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String?
-
-  project Project[]
+  project     Project[]
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   title       String
   description String
   bannerImage String
   images      String[]
-
-  categoryId Int
-  category   ProjectCategory @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  category    ProjectCategory @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
 }
 
 model Author {
-  id           Int     @id @default(autoincrement())
-  name         String
-  email        String  @unique
-  bio          String?
-  avatar       String?
-  blogs        Blog[]
-}
-
-// enum for blog status
-enum BlogStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+  id     Int     @id @default(autoincrement())
+  name   String
+  bio    String?
+  email  String  @unique
+  avatar String?
+  blogs  Blog[]
 }
 
 model BlogCategory {
@@ -72,37 +58,35 @@ model BlogCategory {
 }
 
 model Blog {
-  id          Int    @id @default(autoincrement())
-  title       String @db.VarChar(100)
-  slug        String @unique @db.VarChar(100)
-  description String @db.VarChar(160)
-  content     String @db.Text
-
-  status BlogStatus @default(DRAFT)
-
-  publishedAt DateTime?
-
-  // SEO & Images
-  metaTitle       String   @db.VarChar(60)
-  metaDescription String   @db.VarChar(160)
+  id              Int          @id @default(autoincrement())
+  title           String       @db.VarChar(100)
+  slug            String       @unique @db.VarChar(100)
+  description     String       @db.VarChar(160)
+  content         String
+  metaTitle       String       @db.VarChar(60)
   keywords        String[]
   thumbnail       String
   banner_image    String
   canonical       String
-  schemaScript    String   @db.Text
-
-  // MetaData
-  timeToRead String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  authorId   Int
-  author     Author       @relation(fields: [authorId], references: [id])
-  categoryId Int
-  category   BlogCategory @relation(fields: [categoryId], references: [id])
+  timeToRead      String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  authorId        Int
+  categoryId      Int
+  schemaScript    String
+  metaDescription String       @db.VarChar(160)
+  publishedAt     DateTime?
+  status          BlogStatus   @default(DRAFT)
+  author          Author       @relation(fields: [authorId], references: [id])
+  category        BlogCategory @relation(fields: [categoryId], references: [id])
 
   @@index([authorId])
   @@index([categoryId])
   @@index([status])
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
