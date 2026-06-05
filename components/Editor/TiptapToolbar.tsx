@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface TiptapToolbarProps {
-    editor: Editor;
+    editor: Editor | null;
 }
 
 export function TiptapToolbar({ editor }: TiptapToolbarProps) {
@@ -46,6 +46,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
     const [linkNewTab, setLinkNewTab] = useState(false);
     const [imageUrl, setImageUrl] = useState("");
     const [imageAlt, setImageAlt] = useState("");
+    if (!editor) return null;
 
     const setLink = useCallback(() => {
         if (linkUrl === "") {
