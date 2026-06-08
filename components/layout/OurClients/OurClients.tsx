@@ -27,7 +27,7 @@ export default function OurClients() {
     }, []);
 
     return (
-        <section className="max-w-360 w-full mx-auto px-20 py-9">
+        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9">
             <header>
                 <HeadingWithLogo titlePart1="Our" titlePart2_1="Cli" titlePart2_2="nts" />
 
@@ -37,7 +37,7 @@ export default function OurClients() {
             </header>
 
             <div className="mt-9">
-                <ul className="grid grid-cols-4 gap-y-10">
+                <ul className="grid grid-cols-2 lg:grid-cols-4 gap-y-10">
                     {clients.map((client: any) => (
                         <li key={client.id} className="flex items-center justify-center group">
                             <Image

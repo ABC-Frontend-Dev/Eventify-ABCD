@@ -41,10 +41,10 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
                                         isScrolled
                                             ? active
                                                 ? "text-primary font-helvetica-bold"
-                                                : " font-helvetica-medium text-gray-600 hover:text-slate-950"
+                                                : "font-helvetica-medium text-black/80 hover:text-black"
                                             : active
-                                              ? "text-white font-helvetica-bold"
-                                              : " font-helvetica-medium text-white/90 hover:text-white"
+                                              ? "text-primary font-helvetica-bold"
+                                              : "font-helvetica-medium text-white/90 hover:text-white"
                                     }`}
                                     onMouseEnter={() => setHovered(item.id)}
                                     onMouseLeave={() => setHovered(null)}
@@ -57,7 +57,7 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
                                 {active && !item?.dropdown && (
                                     <motion.div
                                         layoutId="active-indicator"
-                                        className={`absolute left-1/2 -translate-x-1/2 bottom-0 h-0.75 w-1/2 rounded-full ${isScrolled ? "bg-slate-950" : "bg-white"}`}
+                                        className={`absolute left-1/2 -translate-x-1/2 bottom-0 h-0.75 w-1/2 rounded-full ${isScrolled ? "bg-black" : "bg-white"}`}
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
                                 )}
@@ -67,7 +67,7 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
                                     <motion.div
                                         layout
                                         layoutId="hover-cursor"
-                                        className={`absolute left-1/2 -translate-x-1/2 bottom-0 h-0.75 w-1/2 rounded-full ${isScrolled ? "bg-slate-950/50" : "bg-white/50"}`}
+                                        className={`absolute left-1/2 -translate-x-1/2 bottom-0 h-0.75 w-1/2 rounded-full ${isScrolled ? "bg-black/50" : "bg-white/50"}`}
                                     />
                                 )}
 

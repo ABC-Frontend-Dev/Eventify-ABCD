@@ -1,9 +1,12 @@
 "use client";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import NavBar from "@/components/ui/navbar";
-export default function NavbarMenu() {
-    const [isScrolled, setIsScrolled] = useState(false);
+
+type NavbarMenuProps = {
+    isScrolled: boolean;
+};
+
+export default function NavbarMenu({ isScrolled }: NavbarMenuProps) {
     const pathname = usePathname();
 
     const menus = [
@@ -16,5 +19,6 @@ export default function NavbarMenu() {
         { id: 7, title: "Awards", name: "Awards", url: "/awards", dropdown: false },
         { id: 8, title: "Blogs", name: "Blogs", url: "/blog", dropdown: false },
     ];
+
     return <NavBar list={menus} currentPath={pathname} isScrolled={isScrolled} />;
 }

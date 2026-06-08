@@ -14,9 +14,9 @@ export default function Home() {
         <>
             <HeroSection />
             <AboutUs />
-            {/*  <OurClients />
+            <OurClients />
             <OurServices />
-            <OurTeam />
+            {/*  <OurTeam />
             <Awards />
             <Projects />
             <HomeBlogs />

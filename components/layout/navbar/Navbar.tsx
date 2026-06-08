@@ -48,7 +48,7 @@ export default function Navbar() {
             </div>
             <nav className="flex-shrink-0">
                 <div className="hidden lg:block">
-                    <NavbarMenu />
+                    <NavbarMenu isScrolled={isScrolled} />
                 </div>
                 <div className="lg:hidden">
                     <MobileSidebar />

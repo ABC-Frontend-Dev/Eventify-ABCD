@@ -30,26 +30,26 @@ const prisma = new PrismaClient({ adapter });
 // }
 
 // ------------------------ Clients ---------------------
-// async function main() {
-//     console.log("🚀 Seeding 24 clients...");
+async function main() {
+    console.log("🚀 Seeding 24 clients...");
 
-//     // Generate the data array automatically
-//     const clientData = Array.from({ length: 24 }, (_, i) => {
-//         const idNumber = (i + 1).toString().padStart(2, "0"); // Result: "01", "02", etc.
-//         return {
-//             name: `Client ${idNumber}`,
-//             image: `/images/our-clients/${idNumber}.png`,
-//             description: `Premium partner since 2026`, // Optional: add a placeholder
-//         };
-//     });
+    // Generate the data array automatically
+    const clientData = Array.from({ length: 24 }, (_, i) => {
+        const idNumber = (i + 1).toString().padStart(2, "0"); // Result: "01", "02", etc.
+        return {
+            name: `Client ${idNumber}`,
+            image: `/images/our-clients/${idNumber}.png`,
+            description: `Premium partner since 2026`, // Optional: add a placeholder
+        };
+    });
 
-//     const result = await prisma.clients.createMany({
-//         data: clientData,
-//         skipDuplicates: true,
-//     });
+    const result = await prisma.clients.createMany({
+        data: clientData,
+        skipDuplicates: true,
+    });
 
-//     console.log(`✅ Successfully created ${result.count} client rows`);
-// }
+    console.log(`✅ Successfully created ${result.count} client rows`);
+}
 
 // ------------------------ Project Category ---------------------
 // async function main() {
@@ -69,73 +69,73 @@ const prisma = new PrismaClient({ adapter });
 // }
 
 // ------------------------ Project ---------------------
-async function main() {
-    console.log("🚀 Seeding started...");
+// async function main() {
+//     console.log("🚀 Seeding started...");
 
-    const result = await prisma.project.createMany({
-        data: [
-            {
-                title: "Sharjah brand launch",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/experiental/project-1.png",
-                images: ["/images/projects/experiental/project-1.png", "/images/projects/experiental/project-1.png"],
-                categoryId: 3,
-            },
-            {
-                title: "Ramdaan Street Food Festival",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/live-events/project-2.png",
-                images: ["/images/projects/live-events/project-2.png", "/images/projects/live-events/project-2.png"],
-                categoryId: 4,
-            },
-            {
-                title: "Ramdaan Street Food Festival",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/experiental/project-3.png",
-                images: ["/images/projects/experiental/project-3.png", "/images/projects/experiental/project-3.png"],
-                categoryId: 3,
-            },
-            {
-                title: "Ramdaan Street Food Festival",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/experiental/project-4.png",
-                images: ["/images/projects/experiental/project-4.png", "/images/projects/experiental/project-4.png"],
-                categoryId: 3,
-            },
-            {
-                title: "Ramdaan Street Food Festival",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/corporate-events/project-1.png",
-                images: ["/images/projects/corporate-events/project-1.png", "/images/projects/corporate-events/project-1.png"],
-                categoryId: 2,
-            },
-            {
-                title: "Ramdaan Street Food Festival",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/experiental/project-5.png",
-                images: ["/images/projects/experiental/project-5.png", "/images/projects/experiental/project-5.png"],
-                categoryId: 3,
-            },
-            {
-                title: "MOE - Staff gathering",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/corporate-events/project-2.png",
-                images: ["/images/projects/corporate-events/project-2.png", "/images/projects/corporate-events/project-2.png"],
-                categoryId: 2,
-            },
-            {
-                title: "Ramdaan Street Food Festival",
-                description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
-                bannerImage: "/images/projects/experiental/project-6.png",
-                images: ["/images/projects/experiental/project-6.png", "/images/projects/experiental/project-6.png"],
-                categoryId: 3,
-            },
-        ],
-        skipDuplicates: true,
-    });
+//     const result = await prisma.project.createMany({
+//         data: [
+//             {
+//                 title: "Sharjah brand launch",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/experiental/project-1.png",
+//                 images: ["/images/projects/experiental/project-1.png", "/images/projects/experiental/project-1.png"],
+//                 categoryId: 3,
+//             },
+//             {
+//                 title: "Ramdaan Street Food Festival",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/live-events/project-2.png",
+//                 images: ["/images/projects/live-events/project-2.png", "/images/projects/live-events/project-2.png"],
+//                 categoryId: 4,
+//             },
+//             {
+//                 title: "Ramdaan Street Food Festival",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/experiental/project-3.png",
+//                 images: ["/images/projects/experiental/project-3.png", "/images/projects/experiental/project-3.png"],
+//                 categoryId: 3,
+//             },
+//             {
+//                 title: "Ramdaan Street Food Festival",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/experiental/project-4.png",
+//                 images: ["/images/projects/experiental/project-4.png", "/images/projects/experiental/project-4.png"],
+//                 categoryId: 3,
+//             },
+//             {
+//                 title: "Ramdaan Street Food Festival",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/corporate-events/project-1.png",
+//                 images: ["/images/projects/corporate-events/project-1.png", "/images/projects/corporate-events/project-1.png"],
+//                 categoryId: 2,
+//             },
+//             {
+//                 title: "Ramdaan Street Food Festival",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/experiental/project-5.png",
+//                 images: ["/images/projects/experiental/project-5.png", "/images/projects/experiental/project-5.png"],
+//                 categoryId: 3,
+//             },
+//             {
+//                 title: "MOE - Staff gathering",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/corporate-events/project-2.png",
+//                 images: ["/images/projects/corporate-events/project-2.png", "/images/projects/corporate-events/project-2.png"],
+//                 categoryId: 2,
+//             },
+//             {
+//                 title: "Ramdaan Street Food Festival",
+//                 description: "Interactive activations designed to connect brands with people through memorable and impactful experiences.",
+//                 bannerImage: "/images/projects/experiental/project-6.png",
+//                 images: ["/images/projects/experiental/project-6.png", "/images/projects/experiental/project-6.png"],
+//                 categoryId: 3,
+//             },
+//         ],
+//         skipDuplicates: true,
+//     });
 
-    console.log(`✅ Successfully created ${result.count} rows`);
-}
+//     console.log(`✅ Successfully created ${result.count} rows`);
+// }
 
 main()
     .then(async () => {

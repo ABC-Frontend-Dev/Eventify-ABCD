@@ -11,13 +11,7 @@ export interface CardFlipProps {
     className?: string;
 }
 
-export default function CardFlip({
-    title: title,
-    description: description,
-
-    bgColor = "#000",
-    className = "",
-}: CardFlipProps) {
+export default function CardFlip({ title: title, description: description, bgColor = "#000", className = "" }: CardFlipProps) {
     const [isFlipped, setIsFlipped] = useState(false);
 
     return (
@@ -29,7 +23,16 @@ export default function CardFlip({
             onMouseEnter={() => setIsFlipped(true)}
             onMouseLeave={() => setIsFlipped(false)}
         >
-            <div className={cn("relative h-full w-full", "[transform-style:preserve-3d]", "transition-all duration-700", isFlipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]")}>
+            <div
+                className={cn(
+                    "relative h-full w-full",
+                    "[transform-style:preserve-3d]",
+                    // Dynamic transition: slower when flipping back to front
+                    "transition-all",
+                    isFlipped ? "duration-700" : "duration-[1500ms]",
+                    isFlipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]",
+                )}
+            >
                 {/* Front of card */}
                 <div
                     className={cn(
@@ -37,7 +40,9 @@ export default function CardFlip({
                         "[transform:rotateY(0deg)] [backface-visibility:hidden]",
                         "dark:from-zinc-900 dark:via-zinc-900/95 dark:to-zinc-800",
                         "border-2 border-slate-300 dark:border-zinc-800/50",
-                        "transition-all duration-700",
+                        // Front opacity transition matches the flip direction
+                        "transition-opacity",
+                        isFlipped ? "duration-700" : "duration-[1500ms]",
                         "group-hover:shadow-xl dark:group-hover:shadow-2xl",
                         "group-hover:border-primary/20 dark:group-hover:border-primary/30",
                         isFlipped ? "opacity-0" : "opacity-100",
@@ -59,7 +64,9 @@ export default function CardFlip({
                         "border border-slate-200 dark:border-zinc-800",
                         "shadow-lg dark:shadow-xl",
                         "flex flex-col",
-                        "transition-all duration-700",
+                        // Back opacity transition matches the flip direction
+                        "transition-opacity",
+                        isFlipped ? "duration-700" : "duration-[1500ms]",
                         "group-hover:shadow-xl dark:group-hover:shadow-2xl",
                         "group-hover:border-primary/20 dark:group-hover:border-primary/30",
                         !isFlipped ? "opacity-0" : "opacity-100",
@@ -67,7 +74,7 @@ export default function CardFlip({
                 >
                     {/* Background gradient */}
                     <div className="w-full h-full flex items-center justify-center">
-                        <h3 className="w-56.75 text-center text-sm leading-4.5 tracking-wide font-semibold font-product-sans-light text-white">{description}</h3>
+                        <h3 className="w-56.75 text-center text-sm leading-4.5 tracking-wide font-helvetica font-medium text-white">{description}</h3>
                     </div>
                 </div>
             </div>
