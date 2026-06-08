@@ -1,11 +1,15 @@
-// components/layout/OurServices/Carousel.tsx
-
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+    gsap.registerPlugin(ScrollTrigger);
+}
 
 interface CarouselItem {
     id: number;
@@ -71,14 +75,38 @@ export function EmblaCarousel() {
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
     const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    // Track whether the GSAP intro animation has completed
+    const [gsapComplete, setGsapComplete] = useState(false);
+
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
+
+    // Helper to clear all GSAP inline styles from slides
+    const clearGsapStyles = useCallback(() => {
+        const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
+        validSlides.forEach((slide) => {
+            gsap.set(slide, {
+                clearProps: "all", // Clear ALL gsap-set properties
+            });
+        });
+        setGsapComplete(true);
+    }, []);
 
     const scrollPrev = useCallback(() => {
-        if (emblaApi) emblaApi.scrollPrev();
-    }, [emblaApi]);
+        if (emblaApi) {
+            // Clear GSAP styles before Embla navigates
+            if (!gsapComplete) clearGsapStyles();
+            emblaApi.scrollPrev();
+        }
+    }, [emblaApi, gsapComplete, clearGsapStyles]);
 
     const scrollNext = useCallback(() => {
-        if (emblaApi) emblaApi.scrollNext();
-    }, [emblaApi]);
+        if (emblaApi) {
+            // Clear GSAP styles before Embla navigates
+            if (!gsapComplete) clearGsapStyles();
+            emblaApi.scrollNext();
+        }
+    }, [emblaApi, gsapComplete, clearGsapStyles]);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -93,24 +121,83 @@ export function EmblaCarousel() {
         emblaApi.on("select", onSelect);
         emblaApi.on("reInit", onSelect);
 
+        // Also clear GSAP styles on any drag/pointer-based scroll
+        const handlePointerDown = () => {
+            if (!gsapComplete) clearGsapStyles();
+        };
+        emblaApi.on("pointerDown", handlePointerDown);
+
         return () => {
             emblaApi.off("select", onSelect);
             emblaApi.off("reInit", onSelect);
+            emblaApi.off("pointerDown", handlePointerDown);
         };
-    }, [emblaApi, onSelect]);
+    }, [emblaApi, onSelect, gsapComplete, clearGsapStyles]);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const ctx = gsap.context(() => {
+            const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
+
+            // Initial stacked state: each slide offset to the left
+            validSlides.forEach((slide, index) => {
+                gsap.set(slide, {
+                    x: -(index * 60),
+                    zIndex: CAROUSEL_DATA.length - index,
+                });
+            });
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: "top 80%",
+                    end: "top 20%",
+                    scrub: 1,
+                    onLeave: () => {
+                        // Fully scrolled past — clear everything
+                        clearGsapStyles();
+                        // Re-init Embla so it recalculates positions
+                        emblaApi?.reInit();
+                    },
+                    onEnterBack: () => {
+                        // Scrolling back up — re-apply stacked state
+                        setGsapComplete(false);
+                        validSlides.forEach((slide, index) => {
+                            gsap.set(slide, {
+                                x: -(index * 60),
+                                zIndex: CAROUSEL_DATA.length - index,
+                            });
+                        });
+                    },
+                },
+            }).to(validSlides, {
+                x: 0,
+                zIndex: 1,
+                ease: "power2.out",
+                stagger: 0.15,
+            });
+        }, containerRef);
+
+        return () => ctx.revert();
+    }, [clearGsapStyles, emblaApi]);
 
     return (
-        <div className="relative w-full">
+        <div className="relative w-full" ref={containerRef}>
             {/* Carousel Viewport */}
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
-                    {CAROUSEL_DATA.map((item) => (
-                        <div key={item.id} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group">
+                    {CAROUSEL_DATA.map((item, index) => (
+                        <div
+                            key={item.id}
+                            ref={(el) => {
+                                slidesRef.current[index] = el;
+                            }}
+                            className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group will-change-transform"
+                        >
                             <div className="relative overflow-hidden h-full">
-                                {/* Image placeholder */}
                                 <div className="w-full h-full">{item.image && <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />}</div>
 
-                                {/* Content */}
                                 <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
                                     <figure>{item.icon && <img src={item.icon as string} alt={item.title} className="mb-2.5 w-12.5 h-12.5 object-contain" />}</figure>
                                     <h3 className="mb-2 text-2xl leading-5 tracking-tight font-product-sans-black font-bold text-white">{item.title}</h3>
@@ -141,18 +228,6 @@ export function EmblaCarousel() {
                 >
                     <ChevronLeft className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
                 </button>
-
-                {/* Dots Indicator */}
-                {/* <div className="flex gap-2">
-                    {CAROUSEL_DATA.map((_, index) => (
-                        <button
-                            key={index}
-                            onClick={() => emblaApi?.scrollTo(index)}
-                            className={`w-2 h-2 rounded-full transition-all duration-300 ${index === selectedIndex ? "bg-primary w-8" : "bg-slate-300 hover:bg-slate-400"}`}
-                            aria-label={`Go to slide ${index + 1}`}
-                        />
-                    ))}
-                </div> */}
 
                 <button
                     onClick={scrollNext}
