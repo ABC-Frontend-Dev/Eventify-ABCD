@@ -1,4 +1,3 @@
-// components/layout/OurTeam/TeamModal.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -18,103 +17,125 @@ interface TeamModalProps {
     originRect: DOMRect | null;
 }
 
+type Phase = "hidden" | "entering" | "visible" | "exiting";
+
 export default function TeamModal({ member, isOpen, onClose, originRect }: TeamModalProps) {
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [showOverlay, setShowOverlay] = useState(false);
+    const [phase, setPhase] = useState<Phase>("hidden");
+    const [lockedRect, setLockedRect] = useState<DOMRect | null>(null);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-            setShowOverlay(true);
-            // Small delay to ensure smooth animation
-            setTimeout(() => setIsAnimating(true), 10);
-        } else {
-            setIsAnimating(false);
-            // Wait for animation to complete before hiding overlay
-            setTimeout(() => {
-                setShowOverlay(false);
+        if (timerRef.current) clearTimeout(timerRef.current);
+
+        if (isOpen && originRect) {
+            if (phase === "exiting") {
+                // Already animating out — wait for it to finish before reopening
+                timerRef.current = setTimeout(() => {
+                    setLockedRect(originRect);
+                    setPhase("entering");
+                    timerRef.current = setTimeout(() => setPhase("visible"), 20);
+                }, 450);
+            } else {
+                setLockedRect(originRect);
+                setPhase("entering");
+                timerRef.current = setTimeout(() => setPhase("visible"), 20);
+            }
+        } else if (phase === "entering" || phase === "visible") {
+            setPhase("exiting");
+            timerRef.current = setTimeout(() => {
+                setPhase("hidden");
                 document.body.style.overflow = "unset";
-            }, 500);
+            }, 450);
         }
 
         return () => {
-            document.body.style.overflow = "unset";
+            if (timerRef.current) clearTimeout(timerRef.current);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
-    if (!member || !originRect) return null;
+    useEffect(() => {
+        if (phase === "entering" || phase === "visible") {
+            document.body.style.overflow = "hidden";
+        }
+    }, [phase]);
 
-    // Fixed dimensions
+    // Keep rendering during exit animation — only truly unmount when hidden
+    if (phase === "hidden" || !member || !lockedRect) return null;
+
     const modalWidth = 400;
     const modalHeight = 400;
 
-    // Calculate center position
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
-    // Calculate initial position (from grid) - center of the grid item
-    const initialX = originRect.left + originRect.width / 2;
-    const initialY = originRect.top + originRect.height / 2;
+    const originCX = lockedRect.left + lockedRect.width / 2;
+    const originCY = lockedRect.top + lockedRect.height / 2;
 
-    // Calculate translation needed to move to center
-    const translateX = isAnimating ? centerX - initialX : 0;
-    const translateY = isAnimating ? centerY - initialY : 0;
+    const tx = centerX - originCX;
+    const ty = centerY - originCY;
+
+    const scaleX = lockedRect.width / modalWidth;
+    const scaleY = lockedRect.height / modalHeight;
+    const originScale = Math.max(scaleX, scaleY);
+
+    const isActive = phase === "visible";
+    const isExiting = phase === "exiting";
 
     return (
         <>
-            {/* Dark overlay */}
-            {showOverlay && (
-                <div
-                    className="fixed inset-0 z-40 bg-black w-full h-screen transition-all duration-500"
-                    style={{
-                        backgroundColor: isAnimating ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0)",
-                    }}
-                    onClick={onClose}
-                />
-            )}
+            {/* Backdrop — always pointer-events-auto when not hidden so it blocks card clicks */}
+            <div
+                className="fixed inset-0 z-40"
+                style={{
+                    backgroundColor: isActive ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0)",
+                    transition: "background-color 450ms cubic-bezier(0.4, 0, 0.2, 1)",
+                    // Always block pointer events so clicks don't reach cards beneath
+                    pointerEvents: "auto",
+                    cursor: "pointer",
+                }}
+                onClick={onClose}
+            />
 
-            {/* Modal content */}
-            {showOverlay && (
+            {/* Modal */}
+            <div
+                className="fixed z-50 pointer-events-none"
+                style={{
+                    left: `${originCX}px`,
+                    top: `${originCY}px`,
+                }}
+            >
                 <div
-                    className="fixed z-50 pointer-events-none"
+                    className="absolute pointer-events-auto overflow-hidden bg-white"
+                    onClick={(e) => e.stopPropagation()}
                     style={{
-                        left: `${initialX}px`,
-                        top: `${initialY}px`,
+                        width: `${modalWidth}px`,
+                        height: `${modalHeight}px`,
+                        transform: isActive ? `translate(calc(${tx}px - 50%), calc(${ty}px - 50%)) scale(1)` : `translate(-50%, -50%) scale(${originScale})`,
+                        transformOrigin: "center center",
+                        // opacity fades out faster than transform so it vanishes before reaching origin
+                        transition: isExiting
+                            ? "transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)"
+                            : "transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 350ms cubic-bezier(0.4, 0, 0.2, 1)",
+                        opacity: isActive ? 1 : 0,
+                        borderRadius: "4px",
                     }}
                 >
-                    <div
-                        className="absolute transition-all duration-500 ease-in-out"
-                        style={{
-                            transform: `translate(${translateX}px, ${translateY}px) translate(-50%, -50%)`,
-                            transformOrigin: "center center",
-                            width: `${modalWidth}px`,
-                            height: `${modalHeight}px`,
-                        }}
-                    >
+                    <div className="relative w-full h-full">
+                        <Image src={member.image} alt={member.name} width={modalWidth} height={modalHeight} className="object-cover w-full h-full" />
                         <div
-                            className="bg-white overflow-hidden pointer-events-auto"
-                            onClick={(e) => e.stopPropagation()}
+                            className="absolute bottom-3.5 left-1/2 -translate-x-1/2 w-[92%] px-3.5 py-2 our-team-gradient"
                             style={{
-                                width: "100%",
-                                height: "100%",
+                                opacity: isActive ? 1 : 0,
+                                transition: "opacity 250ms ease 150ms",
                             }}
                         >
-                            <div className="relative w-full h-full">
-                                <Image src={member.image} alt={member.name} width={modalWidth} height={modalHeight} className="object-cover w-full h-full" />
-                                <div
-                                    className="absolute bottom-3.5 left-1/2 -translate-x-1/2 w-[92%] h-fit px-3.5 py-2 our-team-gradient"
-                                    style={{
-                                        opacity: isAnimating ? 1 : 0,
-                                    }}
-                                >
-                                    <h3 className="text-white font-product-sans-bold font-bold text-xl uppercase">{member.name}</h3>
-                                    <p className="text-white font-product-sans-light text-[16px] uppercase">{member.role}</p>
-                                </div>
-                            </div>
+                            <h3 className="text-white font-product-sans-bold font-bold text-xl uppercase">{member.name}</h3>
+                            <p className="text-white font-product-sans-light text-[16px] uppercase">{member.role}</p>
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
         </>
     );
 }
