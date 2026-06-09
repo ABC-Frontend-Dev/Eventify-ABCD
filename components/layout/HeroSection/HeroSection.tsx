@@ -54,10 +54,10 @@ export default function HeroSection() {
                     </div>
                 </div>
 
-                <div className="absolute right-12 bottom-18">
-                    <p className="font-helvetica-medium font-medium text-sm lg:text-base leading-4.5 lg:leading-6 tracking-wider text-white">Scroll down</p>
+                <div className="absolute right-4 lg:right-12 bottom-2.5 lg:bottom-18">
+                    <p className="font-helvetica-medium font-medium text-xs lg:text-base leading-4 lg:leading-6 tracking-wider text-white">Scroll down</p>
 
-                    <figure className="w-10 h-10 mt-6.5 animate-bounce mx-auto">
+                    <figure className="w-6.5 lg:w-10 h-10 mt2.5 lg:mt-6.5 animate-bounce mx-auto">
                         <Image src="/images/icons/arrow-down.png" alt="Down Arrow Icon" width={20} height={20} className="w-full h-full object-contain" />
                     </figure>
                 </div>

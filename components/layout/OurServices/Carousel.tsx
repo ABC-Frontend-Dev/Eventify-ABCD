@@ -219,7 +219,7 @@ export function EmblaCarousel() {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="absolute top-1/2 -translate-y-1/2 -left-5 w-[104%] h-fit flex items-center justify-between gap-4">
+            <div className="absolute top-1/2 -translate-y-1/2 -left-5 w-[111%] lg:w-[104%] h-fit flex items-center justify-between gap-4">
                 <button
                     onClick={scrollPrev}
                     disabled={prevBtnDisabled}

@@ -54,9 +54,9 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ clipPath: "circle(0px at calc(100% - 48px) 48px)" }}
-                        animate={{ clipPath: "circle(150% at calc(100% - 48px) 48px)" }}
-                        exit={{ clipPath: "circle(0px at calc(100% - 48px) 48px)" }}
+                        initial={{ clipPath: "circle(0px at calc(100% - 40px) 40px)" }}
+                        animate={{ clipPath: "circle(150% at calc(100% - 40px) 40px)" }}
+                        exit={{ clipPath: "circle(0px at calc(100% - 40px) 40px)" }}
                         transition={{
                             type: "spring",
                             stiffness: 20,
@@ -66,8 +66,8 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                         className="fixed w-[80%] right-0 top-0 bg-white z-40"
                     >
                         {/* Menu Items */}
-                        <nav className="h-screen flex items-center justify-center">
-                            <ul className="space-y-6">
+                        <nav className="h-screen flex items-start justify-center">
+                            <ul className="space-y-0 mt-14">
                                 {menuItems.map((menu, index) => (
                                     <motion.li
                                         key={menu.id}
@@ -84,8 +84,8 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                         <Link
                                             href={menu.url}
                                             onClick={toggleMenu}
-                                            className={`block py-3 px-8 text-2xl font-semibold rounded-lg transition-all duration-200 ${
-                                                pathname === menu.url ? "text-primary scale-110" : "text-gray-700 hover:text-primary hover:scale-105"
+                                            className={`relative block py-3 px-8 text-lg tracking-wide font-helvetica font-semibold rounded-lg after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-1/2 after:rounded-full after:bg-black transition-all duration-200 ${
+                                                pathname === menu.url ? "text-primary scale-110 after:h-0.75 mb-1" : "text-gray-700 hover:text-primary hover:scale-105 after:h-0 mb-0"
                                             }`}
                                         >
                                             {menu.name}
