@@ -10,7 +10,7 @@ export default function Breadcrumb({ props }: { props?: any }) {
     const pathSegments = pathname.split("/").filter(Boolean);
 
     return (
-        <ul className={`flex items-center gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>
+        <ul className={`flex items-start lg:items-center flex-wrap gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>
             <li>
                 <Link href="/" className="text-lg leading-4 text-footer-bg">
                     Home

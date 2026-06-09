@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/common/Breadcrumb";
 import BlogToc from "@/components/layout/Blog/BlogToc";
 import { RelatedBlogList } from "@/components/layout/Blog/RelatedBlog";
 import prisma from "@/lib/prisma";
+import BlogContent from "@/components/layout/Blog/BlogContent";
 
 // Generate static params for all published blogs
 export async function generateStaticParams() {
@@ -35,6 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             metaDescription: true,
             keywords: true,
             thumbnail: true,
+            banner_image: true,
             canonical: true,
         },
     });
@@ -52,13 +54,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         openGraph: {
             title: blog.metaTitle || blog.title,
             description: blog.metaDescription || blog.description,
-            images: [blog.thumbnail],
+            images: [blog.banner_image || blog.thumbnail],
         },
         twitter: {
             card: "summary_large_image",
             title: blog.metaTitle || blog.title,
             description: blog.metaDescription || blog.description,
-            images: [blog.thumbnail],
+            images: [blog.banner_image || blog.thumbnail],
         },
         alternates: {
             canonical: blog.canonical,
@@ -119,7 +121,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
     });
 
     return (
-        <div className="max-w-360 w-full mx-auto px-20 py-9">
+        <div className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
             <div>
                 <div className="text-[40px] leading-10 font-helvetica font-bold tracking-wide">Blog</div>
                 <Breadcrumb props={{ className: "mt-3.5" }} />
@@ -128,9 +130,10 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
             <div className="mt-7.5">
                 {/* Banner Image */}
                 <div className="">
-                    <div className="max-w-max w-full h-143.75">
-                        <figure className="h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
-                            <Image src={blog.banner_image} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover" priority />
+                    <div className="max-w-max w-full h-68.5 lg:h-143.75">
+                        <figure className="h-68.5 lg:h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
+                            <Image src={blog.banner_image} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover hidden lg:block" priority />
+                            <Image src={blog.thumbnail} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover block lg:hidden" priority />
                         </figure>
                     </div>
                 </div>
@@ -165,9 +168,9 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                 </div>
 
                 {/* Blog Content and Sidebar */}
-                <div className="flex items-start justify-between gap-x-10 mt-5 relative">
+                <div className="flex items-start justify-between flex-col lg:flex-row gap-x-10 mt-5 relative">
                     <div className="max-w-203 w-full h-full">
-                        <article className="blog-page-wrapper" dangerouslySetInnerHTML={{ __html: blog.content }} />
+                        <BlogContent content={blog.content} />
                     </div>
 
                     <aside className="w-full max-w-107 sticky top-5 self-start">

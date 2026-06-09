@@ -384,6 +384,10 @@
   @apply text-lg leading-5.5 text-footer-bg mt-2.5 font-product-sans-light font-medium;
 }
 
+.blog-page-wrapper .text-reveal-word {
+  @apply text-lg leading-5.5 font-product-sans-light font-medium;
+}
+
 .blog-page-wrapper a {
   @apply text-primary underline hover:no-underline transition-all;
 }

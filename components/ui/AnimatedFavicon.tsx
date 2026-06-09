@@ -6,37 +6,40 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const ROTATIONS = [-8, 10.5, 0];
+
 export default function AnimatedFavicon() {
     const containerRef = useRef<HTMLUListElement>(null);
 
     useEffect(() => {
         const bars = containerRef.current?.querySelectorAll("li");
-
         if (!bars) return;
 
-        gsap.fromTo(
-            bars,
-            {
-                rotation: 0,
-                transformOrigin: "center center",
-            },
-            {
-                rotation: (index) => {
-                    if (index === 0) return -8;
-                    if (index === 1) return 10.5;
-                    return 0;
+        const tweens = Array.from(bars).map((bar, index) =>
+            gsap.fromTo(
+                bar,
+                { rotation: 0, transformOrigin: "center center" },
+                {
+                    rotation: ROTATIONS[index],
+                    duration: 0.6,
+                    delay: index * 0.1, // manual stagger per tween
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 80%",
+                        end: "bottom 20%",
+                        toggleActions: "play none none reverse",
+                    },
                 },
-                duration: 0.6,
-                ease: "power2.out",
-                stagger: 0.1,
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top 80%",
-                    end: "bottom 20%",
-                    toggleActions: "play none none reverse",
-                },
-            },
+            ),
         );
+
+        return () => {
+            tweens.forEach((t) => {
+                t.scrollTrigger?.kill();
+                t.kill();
+            });
+        };
     }, []);
 
     return (
