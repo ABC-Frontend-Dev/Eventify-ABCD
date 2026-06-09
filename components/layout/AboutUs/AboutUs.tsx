@@ -17,22 +17,22 @@ export default function AboutUs() {
             </header>
 
             <div className="flex items-center justify-center flex-col-reverse lg:flex-row w-full mt-5 lg:mt-9 gap-2.5">
-                <div className="max-w-full">
+                <div className="w-full max-w-full">
                     <div className="space-y-2.5">
                         <CardFlip
-                            className="w-[288px] h-51.25 "
+                            className="w-full lg:w-[288px] h-51.25 "
                             title="Being award-winning is part of the story, but not the goal."
                             description="Whether It's A High-Energy Festival, A Cultural Moment, A Corporate Experience, Or A Brand Activation, Eventify Thrives On Variety, Constantly Evolving And Shaping Each Event Around
 Its Audience And Purpose."
                         />
                         <CardFlip
-                            className="w-[288px] h-51.25 "
+                            className="w-full lg:w-[288px] h-51.25 "
                             title="Being award-winning is part of the story, but not the goal."
                             description="Whether It's A High-Energy Festival, A Cultural Moment, A Corporate Experience, Or A Brand Activation, Eventify Thrives On Variety, Constantly Evolving And Shaping Each Event Around
 Its Audience And Purpose."
                         />
                         <CardFlip
-                            className="w-[288px] h-51.25 "
+                            className="w-full lg:w-[288px] h-51.25 "
                             title="Being award-winning is part of the story, but not the goal."
                             description="Whether It's A High-Energy Festival, A Cultural Moment, A Corporate Experience, Or A Brand Activation, Eventify Thrives On Variety, Constantly Evolving And Shaping Each Event Around
 Its Audience And Purpose."

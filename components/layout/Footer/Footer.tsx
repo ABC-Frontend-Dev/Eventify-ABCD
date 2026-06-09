@@ -9,7 +9,7 @@ export default function Footer() {
                         <Image src={"/images/logo-light-with-location.png"} alt="Eventify light logo" width={1000} height={1000} className="w-full h-full object-contain" />
                     </figure>
                 </div>
-                <div className="mt-20.75 text-white">
+                <div className="mt-8 lg:mt-20.75 text-white">
                     <h2 className="text-xl lg:text-2xl font-helvetica leading-7.5 uppercase pb-5 border-b border-slate-600">OUR OFFICES:</h2>
 
                     <div className="mt-5 flex items-start gap-5.25">
@@ -29,7 +29,7 @@ export default function Footer() {
                         </div>
                     </div>
                 </div>
-                <div className="mt-20.75 text-white">
+                <div className="mt-8 lg:mt-20.75 text-white">
                     <h2 className="text-xl lg:text-2xl font-helvetica  leading-6 lg:leading-7.5 uppercase">Contact us</h2>
 
                     <div className="mt-2.5 flex items-start gap-5.25">
