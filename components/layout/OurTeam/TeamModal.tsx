@@ -24,6 +24,25 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
     const [lockedRect, setLockedRect] = useState<DOMRect | null>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // Simple scroll lock - just prevents scrolling without position fixed
+    useEffect(() => {
+        if (phase === "entering" || phase === "visible") {
+            // Prevent scroll
+            document.body.style.overflow = "hidden";
+            document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`; // Prevent layout shift from scrollbar
+        } else if (phase === "hidden") {
+            // Restore scroll
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+        }
+
+        return () => {
+            // Cleanup
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+        };
+    }, [phase]);
+
     useEffect(() => {
         if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -44,7 +63,6 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
             setPhase("exiting");
             timerRef.current = setTimeout(() => {
                 setPhase("hidden");
-                document.body.style.overflow = "unset";
             }, 450);
         }
 
@@ -53,12 +71,6 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
-
-    useEffect(() => {
-        if (phase === "entering" || phase === "visible") {
-            document.body.style.overflow = "hidden";
-        }
-    }, [phase]);
 
     // Keep rendering during exit animation — only truly unmount when hidden
     if (phase === "hidden" || !member || !lockedRect) return null;
@@ -84,13 +96,12 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
 
     return (
         <>
-            {/* Backdrop — always pointer-events-auto when not hidden so it blocks card clicks */}
+            {/* Backdrop */}
             <div
                 className="fixed inset-0 z-40"
                 style={{
                     backgroundColor: isActive ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0)",
                     transition: "background-color 450ms cubic-bezier(0.4, 0, 0.2, 1)",
-                    // Always block pointer events so clicks don't reach cards beneath
                     pointerEvents: "auto",
                     cursor: "pointer",
                 }}
@@ -113,7 +124,6 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
                         height: `${modalHeight}px`,
                         transform: isActive ? `translate(calc(${tx}px - 50%), calc(${ty}px - 50%)) scale(1)` : `translate(-50%, -50%) scale(${originScale})`,
                         transformOrigin: "center center",
-                        // opacity fades out faster than transform so it vanishes before reaching origin
                         transition: isExiting
                             ? "transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)"
                             : "transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 350ms cubic-bezier(0.4, 0, 0.2, 1)",

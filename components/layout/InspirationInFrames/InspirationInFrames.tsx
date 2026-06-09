@@ -15,14 +15,14 @@ export default function InspirationInFrames() {
     //     },
     // ]
     return (
-        <section className="max-w-360 w-full mx-auto px-20 py-9">
+        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
             <header>
                 <SubHeading title="Inspiration in Frames" />
                 <HeaderDescription description="A curated glimpse into our visual world" scrollContainerRef={undefined} />
             </header>
 
             <div className="flex items-center justify-center w-full mt-7.5 gap-2.5">
-                <ul className="flex gap-1.5">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-1.5">
                     {Array.from({ length: 5 }).map((_, index) => {
                         return (
                             <li

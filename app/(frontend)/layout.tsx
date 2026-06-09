@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <LenisScrollTriggerSync />
             <Navbar />
             {children}
-            {/* <Footer /> */}
+            <Footer />
         </ReactLenis>
     );
 }

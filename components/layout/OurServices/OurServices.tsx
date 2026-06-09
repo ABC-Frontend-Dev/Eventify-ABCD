@@ -17,7 +17,7 @@ export default function OurServices() {
     }, []);
 
     return (
-        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9">
+        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
             <header>
                 <HeadingWithLogo titlePart1="Our" titlePart2_1="S" titlePart2_2="rvices" />
                 <SubHeading title="What we offer" />

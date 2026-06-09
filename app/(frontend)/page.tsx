@@ -17,9 +17,9 @@ export default function Home() {
             <OurClients />
             <OurServices />
             <OurTeam />
-            <Awards />
+            {/* <Awards />
             <Projects />
-            <HomeBlogs />
+            <HomeBlogs /> */}
             <InspirationInFrames />
         </>
     );

@@ -7,7 +7,7 @@ interface HeadingWithoutLogoProps {
 }
 export default function HeadingWithLogo({ titlePart1, titlePart2_1, titlePart2_2 }: HeadingWithoutLogoProps) {
     return (
-        <h2 className="text-4xl tracking-widest font-medium font-helvetica uppercase border-b-2 border-slate-800 w-fit text-slate-800 flex flex-row items-center justify-center gap-2.5">
+        <h2 className="mb-5 lg:mb-9 text-4xl tracking-widest font-medium font-helvetica uppercase border-b-2 border-slate-800 w-fit text-slate-800 flex flex-row items-center justify-center gap-2.5">
             {titlePart1}{" "}
             <span className="flex items-center justify-start gap-0.5">
                 {titlePart2_1}

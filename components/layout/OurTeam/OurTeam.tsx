@@ -7,13 +7,13 @@ import Teams from "./Teams";
 
 export default function OurTeam() {
     return (
-        <section className="max-w-360 w-full mx-auto px-20 py-9">
+        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
             <header>
                 <HeadingWithLogo titlePart1="" titlePart2_1="T" titlePart2_2="am" />
                 <SubHeading title="our event experts" />
                 <HeaderDescription description="The talented individuals working together to create memorable events." scrollContainerRef={undefined} />
             </header>
-            <div className="mt-9">
+            <div className="mt-9 hidden">
                 <Teams />
             </div>
         </section>
