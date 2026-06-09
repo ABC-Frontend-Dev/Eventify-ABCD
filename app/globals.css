@@ -482,3 +482,8 @@
   padding: 0.1rem 0.2rem;
   border-radius: 0.2rem;
 }
+
+.blog-page-gradient {
+  background: #000000;
+  background: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.00) 100%);
+}
