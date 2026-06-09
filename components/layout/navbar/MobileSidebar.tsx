@@ -63,10 +63,10 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                             restDelta: 2,
                             duration: 0.6,
                         }}
-                        className="fixed w-[80%] right-0 top-0 bg-white z-40"
+                        className="fixed w-[70%] right-0 top-0 bg-white z-40 shadow-xl"
                     >
                         {/* Menu Items */}
-                        <nav className="h-screen flex items-start justify-center">
+                        <nav className="h-screen flex items-start justify-start pl-2.5">
                             <ul className="space-y-0 mt-14">
                                 {menuItems.map((menu, index) => (
                                     <motion.li

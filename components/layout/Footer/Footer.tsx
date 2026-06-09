@@ -40,7 +40,7 @@ export default function Footer() {
                             </span>
                             <span>ntify</span>
                         </div>
-                        <div className="text-5xl leading-14 font-helvetica-heavy font-extrabold uppercase flex items-start flex-wrap">
+                        <div className="text-5xl leading-14 font-helvetica-heavy font-extrabold uppercase flex lg:hidden items-start flex-wrap">
                             <div>lets</div>
                             <div className="flex items-center gap-2">
                                 <span>ev </span>

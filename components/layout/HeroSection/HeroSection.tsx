@@ -35,7 +35,7 @@ export default function HeroSection() {
     return (
         <section className="">
             <div className="">
-                <video className="w-full h-screen object-cover" autoPlay loop muted playsInline preload="none">
+                <video className="w-full h-[95vh] lg:h-screen object-cover" autoPlay loop muted playsInline preload="none">
                     <source src="/images/videos/home-banner-videos/banner-video.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
