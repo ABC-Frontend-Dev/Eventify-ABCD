@@ -1,3 +1,4 @@
+// components/layout/Blog/BlogTextReveal.tsx
 "use client";
 
 interface BlogTextRevealProps {

@@ -286,7 +286,7 @@ export default function Teams() {
 
     return (
         <>
-            <div className="relative grid grid-cols-10 grid-rows-7 gap-x-1.5 gap-y-1">
+            <div className="relative hidden lg:grid grid-cols-10 grid-rows-7 gap-x-1.5 gap-y-1">
                 <GridItem member={teamMembers[0]} onClick={handleItemClick} isSelected={selectedMember?.id === teamMembers[0].id} />
                 <GridItem member={teamMembers[1]} className="col-start-1 row-start-2" onClick={handleItemClick} isSelected={selectedMember?.id === teamMembers[1].id} />
                 <div className="col-start-1 row-start-3"></div>

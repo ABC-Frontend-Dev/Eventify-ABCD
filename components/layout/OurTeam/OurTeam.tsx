@@ -4,6 +4,7 @@ import HeadingWithLogo from "@/components/common/HeadingWithLogo";
 import HeaderDescription from "@/components/common/HeaderDescription";
 import SubHeading from "@/components/common/SubHeading";
 import Teams from "./Teams";
+import OurTeamMobileView from "./OurTeamMobileView";
 
 export default function OurTeam() {
     return (
@@ -13,8 +14,9 @@ export default function OurTeam() {
                 <SubHeading title="our event experts" />
                 <HeaderDescription description="The talented individuals working together to create memorable events." scrollContainerRef={undefined} />
             </header>
-            <div className="mt-9 hidden">
+            <div className="mt-9">
                 <Teams />
+                <OurTeamMobileView />
             </div>
         </section>
     );

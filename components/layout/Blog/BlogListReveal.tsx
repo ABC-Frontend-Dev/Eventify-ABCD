@@ -1,4 +1,7 @@
+// components/layout/Blog/BlogListReveal.tsx
 "use client";
+
+import { useMemo } from "react";
 
 interface BlogListRevealProps {
     html: string;
@@ -6,10 +9,14 @@ interface BlogListRevealProps {
 }
 
 export default function BlogListReveal({ html, ordered }: BlogListRevealProps) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
+    const items = useMemo(() => {
+        // Only run DOMParser in the browser
+        if (typeof window === "undefined") return [];
 
-    const items = Array.from(doc.querySelectorAll("li")).map((li) => li.textContent || "");
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        return Array.from(doc.querySelectorAll("li")).map((li) => li.textContent || "");
+    }, [html]);
 
     const Tag = ordered ? "ol" : "ul";
 
