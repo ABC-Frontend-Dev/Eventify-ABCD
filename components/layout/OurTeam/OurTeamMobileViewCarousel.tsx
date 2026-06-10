@@ -2,10 +2,9 @@
 
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 interface CarouselItem {
@@ -288,9 +287,9 @@ export function EmblaCarousel() {
                     {CAROUSEL_DATA.map((item) => (
                         <div key={item.id} className="flex-[0_0_calc(100%/1)] lg:flex-[0_0_calc((100%-14px)/3)] max-w-91 w-full  h-85 rounded-[10px] overflow-hidden relative">
                             <figure className="h-full w-full overflow-hidden">
-                                <Image src={item.image} alt={item.name} width={1000} height={1000} className="h-full w-full object-cover" />
+                                <Image src={item.image} alt={item.name} width={1000} height={1000} className="h-full w-full object-cover object-top" />
                             </figure>
-                            <div className="absolute bottom-2.5 max-w-86 w-full left-1/2 -translate-x-1/2 p-2.5 bg-white rounded-[4px] overflow-hidden z-10">
+                            <div className="absolute bottom-2.5 max-w-[95%] w-full left-1/2 -translate-x-1/2 p-2.5 bg-white rounded-[4px] overflow-hidden z-10">
                                 <p className="text-[26px] leading-7.8 text-center font-helvetica-medium font-medium text-slate-950">{item.name}</p>
                                 <p className="mt-1 text-base leading-5 text-center font-helvetica font-medium text-slate-500">{item.role}</p>
                             </div>

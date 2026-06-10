@@ -106,7 +106,7 @@ export function EmblaCarousel() {
     }, [emblaApi, onSelect]);
 
     return (
-        <div className="relative w-full">
+        <div className="hidden lg:block relative w-full">
             {/* Carousel Viewport */}
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex gap-1.75">

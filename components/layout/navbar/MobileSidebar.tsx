@@ -42,7 +42,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
             {/* Hamburger Button */}
             <button
                 onClick={toggleMenu}
-                className="fixed top-6 right-6 z-50 flex flex-col justify-center items-center w-8 h-8 bg-white hover:bg-gray-100 rounded-full transition-colors duration-300"
+                className="fixed top-6 right-6 z-50 flex flex-col justify-center items-center w-8 h-8 bg-transparent rounded-full transition-colors duration-300"
                 aria-label="Toggle menu"
             >
                 <motion.span animate={isOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }} transition={{ duration: 0.3 }} className="block w-5 h-0.5 bg-gray-800 mb-1" />
@@ -66,8 +66,8 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                         className="fixed w-[70%] right-0 top-0 bg-white z-40 shadow-xl"
                     >
                         {/* Menu Items */}
-                        <nav className="h-screen flex items-start justify-start pl-2.5">
-                            <ul className="space-y-0 mt-14">
+                        <nav className="h-screen flex items-start justify-start pl-6">
+                            <ul className="space-y-3.5 mt-14">
                                 {menuItems.map((menu, index) => (
                                     <motion.li
                                         key={menu.id}
@@ -84,7 +84,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                         <Link
                                             href={menu.url}
                                             onClick={toggleMenu}
-                                            className={`relative block py-3 px-8 text-lg tracking-wide font-helvetica font-semibold rounded-lg after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-1/2 after:rounded-full after:bg-black transition-all duration-200 ${
+                                            className={`relative block py-0 px-0 text-lg text-left tracking-wide font-helvetica font-semibold rounded-lg after:absolute after:left-0  after:bottom-0 after:w-1/2 after:rounded-full after:bg-black transition-all duration-200 ${
                                                 pathname === menu.url ? "text-primary scale-110 after:h-0.75 mb-1" : "text-gray-700 hover:text-primary hover:scale-105 after:h-0 mb-0"
                                             }`}
                                         >

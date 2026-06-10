@@ -3,10 +3,11 @@ import { Suspense } from "react";
 import BlogListHeader from "@/components/layout/Blog/BlogListHeader";
 import { EmblaCarousel } from "@/components/layout/Blog/BlogListCarouselCard";
 import Image from "next/image";
+import { MobileViewBlogList } from "@/components/layout/Blog/MobileViewBlogList";
 
 export default function Blog() {
     return (
-        <div className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9">
+        <div className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 mt-20">
             <Suspense fallback={<BlogListHeaderSkeleton />}>
                 <BlogListHeader />
             </Suspense>
@@ -138,6 +139,7 @@ export default function Blog() {
             <div className="mt-11.25">
                 <h2 className="font-helvetica font-bold text-2xl lg:text-[34px] leading-7 lg:leading-10 mb-4">Global Highlights</h2>
                 <EmblaCarousel />
+                <MobileViewBlogList />
             </div>
         </div>
     );

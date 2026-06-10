@@ -47,9 +47,9 @@ export default function BlogListHeader() {
     };
 
     return (
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between flex-col lg:flex-row">
             <div>
-                <div className="text-[40px] leading-10 font-helvetica font-bold tracking-wide">Blog</div>
+                <div className="text-2xl lg:text-[40px] leading-7 lg:leading-10 font-helvetica font-bold tracking-wide">Blog</div>
                 <Breadcrumb props={{ className: "mt-3.5" }} />
             </div>
 
