@@ -17,7 +17,7 @@ export default function AboutUs() {
             </header>
 
             <div className="flex items-center justify-center flex-col-reverse lg:flex-row w-full mt-5 lg:mt-9 gap-2.5">
-                <div className="w-full max-w-full">
+                <div className="w-full">
                     <div className="space-y-2.5">
                         <CardFlip
                             className="w-full lg:w-[288px] h-51.25 "
@@ -39,7 +39,7 @@ Its Audience And Purpose."
                         />
                     </div>
                 </div>
-                <div>
+                <div className="w-full lg:w-245.5 shrink-0">
                     <figure className="w-full h-full">
                         <Image src={"/images/about-bg.png"} alt="about us" loading="eager" width={1000} height={1000} className="w-full h-full lg:h-158.75 object-cover" />
                     </figure>

@@ -121,7 +121,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
     });
 
     return (
-        <div className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
+        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 mt-20 lg:mt-25">
             <div>
                 <div className="text-[40px] leading-10 font-helvetica font-bold tracking-wide">Blog</div>
                 <Breadcrumb props={{ className: "mt-3.5" }} />
@@ -186,6 +186,6 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
 
             {/* Schema Markup for SEO */}
             {blog.schemaScript && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: blog.schemaScript }} />}
-        </div>
+        </section>
     );
 }

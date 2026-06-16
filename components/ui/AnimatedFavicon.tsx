@@ -13,33 +13,33 @@ export default function AnimatedFavicon() {
 
     useEffect(() => {
         const bars = containerRef.current?.querySelectorAll("li");
-        if (!bars) return;
+        if (!bars || bars.length === 0) return;
 
-        const tweens = Array.from(bars).map((bar, index) =>
-            gsap.fromTo(
-                bar,
-                { rotation: 0, transformOrigin: "center center" },
-                {
-                    rotation: ROTATIONS[index],
-                    duration: 0.6,
-                    delay: index * 0.1, // manual stagger per tween
-                    ease: "power2.out",
-                    scrollTrigger: {
-                        trigger: containerRef.current,
-                        start: "top 80%",
-                        end: "bottom 20%",
-                        toggleActions: "play none none reverse",
-                    },
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: "top 80%",
+                    end: "bottom 20%",
+                    toggleActions: "play none none reverse",
                 },
-            ),
-        );
-
-        return () => {
-            tweens.forEach((t) => {
-                t.scrollTrigger?.kill();
-                t.kill();
             });
-        };
+
+            bars.forEach((bar, index) => {
+                tl.fromTo(
+                    bar,
+                    { rotation: 0, transformOrigin: "center center" },
+                    {
+                        rotation: ROTATIONS[index],
+                        duration: 0.6,
+                        ease: "power2.out",
+                    },
+                    index * 0.1, // timeline position (offset), not tween delay
+                );
+            });
+        }, containerRef);
+
+        return () => ctx.revert();
     }, []);
 
     return (

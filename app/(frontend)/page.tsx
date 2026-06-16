@@ -18,8 +18,8 @@ export default function Home() {
             <OurServices />
             <OurTeam />
             {/* <Awards />
-            <Projects />
-            <HomeBlogs /> */}
+            <Projects />*/}
+            <HomeBlogs />
             <InspirationInFrames />
         </>
     );

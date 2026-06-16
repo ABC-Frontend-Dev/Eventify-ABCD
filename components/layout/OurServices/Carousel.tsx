@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Link from "next/link";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -13,6 +14,7 @@ if (typeof window !== "undefined") {
 
 interface CarouselItem {
     id: number;
+    url: string;
     icon: React.ReactNode;
     title: string;
     description: string;
@@ -22,6 +24,7 @@ interface CarouselItem {
 const CAROUSEL_DATA: CarouselItem[] = [
     {
         id: 1,
+        url: "services/conferences",
         icon: "/images/icons/loud.png",
         title: "Conferences",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -29,6 +32,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 2,
+        url: "services/conferences",
         icon: "/images/icons/tv.png",
         title: "Concerts & Festivals",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -36,6 +40,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 3,
+        url: "services/conferences",
         icon: "/images/icons/mic.png",
         title: "Wedding Services",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -43,6 +48,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 4,
+        url: "services/conferences",
         icon: "/images/icons/ticket.png",
         title: "Catering Services",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -50,6 +56,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 5,
+        url: "services/conferences",
         icon: "/images/icons/rating.png",
         title: "Venue Decoration",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -57,6 +64,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 6,
+        url: "services/conferences",
         icon: "/images/icons/party.png",
         title: "Audio & Lighting",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -204,14 +212,17 @@ export function EmblaCarousel() {
                                     <p className="font-product-sans-medium text-sm leading-5">{item.description}</p>
                                 </div>
 
-                                <div className="absolute top-3.5 right-3.5 px-3.75 py-2.5 bg-slate-100 rounded-[4px] overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer">
+                                <Link
+                                    href={item.url}
+                                    className="absolute top-3.5 right-3.5 px-3.75 py-2.5 bg-slate-100 rounded-[4px] overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer"
+                                >
                                     <p className="text-sm font-product-sans-bold text-slate-950 capitalize flex items-center justify-center gap-2.5">
                                         read more
                                         <span className="w-3.5 h-3 inline-block">
                                             <Image src="/images/icons/arrow-right.png" alt="Read more" width={1000} height={1000} className="w-full h-full object-contain" />
                                         </span>
                                     </p>
-                                </div>
+                                </Link>
                             </div>
                         </div>
                     ))}

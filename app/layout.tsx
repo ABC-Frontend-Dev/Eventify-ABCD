@@ -12,6 +12,7 @@ import {
     fontHelveticaBold,
     fontProductSansRegular,
 } from "../public/fonts/fonts";
+import { Providers } from "./providers";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -30,7 +31,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 overflow-x-hidden
       `}
         >
-            <body className="overflow-x-hidden max-w-full">{children}</body>
+            <body className="overflow-x-hidden max-w-full">
+                <Providers>{children}</Providers>
+            </body>
         </html>
     );
 }

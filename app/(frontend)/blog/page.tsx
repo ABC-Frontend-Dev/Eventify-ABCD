@@ -7,7 +7,7 @@ import { MobileViewBlogList } from "@/components/layout/Blog/MobileViewBlogList"
 
 export default function Blog() {
     return (
-        <div className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 mt-20">
+        <div className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 mt-20 lg:mt-25">
             <Suspense fallback={<BlogListHeaderSkeleton />}>
                 <BlogListHeader />
             </Suspense>

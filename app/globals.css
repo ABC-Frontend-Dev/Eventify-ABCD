@@ -381,7 +381,11 @@
 }
 
 .blog-page-wrapper p {
-  @apply text-lg leading-5.5 text-footer-bg mt-2.5 font-product-sans-light font-medium;
+  @apply text-lg leading-5.5 text-footer-bg mt-2.5 font-product-sans-regular font-medium;
+}
+
+.blog-page-wrapper li {
+  @apply text-lg leading-5.5 text-footer-bg mt-2.5 font-product-sans-regular font-medium;
 }
 
 .blog-page-wrapper .text-reveal-word {
