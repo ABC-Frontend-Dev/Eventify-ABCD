@@ -7,7 +7,7 @@ import type React from "react";
 export type TabsVariant = "default" | "underline";
 
 export function Tabs({ className, ...props }: TabsPrimitive.Root.Props): React.ReactElement {
-    return <TabsPrimitive.Root className={cn("flex flex-col gap-2 data-[orientation=vertical]:flex-row", className)} data-slot="tabs" {...props} />;
+    return <TabsPrimitive.Root className={cn("flex flex-col gap-5 data-[orientation=vertical]:flex-row", className)} data-slot="tabs" {...props} />;
 }
 
 export function TabsList({
@@ -21,9 +21,9 @@ export function TabsList({
     return (
         <TabsPrimitive.List
             className={cn(
-                "relative z-0 flex w-fit items-center justify-center",
+                "relative z-0 flex w-fit items-center justify-center py-8 px-[11.1px] bg-black/10 backdrop-blur-sm opacity-60",
                 "data-[orientation=vertical]:flex-col",
-                variant === "default" ? "" : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent",
+                variant === "default" ? "" : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-8 data-[orientation=horizontal]:opacity-100 ",
                 className,
             )}
             data-slot="tabs-list"
@@ -34,7 +34,7 @@ export function TabsList({
                 className={cn(
                     "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
                     variant === "underline"
-                        ? "z-10 bg-primary data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
+                        ? "z-10 bg-white data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
                         : "-z-1 bg-white dark:bg-input",
                 )}
                 data-slot="tab-indicator"
@@ -57,7 +57,7 @@ export function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props): React
 }
 
 export function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props): React.ReactElement {
-    return <TabsPrimitive.Panel className={cn("flex-1 outline-none", className)} data-slot="tabs-content" {...props} />;
+    return <TabsPrimitive.Panel className={cn("flex-1 outline-none relative", className)} data-slot="tabs-content" {...props} />;
 }
 
 export { TabsPrimitive, TabsTab as TabsTrigger, TabsPanel as TabsContent };

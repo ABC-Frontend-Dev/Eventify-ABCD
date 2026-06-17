@@ -13,6 +13,8 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+                console.log("LOGIN ATTEMPT:", credentials);
+
                 if (!credentials?.email || !credentials?.password) {
                     throw new Error("Email and password are required");
                 }
@@ -23,11 +25,15 @@ export const authOptions: NextAuthOptions = {
                     },
                 });
 
+                console.log("USER FOUND:", user);
+
                 if (!user) {
                     throw new Error("No user found with this email");
                 }
 
                 const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+                console.log("PASSWORD VALID:", isPasswordValid);
 
                 if (!isPasswordValid) {
                     throw new Error("Invalid password");
@@ -37,8 +43,6 @@ export const authOptions: NextAuthOptions = {
                     id: user.id.toString(),
                     email: user.email,
                     name: `${user.firstName} ${user.lastName}`,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
                 };
             },
         }),

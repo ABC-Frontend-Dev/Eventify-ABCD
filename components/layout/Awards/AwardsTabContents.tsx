@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AwardsTabs, AwardsTabsList, TabsTab, TabsPanel } from "@/components/ui/awards-bottom-tabs";
 import { Carousel } from "@ark-ui/react/carousel";
 import Image from "next/image";
 
@@ -221,17 +222,20 @@ const tabs2024 = [
 export function AwardsTabContent2025() {
     return (
         <Tabs defaultValue="wow-awards-middle-east">
-            <TabsList>
-                {tabs2025.map((tab) => (
-                    <TabsTrigger key={tab.id} value={tab.id}>
-                        {tab.label}
-                    </TabsTrigger>
-                ))}
-            </TabsList>
+            <div className="absolute left-1.25 bottom-1.25 z-100">
+                <TabsList variant="underline">
+                    {tabs2025.map((tab) => (
+                        <TabsTab key={tab.id} value={tab.id}>
+                            {tab.label}
+                        </TabsTab>
+                    ))}
+                </TabsList>
+            </div>
+
             {tabs2025.map((tab) => (
-                <TabsContent key={tab.id} value={tab.id}>
+                <TabsPanel key={tab.id} value={tab.id}>
                     {tab.content}
-                </TabsContent>
+                </TabsPanel>
             ))}
         </Tabs>
     );
@@ -239,19 +243,19 @@ export function AwardsTabContent2025() {
 
 export function AwardsTabContent2024() {
     return (
-        <Tabs defaultValue="overview">
-            <TabsList>
+        <AwardsTabs defaultValue="overview">
+            <AwardsTabsList>
                 {tabs2024.map((tab) => (
                     <TabsTrigger key={tab.id} value={tab.id}>
                         {tab.label}
                     </TabsTrigger>
                 ))}
-            </TabsList>
+            </AwardsTabsList>
             {tabs2024.map((tab) => (
                 <TabsContent key={tab.id} value={tab.id}>
                     {tab.content}
                 </TabsContent>
             ))}
-        </Tabs>
+        </AwardsTabs>
     );
 }

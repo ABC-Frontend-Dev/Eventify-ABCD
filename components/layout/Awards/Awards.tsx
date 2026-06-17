@@ -17,7 +17,7 @@ export default function Awards() {
         { id: 1, years: 2021 },
     ];
     return (
-        <section className="max-w-360 w-full mx-auto px-20 pt-9 lg:py-9">
+        <section id="awards" className="hidden lg:block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9">
             <Tabs defaultValue="tab-1">
                 <header className="flex items-end justify-between">
                     <div>

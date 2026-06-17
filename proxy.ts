@@ -1,18 +1,24 @@
-// proxy.ts (at the root of your project)
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function proxy(req: NextRequest) {
-    const token = await getToken({ req });
-    const isAuth = !!token;
-
     const { pathname } = req.nextUrl;
 
-    const isProtected = pathname.startsWith("/dashboard");
+    // allow login/register
+    if (pathname.startsWith("/dashboard/login") || pathname.startsWith("/dashboard/register")) {
+        return NextResponse.next();
+    }
 
-    if (isProtected && !isAuth) {
-        const loginUrl = new URL("/login", req.url);
+    const token = await getToken({
+        req,
+        secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    if (!token && pathname.startsWith("/dashboard")) {
+        const loginUrl = new URL("/dashboard/login", req.url);
+
         loginUrl.searchParams.set("callbackUrl", pathname);
+
         return NextResponse.redirect(loginUrl);
     }
 
@@ -20,5 +26,5 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/dashboard", "/dashboard/:path*"],
+    matcher: ["/dashboard/:path*"],
 };

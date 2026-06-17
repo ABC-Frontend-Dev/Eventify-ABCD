@@ -1,3 +1,4 @@
+// components/layout/ourteam/teammodel.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -23,23 +24,38 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
     const [phase, setPhase] = useState<Phase>("hidden");
     const [lockedRect, setLockedRect] = useState<DOMRect | null>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const scrollYRef = useRef<number>(0); // Keeps track of scroll position
 
-    // Simple scroll lock - just prevents scrolling without position fixed
+    // Scroll lock logic - Blocks scrolling but leaves the scrollbar visible
     useEffect(() => {
+        // Function to completely stop mouse wheel, trackpad, and touch scrolling
+        const preventDefault = (e: Event) => {
+            e.preventDefault();
+        };
+
         if (phase === "entering" || phase === "visible") {
-            // Prevent scroll
+            // 1. Keep the scrollbar track visible by using your original padding trick
+            document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
             document.body.style.overflow = "hidden";
-            document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`; // Prevent layout shift from scrollbar
+
+            // 2. Add event listeners to block ALL scroll inputs (Wheel, Touch, Keys)
+            window.addEventListener("wheel", preventDefault, { passive: false });
+            window.addEventListener("touchmove", preventDefault, { passive: false });
         } else if (phase === "hidden") {
-            // Restore scroll
-            document.body.style.overflow = "";
+            // Restore normal behavior
             document.body.style.paddingRight = "";
+            document.body.style.overflow = "";
+
+            window.removeEventListener("wheel", preventDefault);
+            window.removeEventListener("touchmove", preventDefault);
         }
 
         return () => {
-            // Cleanup
-            document.body.style.overflow = "";
+            // Clean up everything when the component unmounts
             document.body.style.paddingRight = "";
+            document.body.style.overflow = "";
+            window.removeEventListener("wheel", preventDefault);
+            window.removeEventListener("touchmove", preventDefault);
         };
     }, [phase]);
 
@@ -48,7 +64,6 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
 
         if (isOpen && originRect) {
             if (phase === "exiting") {
-                // Already animating out — wait for it to finish before reopening
                 timerRef.current = setTimeout(() => {
                     setLockedRect(originRect);
                     setPhase("entering");
@@ -69,10 +84,8 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
-    // Keep rendering during exit animation — only truly unmount when hidden
     if (phase === "hidden" || !member || !lockedRect) return null;
 
     const modalWidth = 400;

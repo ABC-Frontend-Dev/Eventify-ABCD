@@ -4,6 +4,7 @@ import BlogListHeader from "@/components/layout/Blog/BlogListHeader";
 import { EmblaCarousel } from "@/components/layout/Blog/BlogListCarouselCard";
 import Image from "next/image";
 import { MobileViewBlogList } from "@/components/layout/Blog/MobileViewBlogList";
+import Link from "next/link";
 
 export default function Blog() {
     return (
@@ -15,122 +16,130 @@ export default function Blog() {
             <div className="mt-7.5">
                 <div className="flex items-start justify-center flex-col lg:flex-row gap-5">
                     <div className="max-w-full lg:max-w-157.5 w-full h-full relative">
-                        <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
-                            Activations
-                        </div>
-                        <figure className="h-68.5 lg:h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
-                            <Image src="/images/blogs/Group 48529.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
-                        </figure>
-                        <div className="absolute w-full bottom-0 left-0 p-5 blog-page-gradient z-10">
-                            <div className="text-sm lg:text-[20px] leading-4.5 lg:leading-6.5 tracking-wide font-product-sans-bold font-extralight text-white">
-                                Emirates College for Advanced Education concludes 10th Annual Autism Day event
+                        <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                            <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                Activations
                             </div>
-                            <div className="hidden lg:block mt-2 text-sm leading-4 tracking-wide text-white font-helvetica font-light">The Emirates College for Advanced Education (ECAE) has</div>
-                            <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
-                                <figure className="hidden lg:block h-7.5 w-7.5 rounded-full overflow-hidden">
-                                    <Image src="/images/blogs/Ellipse 5.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
-                                </figure>
-                                <ul className="flex items-center gap-1.5">
-                                    <li className="">
-                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
-                                    </li>
-                                    <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                    <li className="">
-                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
-                                    </li>
-                                    <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                    <li className="">
-                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
-                                    </li>
-                                </ul>
+                            <figure className="h-68.5 lg:h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
+                                <Image src="/images/blogs/Group 48529.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
+                            </figure>
+                            <div className="absolute w-full bottom-0 left-0 p-5 blog-page-gradient z-10">
+                                <div className="text-sm lg:text-[20px] leading-4.5 lg:leading-6.5 tracking-wide font-product-sans-bold font-extralight text-white">
+                                    Emirates College for Advanced Education concludes 10th Annual Autism Day event
+                                </div>
+                                <div className="hidden lg:block mt-2 text-sm leading-4 tracking-wide text-white font-helvetica font-light">The Emirates College for Advanced Education (ECAE) has</div>
+                                <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
+                                    <figure className="hidden lg:block h-7.5 w-7.5 rounded-full overflow-hidden">
+                                        <Image src="/images/blogs/Ellipse 5.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
+                                    </figure>
+                                    <ul className="flex items-center gap-1.5">
+                                        <li className="">
+                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
+                                        </li>
+                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                        <li className="">
+                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
+                                        </li>
+                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                        <li className="">
+                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
+                        </Link>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 lg:grid-rows-2 gap-y-5 lg:gap-5">
                         <div className="max-w-157.5 w-full col-span-2 relative">
-                            <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
-                                Corporate Events
-                            </div>
-                            <figure className="h-68.5 max-w-157.5 w-full overflow-hidden">
-                                <Image src="/images/blogs/Group 48529sadf.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
-                            </figure>
-                            <div className="absolute w-full bottom-0 left-0 px-5 py-[14.67px] blog-page-gradient z-10">
-                                <div className="text-sm lg:text-[18px] leading-4.5 lg:leading-6.5 font-product-sans-bold font-medium text-white">
-                                    Emirates College for Advanced Education concludes 10th Annual Autism Day event
+                            <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                                <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                    Corporate Events
                                 </div>
-                                <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
-                                    <ul className="flex items-center gap-1.5">
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
-                                        </li>
-                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
-                                        </li>
-                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
-                                        </li>
-                                    </ul>
+                                <figure className="h-68.5 max-w-157.5 w-full overflow-hidden">
+                                    <Image src="/images/blogs/Group 48529sadf.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
+                                </figure>
+                                <div className="absolute w-full bottom-0 left-0 px-5 py-[14.67px] blog-page-gradient z-10">
+                                    <div className="text-sm lg:text-[18px] leading-4.5 lg:leading-6.5 font-product-sans-bold font-medium text-white">
+                                        Emirates College for Advanced Education concludes 10th Annual Autism Day event
+                                    </div>
+                                    <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
+                                        <ul className="flex items-center gap-1.5">
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
+                                            </li>
+                                            <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
+                                            </li>
+                                            <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
+                            </Link>
                         </div>
                         <div className="row-start-2 col-start-1 relative">
-                            <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
-                                Activations
-                            </div>
-                            <figure className="h-68.5 w-full overflow-hidden">
-                                <Image src="/images/blogs/Group 48524.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
-                            </figure>
-                            <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
-                                <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-product-sans-bold font-medium text-white">
-                                    Emirates College for Advanced Education concludes...
+                            <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                                <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                    Activations
                                 </div>
-                                <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
-                                    <ul className="flex items-center gap-1.5">
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
-                                        </li>
-                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
-                                        </li>
-                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
-                                        </li>
-                                    </ul>
+                                <figure className="h-68.5 w-full overflow-hidden">
+                                    <Image src="/images/blogs/Group 48524.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
+                                </figure>
+                                <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
+                                    <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-product-sans-bold font-medium text-white">
+                                        Emirates College for Advanced Education concludes...
+                                    </div>
+                                    <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
+                                        <ul className="flex items-center gap-1.5">
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
+                                            </li>
+                                            <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
+                                            </li>
+                                            <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
+                            </Link>
                         </div>
                         <div className="row-start-3 lg:row-start-2 col-start-1 lg:col-start-2 relative">
-                            <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
-                                experiental
-                            </div>
-                            <figure className="h-68.5 w-full overflow-hidden">
-                                <Image src="/images/blogs/Group 48528.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
-                            </figure>
-                            <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
-                                <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-product-sans-bold font-medium text-white">
-                                    Emirates College for Advanced Education concludes...
+                            <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                                <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                    experiental
                                 </div>
-                                <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
-                                    <ul className="flex items-center gap-1.5">
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
-                                        </li>
-                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
-                                        </li>
-                                        <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
-                                        <li className="">
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
-                                        </li>
-                                    </ul>
+                                <figure className="h-68.5 w-full overflow-hidden">
+                                    <Image src="/images/blogs/Group 48528.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
+                                </figure>
+                                <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
+                                    <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-product-sans-bold font-medium text-white">
+                                        Emirates College for Advanced Education concludes...
+                                    </div>
+                                    <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
+                                        <ul className="flex items-center gap-1.5">
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Maximus Wooten</p>
+                                            </li>
+                                            <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">Apr 12, 2026</p>
+                                            </li>
+                                            <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
+                                            <li className="">
+                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">5 min</p>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
+                            </Link>
                         </div>
                     </div>
                 </div>

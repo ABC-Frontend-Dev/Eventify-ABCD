@@ -34,8 +34,14 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
         // Pages that should have black text always (both scrolled and not scrolled)
         if (pathname.startsWith("/blog")) {
             return {
-                default: "font-helvetica-medium text-black/90 hover:text-black",
-                scrolled: "font-helvetica-medium text-black/90 hover:text-black",
+                default: "font-product-sans-regular text-black/90 hover:text-black",
+                scrolled: "font-product-sans-regular text-black/90 hover:text-black",
+            };
+        }
+        if (pathname.startsWith("/services")) {
+            return {
+                default: "font-product-sans-regular text-black/90 hover:text-black",
+                scrolled: "font-product-sans-regular text-black/90 hover:text-black",
             };
         }
 
@@ -49,8 +55,8 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
 
         // Default behavior: white when not scrolled, black when scrolled
         return {
-            default: "font-helvetica-medium text-white/90 hover:text-white",
-            scrolled: "font-helvetica-medium text-black/90 hover:text-black",
+            default: "font-product-sans-regular text-white/90 hover:text-white",
+            scrolled: "font-product-sans-regular text-black/90 hover:text-black",
         };
     };
 

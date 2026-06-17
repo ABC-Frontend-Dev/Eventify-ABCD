@@ -26,7 +26,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
         id: 1,
         url: "services/conferences",
         icon: "/images/icons/loud.png",
-        title: "Conferences",
+        title: "Retail Activations",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
         image: "/images/our-services/slide-1.png",
     },
@@ -34,8 +34,8 @@ const CAROUSEL_DATA: CarouselItem[] = [
         id: 2,
         url: "services/conferences",
         icon: "/images/icons/tv.png",
-        title: "Concerts & Festivals",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
+        title: "Live Event Production",
+        description: "We have strong roots in live entertainment production and can effectively manage from as low as 500 and up to 50,000 guests at any event like Maroon Five at Coca-Cola Area.",
         image: "/images/our-services/slide-2.png",
     },
     {
@@ -50,24 +50,25 @@ const CAROUSEL_DATA: CarouselItem[] = [
         id: 4,
         url: "services/conferences",
         icon: "/images/icons/ticket.png",
-        title: "Catering Services",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
+        title: "Festival & IP Management",
+        description:
+            "The team until very recently were directly involved in producing and managing Dubai’s biggest festivals namely Virgin Radio Redfest DXB, Dubai Jazz Festival, Blended Music and Festival Sole DXB.",
         image: "/images/our-services/slide-4.png",
     },
     {
         id: 5,
         url: "services/conferences",
         icon: "/images/icons/rating.png",
-        title: "Venue Decoration",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
+        title: "Brand Experiences",
+        description: "Our out of the box approach brings alive Product Launches, Opening Events & Ceremonies, Media & PR Events like Porsche Taycan Launch, Caesars Palace Launch.",
         image: "/images/our-services/slide-5.png",
     },
     {
         id: 6,
         url: "services/conferences",
         icon: "/images/icons/party.png",
-        title: "Audio & Lighting",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
+        title: "Special Events",
+        description: "We are adept at planning and executing large cultural events for National Day, Flag Day or Other celebrations like Drone and Light Show DSF Drone and Light show.",
         image: "/images/our-services/slide-6.png",
     },
 ];
@@ -209,7 +210,7 @@ export function EmblaCarousel() {
                                 <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
                                     <figure>{item.icon && <img src={item.icon as string} alt={item.title} className="mb-2.5 w-12.5 h-12.5 object-contain" />}</figure>
                                     <h3 className="mb-2 text-2xl leading-5 tracking-tight font-product-sans-black font-bold text-white">{item.title}</h3>
-                                    <p className="font-product-sans-medium text-sm leading-5">{item.description}</p>
+                                    <p className="font-product-sans-regular tracking-[1px] text-sm leading-4.5 ">{item.description}</p>
                                 </div>
 
                                 <Link

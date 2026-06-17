@@ -9,17 +9,28 @@ export default async function BlogsCard() {
 
     return (
         <>
-            <div className="max-w-3xl min-h-168.5 h-168.5 w-full">
-                <figure className="w-full h-full">
-                    <Image src="/images/blogs/Group 48524.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-full object-cover" />
-                </figure>
+            <div className="max-w-3xl min-h-168.5 h-168.5 w-full relative group">
+                <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000" className="block">
+                    <figure className="w-full h-full">
+                        <Image src="/images/blogs/Blog image.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-full object-cover object-center" />
+                    </figure>
+
+                    <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-md flex items-center justify-center px-5 lg:px-7.5 py-5 lg:py-7.5 opacity-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-100 group-hover:pointer-events-auto">
+                        <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">Event drive Prepares the Event Managers of Tomorrow</p>
+
+                        <p className="absolute px-7.5 w-full bottom-5 left-1/2 -translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
+                            The dark cloud is gradually dissipating and we can see the future of our events taking shape. After more than a year of organizing virtual events you were able to develop
+                            ne... <span className="underline">Read more</span>
+                        </p>
+                    </div>
+                </Link>
             </div>
             <div className="max-w-122.5 w-full space-y-1.5 relative">
-                <h2 className="text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg absolute -top-6">Top reads</h2>
+                <h2 className="text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg absolute -top-16">Top reads</h2>
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href={"#"}>
+                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
                         <figure className="w-full h-full">
-                            <Image src="/images/blogs/Group 48524.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
+                            <Image src="/images/blogs/Blog 1.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
 
                         <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-md px-5 lg:px-12.75 py-5 lg:py-7.5 opacity-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-100 group-hover:pointer-events-auto">
@@ -35,9 +46,9 @@ export default async function BlogsCard() {
                 </div>
 
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href={"#"}>
+                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
                         <figure className="w-full h-full">
-                            <Image src="/images/blogs/Group 48524.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
+                            <Image src="/images/blogs/Rectangle 283.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
 
                         <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-md px-5 lg:px-12.75 py-5 lg:py-7.5 opacity-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-100 group-hover:pointer-events-auto">
@@ -53,9 +64,9 @@ export default async function BlogsCard() {
                 </div>
 
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href={"#"}>
+                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
                         <figure className="w-full h-full">
-                            <Image src="/images/blogs/Group 48524.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
+                            <Image src="/images/blogs/Blog 3.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
 
                         <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-md px-5 lg:px-12.75 py-5 lg:py-7.5 opacity-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-100 group-hover:pointer-events-auto">
@@ -71,9 +82,9 @@ export default async function BlogsCard() {
                 </div>
 
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href={"#"}>
+                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
                         <figure className="w-full h-full">
-                            <Image src="/images/blogs/Group 48524.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
+                            <Image src="/images/blogs/Blog 4.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
 
                         <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-md px-5 lg:px-12.75 py-5 lg:py-7.5 opacity-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-100 group-hover:pointer-events-auto">

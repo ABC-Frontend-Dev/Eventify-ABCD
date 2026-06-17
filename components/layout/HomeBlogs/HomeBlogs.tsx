@@ -19,7 +19,7 @@ export default function HomeBlogs() {
                     <BlogsCard />
                 </div>
                 <div className="mt-5">
-                    <Link href="/blog" className="text-xl font-helvetica-bold text-primary text-center py-5.25 border border-primary rounded-[1px] overflow-hidden w-full block">
+                    <Link href="/blog" className="text-xl font-helvetica-bold text-primary text-center py-5.25 border border-[#7D09CA] rounded-[1px] overflow-hidden w-full block">
                         View All
                     </Link>
                 </div>

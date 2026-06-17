@@ -58,216 +58,41 @@ export default function Teams() {
     const [originRect, setOriginRect] = useState<DOMRect | null>(null);
 
     const teamMembers: TeamsProps[] = [
-        {
-            id: 1,
-            name: "TEJAL MEHTA",
-            role: "Event Coordinator",
-            image: "/images/our-teams/TEJAL MEHTA.png",
-        },
-        {
-            id: 2,
-            name: "BOB",
-            role: "Marketing Manager",
-            image: "/images/our-teams/BOB.png",
-        },
-        {
-            id: 3,
-            name: "ANILA RATNAM",
-            role: "Marketing Manager",
-            image: "/images/our-teams/ANILA RATNAM.png",
-        },
-        {
-            id: 4,
-            name: "MOHIT BHANDAWAT",
-            role: "CFO",
-            image: "/images/our-teams/MOHIT BHANDAWAT.png",
-        },
-        {
-            id: 5,
-            name: "AJAY THOMAS",
-            role: "Marketing Manager",
-            image: "/images/our-teams/AJAY THOMAS.png",
-        },
-        {
-            id: 6,
-            name: "JUMANA SAMY",
-            role: "Marketing Manager",
-            image: "/images/our-teams/JUMANA SAMY.png",
-        },
-        {
-            id: 7,
-            name: "AISHWARYA DESHPANDE",
-            role: "Marketing Manager",
-            image: "/images/our-teams/AISHWARYA DESHPANDE.png",
-        },
-        {
-            id: 8,
-            name: "MOHAMAD ALBREIDE",
-            role: "Marketing Manager",
-            image: "/images/our-teams/MOHAMAD ALBREIDE.png",
-        },
-        {
-            id: 9,
-            name: "ALI ALSHEKH",
-            role: "Marketing Manager",
-            image: "/images/our-teams/ALI ALSHEKH.png",
-        },
-        {
-            id: 10,
-            name: "MARYAM AMR",
-            role: "Marketing Manager",
-            image: "/images/our-teams/MARYAM AMR.png",
-        },
-        {
-            id: 11,
-            name: "MO MOEIN",
-            role: "Marketing Manager",
-            image: "/images/our-teams/MO MOEIN.png",
-        },
-        {
-            id: 12,
-            name: "AZEEM SHAH",
-            role: "Marketing Manager",
-            image: "/images/our-teams/AZEEM SHAH.png",
-        },
-        {
-            id: 13,
-            name: "EVENTIFY",
-            role: "Marketing Manager",
-            image: "/images/our-teams/EVENTIFY.png",
-        },
-        {
-            id: 14,
-            name: "GIRISH BHAT",
-            role: "Marketing Manager",
-            image: "/images/our-teams/GIRISH BHAT.png",
-        },
-        {
-            id: 15,
-            name: "KEITH MAC INTYRE",
-            role: "Marketing Manager",
-            image: "/images/our-teams/KEITH MAC INTYRE.png",
-        },
-        {
-            id: 16,
-            name: "JOJIT DELA PENA",
-            role: "Marketing Manager",
-            image: "/images/our-teams/JOJIT DELA PENA.png",
-        },
-        {
-            id: 17,
-            name: "MAAZ SHABIR",
-            role: "Marketing Manager",
-            image: "/images/our-teams/MAAZ SHABIR.png",
-        },
-        {
-            id: 18,
-            name: "ANU THOMAS",
-            role: "Marketing Manager",
-            image: "/images/our-teams/ANU THOMAS.png",
-        },
-        {
-            id: 19,
-            name: "AYA JARRAR",
-            role: "Marketing Manager",
-            image: "/images/our-teams/AYA JARRAR.png",
-        },
-        {
-            id: 20,
-            name: "REHAN KHALID",
-            role: "Marketing Manager",
-            image: "/images/our-teams/REHAN KHALID.png",
-        },
-        {
-            id: 21,
-            name: "JATTIN GULATI",
-            role: "Marketing Manager",
-            image: "/images/our-teams/JATTIN GULATI.png",
-        },
-        {
-            id: 22,
-            name: "VIVEK VELANI",
-            role: "COO",
-            image: "/images/our-teams/VIVEK VELANI.png",
-        },
-        {
-            id: 23,
-            name: "BURGESS ELAVIA",
-            role: "Marketing Manager",
-            image: "/images/our-teams/BURGESS ELAVIA.png",
-        },
-        {
-            id: 24,
-            name: "ASHRAFALI MOHAMMED",
-            role: "Marketing Manager",
-            image: "/images/our-teams/ASHRAFALI MOHAMMED.png",
-        },
-        {
-            id: 25,
-            name: "MOHAMED LUBAIB",
-            role: "Marketing Manager",
-            image: "/images/our-teams/MOHAMED LUBAIB.png",
-        },
-        {
-            id: 26,
-            name: "ANEES MOHAMED",
-            role: "Marketing Manager",
-            image: "/images/our-teams/ANEES MOHAMED.png",
-        },
-        {
-            id: 27,
-            name: "MARIANNE BREIDY",
-            role: "Marketing Manager",
-            image: "/images/our-teams/MARIANNE BREIDY.png",
-        },
-        {
-            id: 28,
-            name: "SUHAIL MAITREYA",
-            role: "Executive Director",
-            image: "/images/our-teams/SUHAIL MAITREYA.png",
-        },
-        {
-            id: 29,
-            name: "RAJAN THOMAS",
-            role: "Marketing Manager",
-            image: "/images/our-teams/RAJAN THOMAS.png",
-        },
-        {
-            id: 30,
-            name: "HARINI SHEKHAR",
-            role: "Marketing Manager",
-            image: "/images/our-teams/HARINI SHEKHAR.png",
-        },
-        {
-            id: 31,
-            name: "SONU AB",
-            role: "Executive Director",
-            image: "/images/our-teams/SONU AB.png",
-        },
-        {
-            id: 32,
-            name: "VANITHA GOMES",
-            role: "Marketing Manager",
-            image: "/images/our-teams/VANITHA GOMES.png",
-        },
-        {
-            id: 33,
-            name: "YOUSEF GOBRAN",
-            role: "Marketing Manager",
-            image: "/images/our-teams/YOUSEF GOBRAN.png",
-        },
-        {
-            id: 34,
-            name: "SHRAVAN VINOD",
-            role: "Marketing Manager",
-            image: "/images/our-teams/SHRAVAN VINOD.png",
-        },
-        {
-            id: 35,
-            name: "LETS EVENTITY",
-            role: "Marketing Manager",
-            image: "/images/our-teams/LETS EVENTITY.png",
-        },
+        { id: 1, name: "TEJAL MEHTA", role: "ACCOUNTS EXECUTIVE", image: "/images/our-teams/TEJAL MEHTA.png" },
+        { id: 2, name: "BOB", role: "PRODUCTION MANAGER", image: "/images/our-teams/BOB.png" },
+        { id: 3, name: "ANILA RATNAM", role: "SR. EVENT PRODUCER", image: "/images/our-teams/ANILA RATNAM.png" },
+        { id: 4, name: "MOHIT BHANDAWAT", role: "CFO", image: "/images/our-teams/MOHIT BHANDAWAT.png" },
+        { id: 5, name: "AJAY THOMAS", role: "SR. PRODUCTION MANAGER", image: "/images/our-teams/AJAY THOMAS.png" },
+        { id: 6, name: "JUMANA SAMY", role: "SOCIAL MEDIA STRATEGIST", image: "/images/our-teams/JUMANA SAMY.png" },
+        { id: 7, name: "AISHWARYA DESHPANDE", role: "EVENT PRODUCER", image: "/images/our-teams/AISHWARYA DESHPANDE.png" },
+        { id: 8, name: "MOHAMAD ALBREIDE", role: "SR. CREATIVE DESIGNER", image: "/images/our-teams/MOHAMAD ALBREIDE.png" },
+        { id: 9, name: "ALI ALSHEKH", role: "GRAPHIC DESIGNER", image: "/images/our-teams/ALI ALSHEKH.png" },
+        { id: 10, name: "MARYAM AMR", role: "EVENT PRODUCER", image: "/images/our-teams/MARYAM AMR.png" },
+        { id: 11, name: "MO MOEIN", role: "SR. EVENT PRODUCER", image: "/images/our-teams/MO MOEIN.png" },
+        { id: 12, name: "AZEEM SHAH", role: "PRODUCTION MANAGER", image: "/images/our-teams/AZEEM SHAH.png" },
+        { id: 13, name: "EVENTIFY", role: "Marketing Manager", image: "/images/our-teams/EVENTIFY.png" },
+        { id: 14, name: "GIRISH BHAT", role: "CEO", image: "/images/our-teams/GIRISH BHAT.png" },
+        { id: 15, name: "KEITH MAC INTYRE", role: "TECHNICAL DIRECTOR", image: "/images/our-teams/KEITH MAC INTYRE.png" },
+        { id: 16, name: "JOJIT DELA PENA", role: "3D DESIGNER", image: "/images/our-teams/JOJIT DELA PENA.png" },
+        { id: 17, name: "MAAZ SHABIR", role: "SITE MANAGER", image: "/images/our-teams/MAAZ SHABIR.png" },
+        { id: 18, name: "ANU THOMAS", role: "SR. CREATIVE STRATEGIST", image: "/images/our-teams/ANU THOMAS.png" },
+        { id: 19, name: "AYA JARRAR", role: "CREATIVE STRATEGIST", image: "/images/our-teams/AYA JARRAR.png" },
+        { id: 20, name: "REHAN KHALID", role: "SR. EVENT PRODUCER", image: "/images/our-teams/REHAN KHALID.png" },
+        { id: 21, name: "JATTIN GULATI", role: "SR. EVENT PRODUCER", image: "/images/our-teams/JATTIN GULATI.png" },
+        { id: 22, name: "VIVEK VELANI", role: "COO", image: "/images/our-teams/VIVEK VELANI.png" },
+        { id: 23, name: "BURGESS ELAVIA", role: "DIRECTOR OF PRODUCTION", image: "/images/our-teams/BURGESS ELAVIA.png" },
+        { id: 24, name: "ASHRAFALI MOHAMMED", role: "3D VISUALIZER", image: "/images/our-teams/ASHRAFALI MOHAMMED.png" },
+        { id: 25, name: "MOHAMED LUBAIB", role: "PRODUCTION MANAGER", image: "/images/our-teams/MOHAMED LUBAIB.png" },
+        { id: 26, name: "ANEES MOHAMED", role: "SR. OPERATION MANAGER", image: "/images/our-teams/ANEES MOHAMED.png" },
+        { id: 27, name: "MARIANNE BREIDY", role: "EVENT PRODUCER", image: "/images/our-teams/MARIANNE BREIDY.png" },
+        { id: 28, name: "SUHAIL MAITREYA", role: "Executive Director", image: "/images/our-teams/SUHAIL MAITREYA.png" },
+        { id: 29, name: "RAJAN THOMAS", role: "BRAND DESIGNER", image: "/images/our-teams/RAJAN THOMAS.png" },
+        { id: 30, name: "HARINI SHEKHAR", role: "CAD DESIGNER", image: "/images/our-teams/HARINI SHEKHAR.png" },
+        { id: 31, name: "SONU AB", role: "Executive Director", image: "/images/our-teams/SONU AB.png" },
+        { id: 32, name: "VANITHA GOMES", role: "SR. OPERATION MANAGER", image: "/images/our-teams/VANITHA GOMES.png" },
+        { id: 33, name: "YOUSEF GOBRAN", role: "3D DESIGNER", image: "/images/our-teams/YOUSEF GOBRAN.png" },
+        { id: 34, name: "SHRAVAN VINOD", role: "EVENT PRODUCER", image: "/images/our-teams/SHRAVAN VINOD.png" },
+        { id: 35, name: "LETS EVENTITY", role: "Marketing Manager", image: "/images/our-teams/LETS EVENTITY.png" },
     ];
 
     const handleItemClick = (member: TeamsProps, rect: DOMRect) => {
@@ -278,10 +103,11 @@ export default function Teams() {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+        // Adjusted the timeout length to cleanly sync up with the exiting phase unmount
         setTimeout(() => {
             setSelectedMember(null);
             setOriginRect(null);
-        }, 500);
+        }, 460);
     };
 
     return (

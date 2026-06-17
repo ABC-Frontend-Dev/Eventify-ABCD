@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import NavbarMenu from "./NavbarMenus";
 import MobileSidebar from "./MobileSidebar";
+import Link from "next/link";
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -35,6 +36,12 @@ export default function Navbar() {
                 scrolled: "/images/logo.png", // Dark logo for blog when scrolled
             };
         }
+        if (pathname.startsWith("/services")) {
+            return {
+                default: "/images/logo.png", // Light logo for blog when not scrolled
+                scrolled: "/images/logo.png", // Dark logo for blog when scrolled
+            };
+        }
 
         // You can add more pages here
         // if (pathname.startsWith("/about")) {
@@ -58,14 +65,16 @@ export default function Navbar() {
             }`}
         >
             <div className="shrink-0 max-w-[150px] sm:max-w-[180px]">
-                <Image
-                    src={isScrolled ? logo.scrolled || logo.default : logo.default}
-                    alt="Logo"
-                    width={156}
-                    height={34}
-                    className="w-full h-auto object-contain transition-all duration-300"
-                    priority
-                />
+                <Link href={"/"}>
+                    <Image
+                        src={isScrolled ? logo.scrolled || logo.default : logo.default}
+                        alt="Logo"
+                        width={156}
+                        height={34}
+                        className="w-full h-auto object-contain transition-all duration-300"
+                        priority
+                    />
+                </Link>
             </div>
             <nav className="shrink-0">
                 <div className="hidden lg:block">

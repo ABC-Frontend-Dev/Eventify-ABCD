@@ -62,7 +62,7 @@ export default function OurClients() {
     }, [clients]);
 
     return (
-        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
+        <section id="our-clients" ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
             <header>
                 <HeadingWithLogo titlePart1="Our" titlePart2_1="Cli" titlePart2_2="nts" />
                 <SubHeading title="Brands that believe in us" />
