@@ -65,7 +65,7 @@ export default function BlogContent({ content }: BlogContentProps) {
             const chars = block.querySelectorAll(".reveal-char");
 
             tl.to(chars, {
-                color: "var(--color-primary)",
+                color: "var(--color-footer-bg)",
                 stagger: 0.02,
                 ease: "none",
                 duration: chars.length * 0.02,

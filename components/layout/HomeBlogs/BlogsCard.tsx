@@ -9,7 +9,7 @@ export default async function BlogsCard() {
 
     return (
         <>
-            <div className="max-w-3xl min-h-168.5 h-168.5 w-full relative group">
+            <div className="max-w-3xl max-h-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative group mb-20 lg:mb-0">
                 <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000" className="block">
                     <figure className="w-full h-full">
                         <Image src="/images/blogs/Blog image.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-full object-cover object-center" />
@@ -19,8 +19,8 @@ export default async function BlogsCard() {
                         <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">Event drive Prepares the Event Managers of Tomorrow</p>
 
                         <p className="absolute px-7.5 w-full bottom-5 left-1/2 -translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
-                            The dark cloud is gradually dissipating and we can see the future of our events taking shape. After more than a year of organizing virtual events you were able to develop
-                            ne... <span className="underline">Read more</span>
+                            The dark cloud is gradually dissipating and we can see the future of our events taking shape. After more than a year{" "}
+                            <span className="hidden lg:block">of organizing virtual events you were able to develop ne</span> ... <span className="underline">Read more</span>
                         </p>
                     </div>
                 </Link>
