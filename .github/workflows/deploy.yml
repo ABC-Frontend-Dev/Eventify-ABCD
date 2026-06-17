@@ -22,10 +22,20 @@ jobs:
                   port: 22
                   script: |
                       cd /home/admin/Eventify-ABCD
-                      git pull origin main
+
+                      # 1. Pull the absolute fresh code
+                      git fetch --all
+                      git reset --hard origin/main
+
+                      # 2. Install dependencies & wipe old permission-locked folders
                       npm install
+                      sudo rm -rf .next
+
+                      # 3. Build the new code fresh
                       npm run build
-                      # Force Next.js to bind to the server's network ports
+
+                      # 4. Reload PM2 safely using the direct binary route
                       pm2 delete eventify || true
-                      pm2 start npm --name "eventify" --env PORT=3000 --env HOSTNAME=0.0.0.0 -- start
+                      sudo fuser -k 3000/tcp || true
+                      pm2 start node_modules/next/dist/bin/next --name "eventify" -- start -- -p 3000 -H 0.0.0.0
                       pm2 save
