@@ -25,4 +25,7 @@ jobs:
                       git pull origin main
                       npm install
                       npm run build
-                      pm2 restart eventify
+                      # Force Next.js to bind to the server's network ports
+                      pm2 delete eventify || true
+                      pm2 start npm --name "eventify" --env PORT=3000 --env HOSTNAME=0.0.0.0 -- start
+                      pm2 save
