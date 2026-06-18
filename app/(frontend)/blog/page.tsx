@@ -16,7 +16,7 @@ export default function Blog() {
             <div className="mt-7.5">
                 <div className="flex items-start justify-center flex-col lg:flex-row gap-5">
                     <div className="max-w-full lg:max-w-157.5 w-full h-full relative">
-                        <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                        <Link href={"blog/the-right-event-management-compnay-in-dubai"}>
                             <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
                                 Activations
                             </div>
@@ -52,7 +52,7 @@ export default function Blog() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 lg:grid-rows-2 gap-y-5 lg:gap-5">
                         <div className="max-w-157.5 w-full col-span-2 relative">
-                            <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                            <Link href={"blog/the-right-event-management-compnay-in-dubai"}>
                                 <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
                                     Corporate Events
                                 </div>
@@ -82,7 +82,7 @@ export default function Blog() {
                             </Link>
                         </div>
                         <div className="row-start-2 col-start-1 relative">
-                            <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                            <Link href={"blog/the-right-event-management-compnay-in-dubai"}>
                                 <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
                                     Activations
                                 </div>
@@ -112,7 +112,7 @@ export default function Blog() {
                             </Link>
                         </div>
                         <div className="row-start-3 lg:row-start-2 col-start-1 lg:col-start-2 relative">
-                            <Link href={"/blog/best-first-copy-watches-for-him-under-rs-3-000"}>
+                            <Link href={"blog/the-right-event-management-compnay-in-dubai"}>
                                 <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
                                     experiental
                                 </div>

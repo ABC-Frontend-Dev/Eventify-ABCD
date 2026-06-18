@@ -10,7 +10,7 @@ export default async function BlogsCard() {
     return (
         <>
             <div className="max-w-3xl max-h-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative group mb-20 lg:mb-0">
-                <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000" className="block">
+                <Link href="blog/the-right-event-management-compnay-in-dubai" className="block">
                     <figure className="w-full h-full">
                         <Image src="/images/blogs/Blog image.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-full object-cover object-center" />
                     </figure>
@@ -28,7 +28,7 @@ export default async function BlogsCard() {
             <div className="max-w-122.5 w-full space-y-1.5 relative">
                 <h2 className="text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg absolute -top-16">Top reads</h2>
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
+                    <Link href="/blog/plan-a-successful-product-launch-event">
                         <figure className="w-full h-full">
                             <Image src="/images/blogs/Blog 1.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
@@ -46,7 +46,7 @@ export default async function BlogsCard() {
                 </div>
 
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
+                    <Link href="/blog/plan-a-successful-product-launch-event">
                         <figure className="w-full h-full">
                             <Image src="/images/blogs/Rectangle 283.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
@@ -64,7 +64,7 @@ export default async function BlogsCard() {
                 </div>
 
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
+                    <Link href="/blog/plan-a-successful-product-launch-event">
                         <figure className="w-full h-full">
                             <Image src="/images/blogs/Blog 3.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
@@ -82,7 +82,7 @@ export default async function BlogsCard() {
                 </div>
 
                 <div className="w-full h-41 overflow-hidden relative group">
-                    <Link href="/blog/best-first-copy-watches-for-him-under-rs-3-000">
+                    <Link href="/blog/plan-a-successful-product-launch-event">
                         <figure className="w-full h-full">
                             <Image src="/images/blogs/Blog 4.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-41 object-cover object-center" />
                         </figure>
