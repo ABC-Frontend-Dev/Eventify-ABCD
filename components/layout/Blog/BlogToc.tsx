@@ -17,13 +17,20 @@ export default function BlogToc() {
     const hoverIndicatorRef = useRef<HTMLDivElement>(null);
     const activeIndicatorRef = useRef<HTMLDivElement>(null);
     const itemsRef = useRef<Map<string, HTMLLIElement | null>>(new Map<string, HTMLLIElement | null>());
+    const observerRef = useRef<IntersectionObserver | null>(null);
 
-    useEffect(() => {
-        // Only select h2 elements
-        const elements = Array.from(document.querySelectorAll(".blog-page-wrapper h2")) as HTMLHeadingElement[];
+    // Helper to scan and register headings
+    const scanHeadings = () => {
+        const elements = Array.from(document.querySelectorAll(".blog-page-wrapper h2, .blog-page-wrapper h3")) as HTMLHeadingElement[];
+
+        if (elements.length === 0) return;
+
+        // Disconnect previous intersection observer
+        if (observerRef.current) {
+            observerRef.current.disconnect();
+        }
 
         const items = elements.map((el, index) => {
-            // Generate ID if it doesn't exist
             if (!el.id) {
                 const text = el.innerText || "";
                 const slug = text
@@ -42,7 +49,8 @@ export default function BlogToc() {
 
         setHeadings(items);
 
-        const observer = new IntersectionObserver(
+        // Setup intersection observer for active heading
+        const intersectionObserver = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
@@ -55,9 +63,40 @@ export default function BlogToc() {
             },
         );
 
-        elements.forEach((el) => observer.observe(el));
+        elements.forEach((el) => intersectionObserver.observe(el));
+        observerRef.current = intersectionObserver;
+    };
 
-        return () => observer.disconnect();
+    useEffect(() => {
+        // Wait for the blog wrapper to exist
+        const wrapper = document.querySelector(".blog-page-wrapper");
+
+        if (!wrapper) {
+            // If wrapper not found yet, retry after a short delay
+            const timeout = setTimeout(scanHeadings, 500);
+            return () => clearTimeout(timeout);
+        }
+
+        // Initial scan
+        scanHeadings();
+
+        // Watch for DOM changes inside blog-page-wrapper
+        // This handles the case where content renders after mount
+        const mutationObserver = new MutationObserver(() => {
+            scanHeadings();
+        });
+
+        mutationObserver.observe(wrapper, {
+            childList: true, // Watch for added/removed children
+            subtree: true, // Watch all descendants
+        });
+
+        return () => {
+            mutationObserver.disconnect();
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+            }
+        };
     }, []);
 
     // Update active indicator position
@@ -82,7 +121,6 @@ export default function BlogToc() {
         const tocRect = tocRef.current.getBoundingClientRect();
         const mouseY = e.clientY - tocRect.top;
 
-        // Find which item is being hovered
         let hoveredItem: HTMLLIElement | null = null;
         for (const item of Array.from(itemsRef.current.values())) {
             if (!item) continue;
@@ -113,6 +151,9 @@ export default function BlogToc() {
             hoverIndicatorRef.current.style.opacity = "0";
         }
     };
+
+    // Don't render TOC if no headings found
+    if (headings.length === 0) return null;
 
     return (
         <div className="">
@@ -152,7 +193,9 @@ export default function BlogToc() {
                                     itemsRef.current.delete(heading.id);
                                 }
                             }}
-                            className=""
+                            className={clsx(
+                                heading.level === "h3" ? "pl-4" : "", // Indent h3 under h2
+                            )}
                         >
                             <a
                                 href={`#${heading.id}`}

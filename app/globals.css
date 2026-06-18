@@ -377,7 +377,7 @@ html {
 }
 
 .blog-page-wrapper h2 {
-  @apply text-2xl leading-7.5 font-product-sans-medium font-medium tracking-wide text-slate-950;
+  @apply text-2xl leading-7.5 font-product-sans-medium font-medium tracking-wide text-slate-950 mt-4;
 }
 
 .blog-page-wrapper h3 {
