@@ -7,23 +7,15 @@ import { RelatedBlogList } from "@/components/layout/Blog/RelatedBlog";
 import prisma from "@/lib/prisma";
 import BlogContent from "@/components/layout/Blog/BlogContent";
 
-// Generate static params for all published blogs
 export async function generateStaticParams() {
     const blogs = await prisma.blog.findMany({
-        where: {
-            status: "PUBLISHED",
-        },
-        select: {
-            slug: true,
-        },
+        where: { status: "PUBLISHED" },
+        select: { slug: true },
     });
 
-    return blogs.map((blog) => ({
-        slug: blog.slug,
-    }));
+    return blogs.map((blog) => ({ slug: blog.slug }));
 }
 
-// Generate metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
@@ -41,11 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         },
     });
 
-    if (!blog) {
-        return {
-            title: "Blog Not Found",
-        };
-    }
+    if (!blog) return { title: "Blog Not Found" };
 
     return {
         title: blog.metaTitle || blog.title,
@@ -62,13 +50,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             description: blog.metaDescription || blog.description,
             images: [blog.banner_image || blog.thumbnail],
         },
-        alternates: {
-            canonical: blog.canonical,
-        },
+        alternates: { canonical: blog.canonical },
     };
 }
 
-// Helper function to format date
 function formatDate(date: Date) {
     return new Intl.DateTimeFormat("en-US", {
         year: "numeric",
@@ -80,36 +65,21 @@ function formatDate(date: Date) {
 export default async function BlogPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    // Fetch blog with author and category
     const blog = await prisma.blog.findUnique({
-        where: {
-            slug: slug,
-            status: "PUBLISHED",
-        },
-        include: {
-            author: true,
-            category: true,
-        },
+        where: { slug, status: "PUBLISHED" },
+        include: { author: true, category: true },
     });
 
-    // If blog not found, show 404
-    if (!blog) {
-        notFound();
-    }
+    if (!blog) notFound();
 
-    // Fetch related blogs from same category
     const relatedBlogs = await prisma.blog.findMany({
         where: {
             categoryId: blog.categoryId,
             status: "PUBLISHED",
-            id: {
-                not: blog.id,
-            },
+            id: { not: blog.id },
         },
-        take: 2, // Only 2 blogs as per your design
-        orderBy: {
-            createdAt: "desc",
-        },
+        take: 2,
+        orderBy: { createdAt: "desc" },
         select: {
             id: true,
             title: true,
@@ -129,13 +99,11 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
 
             <div className="mt-7.5">
                 {/* Banner Image */}
-                <div className="">
-                    <div className="max-w-max w-full h-68.5 lg:h-143.75">
-                        <figure className="h-68.5 lg:h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
-                            <Image src={blog.banner_image} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover hidden lg:block" priority />
-                            <Image src={blog.thumbnail} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover block lg:hidden" priority />
-                        </figure>
-                    </div>
+                <div className="max-w-max w-full h-68.5 lg:h-143.75">
+                    <figure className="h-68.5 lg:h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
+                        <Image src={blog.banner_image} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover hidden lg:block" priority />
+                        <Image src={blog.thumbnail} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover block lg:hidden" priority />
+                    </figure>
                 </div>
 
                 {/* Blog Header */}
@@ -148,17 +116,17 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                             <Image src={blog.author.avatar || "/default-avatar.png"} alt={blog.author.name} width={40} height={40} className="h-full w-full object-cover" />
                         </figure>
                         <ul className="flex items-center gap-1.5">
-                            <li className="">
+                            <li>
                                 <p className="font-product-sans-medium font-normal text-slate-950 text-sm leading-3.5">{blog.author.name}</p>
                             </li>
                             <li className="w-1.5 h-1.5 rounded-full bg-slate-950"></li>
-                            <li className="">
+                            <li>
                                 <p className="font-product-sans-medium font-normal text-slate-950 text-sm leading-3.5">{formatDate(blog.publishedAt || blog.createdAt)}</p>
                             </li>
                             {blog.timeToRead && (
                                 <>
                                     <li className="w-1.5 h-1.5 rounded-full bg-slate-950"></li>
-                                    <li className="">
+                                    <li>
                                         <p className="font-product-sans-medium font-normal text-slate-950 text-sm leading-3.5">{blog.timeToRead}</p>
                                     </li>
                                 </>
@@ -168,14 +136,15 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                 </div>
 
                 {/* Blog Content and Sidebar */}
-                <div className="flex items-start justify-between flex-col lg:flex-row gap-x-10 mt-5 relative">
-                    <div className="max-w-203 w-full h-full">
+                <div className="flex items-start justify-between flex-col lg:flex-row gap-x-10 mt-5">
+                    {/* Blog Content */}
+                    <div className="max-w-203 w-full">
                         <BlogContent content={blog.content} />
                     </div>
 
-                    <aside className="w-full max-w-107 sticky top-5 self-start">
+                    {/* Sidebar — sticky with scroll if content overflows viewport */}
+                    <aside className="w-full max-w-107 lg:sticky lg:top-25 self-start lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto">
                         <BlogToc />
-
                         <div className="mt-10">
                             <p className="text-2xl font-helvetica leading-8 font-extrabold text-slate-950">Related Blogs</p>
                             <RelatedBlogList blogs={relatedBlogs} />

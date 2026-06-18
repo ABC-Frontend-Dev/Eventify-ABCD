@@ -14,6 +14,7 @@ import {
 } from "../public/fonts/fonts";
 import { Providers } from "./providers";
 
+// app/layout.tsx
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html
@@ -28,10 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ${fontProductSansBold.variable}
         ${fontProductSansBlack.variable}
         ${fontProductSansMedium.variable}
-overflow-x-hidden
       `}
         >
-            <body className="overflow-x-hidden max-w-full">
+            <body className="max-w-full">
                 <Providers>{children}</Providers>
             </body>
         </html>
