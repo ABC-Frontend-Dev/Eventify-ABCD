@@ -52,7 +52,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
         icon: "/images/icons/ticket.png",
         title: "Festival & IP Management",
         description:
-            "The team until very recently were directly involved in producing and managing Dubai’s biggest festivals namely Virgin Radio Redfest DXB, Dubai Jazz Festival, Blended Music and Festival Sole DXB.",
+            "The team until very recently were directly involved in producing and managing Dubai's biggest festivals namely Virgin Radio Redfest DXB, Dubai Jazz Festival, Blended Music and Festival Sole DXB.",
         image: "/images/our-services/slide-4.png",
     },
     {
@@ -84,38 +84,17 @@ export function EmblaCarousel() {
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
     const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    // Track whether the GSAP intro animation has completed
-    const [gsapComplete, setGsapComplete] = useState(false);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
 
-    // Helper to clear all GSAP inline styles from slides
-    const clearGsapStyles = useCallback(() => {
-        const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
-        validSlides.forEach((slide) => {
-            gsap.set(slide, {
-                clearProps: "all", // Clear ALL gsap-set properties
-            });
-        });
-        setGsapComplete(true);
-    }, []);
-
     const scrollPrev = useCallback(() => {
-        if (emblaApi) {
-            // Clear GSAP styles before Embla navigates
-            if (!gsapComplete) clearGsapStyles();
-            emblaApi.scrollPrev();
-        }
-    }, [emblaApi, gsapComplete, clearGsapStyles]);
+        if (emblaApi) emblaApi.scrollPrev();
+    }, [emblaApi]);
 
     const scrollNext = useCallback(() => {
-        if (emblaApi) {
-            // Clear GSAP styles before Embla navigates
-            if (!gsapComplete) clearGsapStyles();
-            emblaApi.scrollNext();
-        }
-    }, [emblaApi, gsapComplete, clearGsapStyles]);
+        if (emblaApi) emblaApi.scrollNext();
+    }, [emblaApi]);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -129,19 +108,11 @@ export function EmblaCarousel() {
         onSelect();
         emblaApi.on("select", onSelect);
         emblaApi.on("reInit", onSelect);
-
-        // Also clear GSAP styles on any drag/pointer-based scroll
-        const handlePointerDown = () => {
-            if (!gsapComplete) clearGsapStyles();
-        };
-        emblaApi.on("pointerDown", handlePointerDown);
-
         return () => {
             emblaApi.off("select", onSelect);
             emblaApi.off("reInit", onSelect);
-            emblaApi.off("pointerDown", handlePointerDown);
         };
-    }, [emblaApi, onSelect, gsapComplete, clearGsapStyles]);
+    }, [emblaApi, onSelect]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -149,47 +120,33 @@ export function EmblaCarousel() {
         const ctx = gsap.context(() => {
             const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
 
-            // Initial stacked state: each slide offset to the left
-            validSlides.forEach((slide, index) => {
-                gsap.set(slide, {
-                    x: -(index * 60),
-                    zIndex: CAROUSEL_DATA.length - index,
-                });
-            });
+            validSlides.forEach((slide) => {
+                const inner = slide.querySelector(".slide-reveal-inner");
 
-            gsap.timeline({
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top 80%",
-                    end: "top 20%",
-                    scrub: 1,
-                    onLeave: () => {
-                        // Fully scrolled past — clear everything
-                        clearGsapStyles();
-                        // Re-init Embla so it recalculates positions
-                        emblaApi?.reInit();
+                if (!inner) return;
+
+                gsap.set(inner, {
+                    clipPath: "inset(0 100% 0 0)",
+                    scale: 1.08,
+                    transformOrigin: "center center",
+                });
+
+                gsap.to(inner, {
+                    clipPath: "inset(0 0% 0 0)",
+                    scale: 1,
+                    duration: 1.2,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: slide,
+                        start: "top 85%",
+                        toggleActions: "play none none reverse",
                     },
-                    onEnterBack: () => {
-                        // Scrolling back up — re-apply stacked state
-                        setGsapComplete(false);
-                        validSlides.forEach((slide, index) => {
-                            gsap.set(slide, {
-                                x: -(index * 60),
-                                zIndex: CAROUSEL_DATA.length - index,
-                            });
-                        });
-                    },
-                },
-            }).to(validSlides, {
-                x: 0,
-                zIndex: 1,
-                ease: "power2.out",
-                stagger: 0.15,
+                });
             });
         }, containerRef);
 
         return () => ctx.revert();
-    }, [clearGsapStyles, emblaApi]);
+    }, []);
 
     return (
         <div className="relative w-full" ref={containerRef}>
@@ -202,15 +159,16 @@ export function EmblaCarousel() {
                             ref={(el) => {
                                 slidesRef.current[index] = el;
                             }}
-                            className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group will-change-transform"
+                            className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
-                            <div className="relative overflow-hidden h-full">
+                            {/* This inner wrapper gets the clip-path reveal */}
+                            <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
                                 <div className="w-full h-full">{item.image && <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />}</div>
 
                                 <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
                                     <figure>{item.icon && <img src={item.icon as string} alt={item.title} className="mb-2.5 w-12.5 h-12.5 object-contain" />}</figure>
                                     <h3 className="mb-2 text-2xl leading-5 tracking-tight font-product-sans-black font-bold text-white">{item.title}</h3>
-                                    <p className="font-product-sans-regular tracking-[1px] text-sm leading-4.5 ">{item.description}</p>
+                                    <p className="font-product-sans-regular tracking-[1px] text-sm leading-4.5">{item.description}</p>
                                 </div>
 
                                 <Link

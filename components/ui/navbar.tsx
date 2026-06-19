@@ -8,6 +8,7 @@ export type IMenu = {
     id: number;
     title: string;
     url: string;
+    sectionId?: string;
     dropdown?: boolean;
     items?: IMenu[];
 };
@@ -16,22 +17,36 @@ type MenuProps = {
     list: IMenu[];
     currentPath?: string;
     isScrolled?: boolean;
+    activeSection?: string | null;
 };
 
-const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
+const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
     const [hovered, setHovered] = useState<number | null>(null);
     const pathname = usePathname();
 
-    // Check if the current path matches the menu item
-    const isActive = (url: string) => {
-        if (url === "/" && currentPath === "/") return true;
-        if (url !== "/" && currentPath?.startsWith(url)) return true;
+    // Determine if a menu item is active
+    const isActive = (item: IMenu) => {
+        // On homepage — use scroll-based section tracking
+        if (pathname === "/") {
+            // Anchor link with a section ID
+            if (item.sectionId) {
+                return activeSection === item.sectionId;
+            }
+            // Home link — active when no section is in view (user at top)
+            if (item.url === "/") {
+                return activeSection === null;
+            }
+        }
+
+        // For regular page links — use pathname
+        if (item.url === "/" && currentPath === "/") return true;
+        if (item.url !== "/" && !item.url.startsWith("#") && currentPath?.startsWith(item.url)) return true;
+
         return false;
     };
 
     // Define pages that should always have black text (regardless of scroll)
     const getColorForPage = () => {
-        // Pages that should have black text always (both scrolled and not scrolled)
         if (pathname.startsWith("/blog")) {
             return {
                 default: "font-product-sans-regular text-black/90 hover:text-black",
@@ -45,15 +60,6 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
             };
         }
 
-        // You can add more pages with always-black text here
-        // if (pathname.startsWith("/about")) {
-        //     return {
-        //         default: "font-helvetica-medium text-black/90 hover:text-black",
-        //         scrolled: "font-helvetica-medium text-black/90 hover:text-black",
-        //     };
-        // }
-
-        // Default behavior: white when not scrolled, black when scrolled
         return {
             default: "font-product-sans-regular text-white/90 hover:text-white",
             scrolled: "font-product-sans-regular text-black/90 hover:text-black",
@@ -64,7 +70,6 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
 
     // Get indicator color based on current page and scroll state
     const getIndicatorColor = () => {
-        // For blog pages, always use black indicators
         if (pathname.startsWith("/blog")) {
             return {
                 active: "bg-black",
@@ -72,7 +77,6 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
             };
         }
 
-        // Default: white when not scrolled, black when scrolled
         return isScrolled ? { active: "bg-black", hover: "bg-black/50" } : { active: "bg-white", hover: "bg-white/50" };
     };
 
@@ -83,7 +87,7 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
             <nav className={"relative"}>
                 <ul className={"flex items-center gap-2"}>
                     {list?.map((item) => {
-                        const active = isActive(item.url);
+                        const active = isActive(item);
 
                         return (
                             <li key={item.id} className={"relative"}>
@@ -96,7 +100,7 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
                                     {item?.title}
                                 </Link>
 
-                                {/* Active indicator - always visible for active links */}
+                                {/* Active indicator */}
                                 {active && !item?.dropdown && (
                                     <motion.div
                                         layoutId="active-indicator"
@@ -105,7 +109,7 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
                                     />
                                 )}
 
-                                {/* Hover indicator - only for non-active links */}
+                                {/* Hover indicator */}
                                 {hovered === item?.id && !active && !item?.dropdown && (
                                     <motion.div layout layoutId="hover-cursor" className={`absolute left-1/2 -translate-x-1/2 bottom-0 h-0.75 w-1/2 rounded-full ${indicatorColor.hover}`} />
                                 )}
@@ -119,14 +123,12 @@ const Menu = ({ list, currentPath, isScrolled }: MenuProps) => {
                                             initial={{ y: 10, opacity: 0 }}
                                             animate={{ y: 0, opacity: 1 }}
                                             exit={{ y: 10, opacity: 0 }}
-                                            style={{
-                                                borderRadius: "8px",
-                                            }}
+                                            style={{ borderRadius: "8px" }}
                                             className="mt-4 flex w-64 flex-col rounded bg-white border shadow-lg"
                                             layoutId="dropdown-cursor"
                                         >
                                             {item?.items?.map((nav) => {
-                                                const isSubActive = isActive(nav.url);
+                                                const isSubActive = currentPath?.startsWith(nav.url);
                                                 return (
                                                     <motion.a
                                                         key={`link-${nav?.id}`}
