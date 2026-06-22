@@ -148,7 +148,7 @@ export default function InspirationInFrames() {
     }, []);
 
     return (
-        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9 lg:py-9">
+        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9 lg:py-9 scroll-mt-14">
             <header>
                 <SubHeading title="Inspiration in Frames" />
                 <HeaderDescription description="A curated glimpse into our visual world" scrollContainerRef={undefined} />

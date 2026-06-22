@@ -173,12 +173,18 @@ export function EmblaCarousel() {
 
                                 <Link
                                     href={item.url}
-                                    className="absolute top-3.5 right-3.5 px-3.75 py-2.5 bg-slate-100 rounded-[4px] overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer"
+                                    className="absolute top-3.5 right-3.5 px-3.75 py-2.5 bg-slate-100 rounded-[4px] overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer group/link"
                                 >
                                     <p className="text-sm font-product-sans-bold text-slate-950 capitalize flex items-center justify-center gap-2.5">
                                         read more
                                         <span className="w-3.5 h-3 inline-block">
-                                            <Image src="/images/icons/arrow-right.png" alt="Read more" width={1000} height={1000} className="w-full h-full object-contain" />
+                                            <Image
+                                                src="/images/icons/arrow-right.png"
+                                                alt="Read more"
+                                                width={1000}
+                                                height={1000}
+                                                className="w-full h-full object-contain transition-transform duration-300 group-hover:translate-x-1 group-hover/link:-translate-x-0.5 group-hover/link:-rotate-45"
+                                            />
                                         </span>
                                     </p>
                                 </Link>

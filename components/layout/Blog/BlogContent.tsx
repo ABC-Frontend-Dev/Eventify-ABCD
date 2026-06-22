@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import BlogTextReveal from "./BlogTextReveal";
 import BlogListReveal from "./BlogListReveal";
+import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -110,6 +111,7 @@ export default function BlogContent({ content }: BlogContentProps) {
 
                 return <div key={node.index} dangerouslySetInnerHTML={{ __html: node.html }} />;
             })}
+            <ScrollToTopButton />
         </article>
     );
 }

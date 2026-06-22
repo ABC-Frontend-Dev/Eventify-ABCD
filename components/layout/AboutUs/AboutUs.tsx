@@ -106,7 +106,7 @@ export default function AboutUs() {
     }, []);
 
     return (
-        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9">
+        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <header>
                 <HeadingWithoutLogo title="About Us" />
                 <SubHeading title="The team behind every celebration" />

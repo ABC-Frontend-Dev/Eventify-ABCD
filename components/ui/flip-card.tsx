@@ -74,7 +74,7 @@ export default function CardFlip({ title: title, description: description, bgCol
                 >
                     {/* Background gradient */}
                     <div className="w-full h-full flex items-center justify-center">
-                        <h3 className="w-56.75 text-center text-sm leading-4.5 tracking-wide font-helvetica font-medium text-white">{description}</h3>
+                        <h3 className="w-56.75 text-center text-sm leading-5 tracking-wider font-helvetica font-medium text-white">{description}</h3>
                     </div>
                 </div>
             </div>

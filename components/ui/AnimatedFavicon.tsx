@@ -1,3 +1,4 @@
+// components/ui/
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -19,7 +20,7 @@ export default function AnimatedFavicon() {
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: containerRef.current,
-                    start: "top 80%",
+                    start: "top 60%",
                     end: "bottom 20%",
                     toggleActions: "play none none reverse",
                 },

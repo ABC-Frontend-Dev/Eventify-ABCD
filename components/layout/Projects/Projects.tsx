@@ -54,11 +54,11 @@ export default function Projects() {
     const categories = Array.from(new Map(projects.map((project) => [project.category.id, project.category])).values());
 
     if (loading) {
-        return <section className="max-w-360 w-full mx-auto px-20 py-9">Loading projects...</section>;
+        return <section className="max-w-360 w-full mx-auto px-20 py-9 scroll-mt-14">Loading projects...</section>;
     }
 
     return (
-        <section className="max-w-360 w-full mx-auto px-20 py-9">
+        <section className="max-w-360 w-full mx-auto px-20 py-9 scroll-mt-14">
             <Button
                 onClick={() => {
                     console.log("TEST");

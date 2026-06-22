@@ -160,7 +160,7 @@ const tabs2025 = [
             <div className="relative">
                 {/* Carousel */}
                 <Carousel.Root defaultPage={0} slideCount={tabs2025Content2CarouselImages.length} autoplay={{ delay: 2500 }} className="w-full">
-                    <Carousel.ItemGroup className="overflow-hidden rounded-lg">
+                    <Carousel.ItemGroup className="overflow-hidden">
                         {tabs2025Content2CarouselImages.map((image, index) => (
                             <Carousel.Item key={index} index={index}>
                                 <img src={image} alt={`Middle East Event Awards Slide ${index + 1}`} className="w-full h-auto object-cover" />

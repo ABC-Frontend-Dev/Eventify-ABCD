@@ -8,7 +8,7 @@ import OurTeamMobileView from "./OurTeamMobileView";
 
 export default function OurTeam() {
     return (
-        <section id="teams" className="max-w-360 w-full mx-auto px-0 lg:px-20 pt-9 lg:py-9">
+        <section id="teams" className="max-w-360 w-full mx-auto px-0 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <header className="px-5 lg:px-0">
                 <HeadingWithLogo titlePart1="" titlePart2_1="T" titlePart2_2="am" />
                 <SubHeading title="our event experts" />
