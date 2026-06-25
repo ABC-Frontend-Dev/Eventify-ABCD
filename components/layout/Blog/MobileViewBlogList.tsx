@@ -22,7 +22,7 @@ interface CarouselItem {
 const CAROUSEL_DATA: CarouselItem[] = [
     {
         id: 1,
-        url: "/blog/best-first-copy-watches-for-him-under-rs-3-000",
+        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
         category: "Conferences",
         title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -34,7 +34,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 2,
-        url: "/blog/best-first-copy-watches-for-him-under-rs-3-000",
+        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
         category: "Conferences",
         title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -46,7 +46,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 3,
-        url: "/blog/best-first-copy-watches-for-him-under-rs-3-000",
+        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
         category: "Conferences",
         title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
@@ -58,7 +58,7 @@ const CAROUSEL_DATA: CarouselItem[] = [
     },
     {
         id: 4,
-        url: "/blog/best-first-copy-watches-for-him-under-rs-3-000",
+        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
         category: "Conferences",
         title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
         description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",

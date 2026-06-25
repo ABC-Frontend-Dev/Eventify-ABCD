@@ -1,6 +1,7 @@
 // app/(frontend)/page.tsx
 import AboutUs from "@/components/layout/AboutUs/AboutUs";
 import Awards from "@/components/layout/Awards/Awards";
+import ContactModal from "@/components/layout/Contact/ContactModal";
 import HeroSection from "@/components/layout/HeroSection/HeroSection";
 import HomeBlogs from "@/components/layout/HomeBlogs/HomeBlogs";
 import InspirationInFrames from "@/components/layout/InspirationInFrames/InspirationInFrames";
@@ -12,6 +13,7 @@ import Projects from "@/components/layout/Projects/Projects";
 export default function Home() {
     return (
         <>
+            {/* <ContactModal /> */}
             <HeroSection />
             <AboutUs />
             <OurClients />

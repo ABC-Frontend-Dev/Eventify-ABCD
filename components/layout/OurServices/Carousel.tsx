@@ -87,6 +87,8 @@ export function EmblaCarousel() {
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
+    const overlayRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const hoverTlsRef = useRef<(gsap.core.Timeline | null)[]>([]);
 
     const scrollPrev = useCallback(() => {
         if (emblaApi) emblaApi.scrollPrev();
@@ -114,6 +116,7 @@ export function EmblaCarousel() {
         };
     }, [emblaApi, onSelect]);
 
+    // Scroll-in reveal for each card (unchanged)
     useEffect(() => {
         if (!containerRef.current) return;
 
@@ -148,6 +151,54 @@ export function EmblaCarousel() {
         return () => ctx.revert();
     }, []);
 
+    // Hover effect — a plain dark tint fades in over the image, nothing
+    // else moves. One paused timeline per card, play() on enter /
+    // reverse() on leave, same reasoning as the social icons: a
+    // reversing timeline always unwinds correctly no matter how fast
+    // you hover in and out.
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            overlayRefs.current.forEach((overlay, index) => {
+                if (!overlay) return;
+
+                gsap.set(overlay, { opacity: 0 });
+
+                const tl = gsap.timeline({ paused: true }).to(overlay, {
+                    opacity: 0.4,
+                    duration: 0.45,
+                    ease: "power2.out",
+                });
+
+                hoverTlsRef.current[index] = tl;
+            });
+        }, containerRef);
+
+        return () => ctx.revert();
+    }, []);
+
+    const handleCardEnter = useCallback((index: number) => {
+        hoverTlsRef.current[index]?.play();
+    }, []);
+
+    const handleCardLeave = useCallback((index: number) => {
+        hoverTlsRef.current[index]?.reverse();
+    }, []);
+
+    // Defensive reset: same safety net as the social icons — if the
+    // window loses focus or the tab goes to the background mid-hover,
+    // mouseleave may never fire, so force every card back to rest.
+    useEffect(() => {
+        const resetAll = () => {
+            hoverTlsRef.current.forEach((tl) => tl?.reverse());
+        };
+        window.addEventListener("blur", resetAll);
+        document.addEventListener("visibilitychange", resetAll);
+        return () => {
+            window.removeEventListener("blur", resetAll);
+            document.removeEventListener("visibilitychange", resetAll);
+        };
+    }, []);
+
     return (
         <div className="relative w-full" ref={containerRef}>
             {/* Carousel Viewport */}
@@ -159,11 +210,21 @@ export function EmblaCarousel() {
                             ref={(el) => {
                                 slidesRef.current[index] = el;
                             }}
+                            onMouseEnter={() => handleCardEnter(index)}
+                            onMouseLeave={() => handleCardLeave(index)}
                             className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
-                            {/* This inner wrapper gets the clip-path reveal */}
+                            {/* This inner wrapper gets the clip-path reveal, and clips/masks the hover overlay below */}
                             <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
                                 <div className="w-full h-full">{item.image && <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />}</div>
+
+                                {/* Dark tint overlay — GSAP fades this in/out on hover */}
+                                <div
+                                    ref={(el) => {
+                                        overlayRefs.current[index] = el;
+                                    }}
+                                    className="absolute inset-0 bg-black opacity-0 pointer-events-none"
+                                />
 
                                 <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
                                     <figure>{item.icon && <img src={item.icon as string} alt={item.title} className="mb-2.5 w-12.5 h-12.5 object-contain" />}</figure>

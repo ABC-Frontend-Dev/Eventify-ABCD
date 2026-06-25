@@ -1,4 +1,4 @@
-// components/layout/Blog/RelatedBlog.tsx
+// components/layout/blogs/RelatedBlog.tsx
 "use client";
 
 import Link from "next/link";
@@ -43,7 +43,7 @@ export function RelatedBlogList({ blogs }: RelatedBlogListProps) {
         <ul className="mt-3.75 space-y-4.25">
             {blogs.map((item) => (
                 <li key={item.id}>
-                    <Link href={`/blog/${item.slug}`} className="group relative block">
+                    <Link href={`/blogs/${item.slug}`} className="group relative block">
                         <div className="flex flex-row items-center">
                             <div className="shrink-0 h-32.5 w-32.5 overflow-hidden">
                                 <img src={item.thumbnail} alt={item.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />

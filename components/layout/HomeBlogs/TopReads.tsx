@@ -18,7 +18,7 @@ interface BlogItem {
 const BLOGS: BlogItem[] = [
     {
         id: 1,
-        href: "/blog/plan-a-successful-product-launch-event",
+        href: "/blogs/plan-a-successful-product-launch-event",
         image: "/images/blogs/Blog 1.png",
         alt: "Blog 1",
         title: "Event drive Prepares the Event Managers of Tomorrow",
@@ -26,7 +26,7 @@ const BLOGS: BlogItem[] = [
     },
     {
         id: 2,
-        href: "/blog/plan-a-successful-product-launch-event",
+        href: "/blogs//plan-a-successful-product-launch-event",
         image: "/images/blogs/Rectangle 283.png",
         alt: "Blog 2",
         title: "Event drive Prepares the Event Managers of Tomorrow",
@@ -34,7 +34,7 @@ const BLOGS: BlogItem[] = [
     },
     {
         id: 3,
-        href: "/blog/plan-a-successful-product-launch-event",
+        href: "/blogs/plan-a-successful-product-launch-event",
         image: "/images/blogs/Blog 3.png",
         alt: "Blog 3",
         title: "Event drive Prepares the Event Managers of Tomorrow",
@@ -42,7 +42,7 @@ const BLOGS: BlogItem[] = [
     },
     {
         id: 4,
-        href: "/blog/plan-a-successful-product-launch-event",
+        href: "/blogs/plan-a-successful-product-launch-event",
         image: "/images/blogs/Blog 4.png",
         alt: "Blog 4",
         title: "Event drive Prepares the Event Managers of Tomorrow",

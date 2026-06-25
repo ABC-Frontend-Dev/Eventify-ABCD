@@ -6,6 +6,8 @@ import BlogToc from "@/components/layout/Blog/BlogToc";
 import { RelatedBlogList } from "@/components/layout/Blog/RelatedBlog";
 import prisma from "@/lib/prisma";
 import BlogContent from "@/components/layout/Blog/BlogContent";
+import { ShareBtn } from "@/components/layout/ShareOn/ShareOn";
+import BlogBannerReveal from "@/components/layout/Blog/BlogBannerReveal";
 
 export async function generateStaticParams() {
     const blogs = await prisma.blog.findMany({
@@ -99,12 +101,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
 
             <div className="mt-7.5">
                 {/* Banner Image */}
-                <div className="max-w-max w-full h-68.5 lg:h-143.75">
-                    <figure className="h-68.5 lg:h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
-                        <Image src={blog.banner_image} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover hidden lg:block" priority />
-                        <Image src={blog.thumbnail} alt={blog.title} width={1000} height={1000} className="h-full w-full object-cover block lg:hidden" priority />
-                    </figure>
-                </div>
+                <BlogBannerReveal desktopSrc={blog.banner_image} mobileSrc={blog.thumbnail} alt={blog.title} />
 
                 {/* Blog Header */}
                 <div className="mt-5">
@@ -112,7 +109,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                     <h1 className="mt-2 text-[30px] leading-9 tracking-wide font-product-sans-bold font-bold text-slate-950">{blog.title}</h1>
                     <p className="mt-2 text-sm leading-4 tracking-wide text-slate-950 font-helvetica font-extralight">{blog.description}</p>
                     <div className="mt-2.75 flex items-center gap-3">
-                        <figure className="h-10 w-10 rounded-full overflow-hidden">
+                        <figure className="h-10 w-10 rounded-full border overflow-hidden">
                             <Image src={blog.author.avatar || "/default-avatar.png"} alt={blog.author.name} width={40} height={40} className="h-full w-full object-cover" />
                         </figure>
                         <ul className="flex items-center gap-1.5">
@@ -143,7 +140,8 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                     </div>
 
                     {/* Sidebar — sticky with scroll if content overflows viewport */}
-                    <aside className="w-full max-w-107 lg:sticky lg:top-25 self-start lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto">
+                    <aside className="w-full max-w-107 pt-6 lg:sticky lg:top-25 self-start lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto">
+                        <ShareBtn />
                         <BlogToc />
                         <div className="mt-10">
                             <p className="text-2xl font-helvetica leading-8 font-extrabold text-slate-950">Related Blogs</p>

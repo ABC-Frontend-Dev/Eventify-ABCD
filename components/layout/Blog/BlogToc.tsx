@@ -156,7 +156,7 @@ export default function BlogToc() {
     if (headings.length === 0) return null;
 
     return (
-        <div className="">
+        <div className="mt-6">
             <div ref={tocRef} className="relative pl-4" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
                 {/* Background scroll indicator */}
                 <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#D9D9D9] rounded-2xl overflow-hidden" />

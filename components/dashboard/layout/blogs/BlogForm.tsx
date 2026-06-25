@@ -349,7 +349,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     status: finalStatus, // ✅ Set the correct status
                     metaTitle: formData.metaTitle || formData.title,
                     metaDescription: formData.metaDescription || formData.description,
-                    canonical: formData.canonical || `https://yoursite.com/blog/${formData.slug}`,
+                    canonical: formData.canonical || `https://yoursite.com/blogs/${formData.slug}`,
                 }),
             });
 
@@ -476,7 +476,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                         required
                                         maxLength={100}
                                     />
-                                    <p className="text-xs text-slate-500">yoursite.com/blog/{formData.slug || "your-slug"}</p>
+                                    <p className="text-xs text-slate-500">yoursite.com/blogs/{formData.slug || "your-slug"}</p>
                                 </div>
 
                                 <Separator />
@@ -786,7 +786,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                         name="canonical"
                                         value={formData.canonical}
                                         onChange={handleChange}
-                                        placeholder={`https://yoursite.com/blog/${formData.slug || "your-slug"}`}
+                                        placeholder={`https://yoursite.com/blogs/${formData.slug || "your-slug"}`}
                                         className="h-11 border-slate-300 font-mono text-sm"
                                     />
                                 </div>

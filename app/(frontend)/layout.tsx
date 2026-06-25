@@ -6,6 +6,7 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import Navbar from "@/components/layout/navbar/Navbar";
 import Footer from "@/components/layout/Footer/Footer";
+import { SmoothCursor } from "@/components/ui/smooth-cursor";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,10 +31,11 @@ function LenisScrollTriggerSync() {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <ReactLenis root options={{ smoothWheel: true, lerp: 0.1 }}>
+        <ReactLenis className="cursor-none" root options={{ smoothWheel: true, lerp: 0.1 }}>
             <LenisScrollTriggerSync />
             <Navbar />
             {children}
+            <SmoothCursor />
             <Footer />
         </ReactLenis>
     );

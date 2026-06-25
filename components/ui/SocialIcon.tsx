@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import Link from "next/link";
 
@@ -16,57 +16,55 @@ export default function SocialIcon({ href, children, ringColor = "rgba(255,255,2
     const linkRef = useRef<HTMLAnchorElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
     const ringRef = useRef<HTMLSpanElement>(null);
+    const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-    const handleEnter = useCallback(() => {
+    useEffect(() => {
         const icon = iconRef.current;
         const ring = ringRef.current;
+        if (!icon || !ring) return;
 
-        if (icon) {
-            gsap.to(icon, {
-                y: -6,
-                scale: 1.15,
-                rotation: 5,
-                duration: 0.4,
-                ease: "back.out(3)",
-            });
-        }
+        // One paused timeline = the entire "hovered" state.
+        // play() runs it forward, reverse() always unwinds it back to
+        // exactly the start state — no matter how fast or how many
+        // times you toggle, or where in the animation you interrupt it.
+        // That's what makes this immune to the "stuck hover" bug:
+        // two separate to()/fromTo() calls per direction depend on
+        // GSAP correctly auto-overwriting the right tweens every time;
+        // play()/reverse() on one timeline never has that ambiguity.
+        const tl = gsap
+            .timeline({ paused: true })
+            .to(icon, { y: -6, scale: 1.15, rotation: 5, duration: 0.4, ease: "back.out(3)" }, 0)
+            .fromTo(ring, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "power2.out" }, 0);
 
-        if (ring) {
-            gsap.fromTo(
-                ring,
-                { scale: 0, opacity: 0 },
-                {
-                    scale: 1,
-                    opacity: 1,
-                    duration: 0.35,
-                    ease: "power2.out",
-                },
-            );
-        }
+        tlRef.current = tl;
+
+        return () => {
+            tl.kill();
+            tlRef.current = null;
+        };
+    }, []);
+
+    const handleEnter = useCallback(() => {
+        tlRef.current?.play();
     }, []);
 
     const handleLeave = useCallback(() => {
-        const icon = iconRef.current;
-        const ring = ringRef.current;
+        tlRef.current?.reverse();
+    }, []);
 
-        if (icon) {
-            gsap.to(icon, {
-                y: 0,
-                scale: 1,
-                rotation: 0,
-                duration: 0.3,
-                ease: "power2.inOut",
-            });
-        }
-
-        if (ring) {
-            gsap.to(ring, {
-                scale: 0,
-                opacity: 0,
-                duration: 0.25,
-                ease: "power2.in",
-            });
-        }
+    // Defensive reset: mouseleave can simply never fire if the cursor
+    // leaves the whole browser window, the tab loses focus (alt-tab),
+    // or a fast trackpad gesture gets coalesced by the browser. Without
+    // this, the icon can stay visually "hovered" with no event left to
+    // ever reverse it.
+    useEffect(() => {
+        const reset = () => tlRef.current?.reverse();
+        window.addEventListener("blur", reset);
+        document.addEventListener("visibilitychange", reset);
+        return () => {
+            window.removeEventListener("blur", reset);
+            document.removeEventListener("visibilitychange", reset);
+        };
     }, []);
 
     return (
@@ -78,6 +76,8 @@ export default function SocialIcon({ href, children, ringColor = "rgba(255,255,2
             className="relative inline-flex items-center justify-center w-[34px] h-[34px]"
             onMouseEnter={handleEnter}
             onMouseLeave={handleLeave}
+            onPointerCancel={handleLeave}
+            onBlur={handleLeave}
         >
             {/* Background ring */}
             <span

@@ -19,7 +19,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
         { id: 5, title: "Services", name: "Services", url: "#our-services", sectionId: "our-services", dropdown: false },
         { id: 6, title: "Teams", name: "Teams", url: "#teams", sectionId: "teams", dropdown: false },
         { id: 7, title: "Awards", name: "Awards", url: "#awards", sectionId: "awards", dropdown: false },
-        { id: 8, title: "Blogs", name: "Blogs", url: "#blog", dropdown: false },
+        { id: 8, title: "Blogs", name: "Blogs", url: "/blogs", dropdown: false },
     ];
 
     return <NavBar list={menus} currentPath={pathname} isScrolled={isScrolled} activeSection={activeSection} />;

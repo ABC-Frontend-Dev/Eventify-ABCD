@@ -70,7 +70,7 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem asChild>
-                            <Link href={`/blog/${slug}`} target="_blank" className="cursor-pointer">
+                            <Link href={`/blogs/${slug}`} target="_blank" className="cursor-pointer">
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Blog
                             </Link>
@@ -99,8 +99,8 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
                 <div className="block min-w-min w-full">
                     {/* Title */}
                     <p className="text-xs leading-3 italic text-muted-foreground">
-                        <Link href={`/blog/${slug}`} target="_blank" className=" underline hover:text-primary transition-colors">
-                            {`https://yourdomain.com/blog/${slug}`}
+                        <Link href={`/blogs/${slug}`} target="_blank" className=" underline hover:text-primary transition-colors">
+                            {`https://yourdomain.com/blogs/${slug}`}
                         </Link>
                     </p>
                     {/* Title */}
@@ -134,7 +134,7 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
                             </Link>
                         </Button>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`/blog/${slug}`} target="_blank">
+                            <Link href={`/blogs/${slug}`} target="_blank">
                                 <Eye className="h-3.5 w-3.5" />
                             </Link>
                         </Button>

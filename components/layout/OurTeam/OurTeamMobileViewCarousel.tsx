@@ -1,4 +1,4 @@
-// components/layout/Blog/BlogListCarouselCard.tsx
+// components/layout/blogs/BlogListCarouselCard.tsx
 
 "use client";
 
