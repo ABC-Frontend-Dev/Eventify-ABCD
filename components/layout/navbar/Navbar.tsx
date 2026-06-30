@@ -50,7 +50,7 @@ export default function Navbar() {
 
     return (
         <header
-            className={`fixed top-0 left-0 w-full h-20 lg:h-fit flex items-center justify-between px-4 sm:px-6 lg:px-20 py-4 lg:py-5 z-[100] transition-all duration-300 ${
+            className={`fixed top-0 left-0 w-full h-16 lg:h-fit flex items-center justify-between px-4 sm:px-6 lg:px-20 py-4 lg:py-3 z-[100] transition-all duration-300 ${
                 isScrolled ? "bg-white/50 backdrop-blur-xs" : "bg-transparent"
             }`}
         >

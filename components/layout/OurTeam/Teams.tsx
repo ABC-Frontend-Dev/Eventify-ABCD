@@ -4,6 +4,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import TeamModal from "./TeamModal";
+import { FlipCardDemo } from "@/components/animate-ui/demo/components/community/flip-card";
 
 interface TeamsProps {
     id: number;
@@ -206,8 +207,11 @@ export default function Teams() {
                     <Image src={"/images/our-teams/People Who Make Moments Happen.png"} alt="People Who Make Moments Happen" width={1000} height={1000} className="w-[319.92] h-20.5 object-contain" />
                 </div>
             </div>
-
             <TeamModal member={selectedMember} isOpen={isModalOpen} onClose={handleCloseModal} originRect={originRect} />
+
+            <div className="">
+                <FlipCardDemo />
+            </div>
         </>
     );
 }

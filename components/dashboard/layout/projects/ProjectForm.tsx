@@ -263,7 +263,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 {/* Header Section */}
                 <div className="flex items-center justify-between gap-5">
                     <div className="flex items-start justify-center gap-4">
-                        <Button variant="outline" size="icon" asChild className="mt-1 shrink-0 hover:bg-slate-100 transition-colors">
+                        <Button variant="outline" size="icon" asChild className="mt-1 shrink-0">
                             <Link href="/dashboard/projects">
                                 <ArrowLeft className="h-5 w-5" />
                             </Link>
@@ -280,32 +280,34 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                             </div>
                         </div>
                     </div>
-                    <div className="">
-                        <Card className="border-transparent rounded-lg p-0 border-none ring-0 shadow-none">
-                            <CardContent className="p-0">
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <Button
-                                        type="submit"
-                                        disabled={loading || uploadingBanner || uploadingImages || !isFormValid}
-                                        className="flex-1 px-7 py-5 bg-primary text-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300"
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                                {mode === "create" ? "Creating Project..." : "Updating Project..."}
-                                            </>
-                                        ) : (
-                                            <>{mode === "create" ? "Create Project" : "Update Project"}</>
-                                        )}
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+
+                    {/* Button with form attribute */}
+                    <Card className="border-transparent rounded-lg p-0 border-none ring-0 shadow-none">
+                        <CardContent className="p-0">
+                            <Button
+                                type="submit"
+                                form="project-form"
+                                disabled={loading || uploadingBanner || uploadingImages || !isFormValid}
+                                className="px-7 py-5 bg-primary text-white disabled:opacity-50 transition-all duration-300"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        {mode === "create" ? "Creating..." : "Updating..."}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="mr-2 h-5 w-5" />
+                                        {mode === "create" ? "Create Project" : "Update Project"}
+                                    </>
+                                )}
+                            </Button>
+                        </CardContent>
+                    </Card>
                 </div>
 
                 {/* Form Section */}
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6" id="project-form">
                     {/* Basic Information Card */}
                     <div className="flex flex-row gap-6">
                         <Card className="border-slate-200 shadow-lg shadow-slate-200/50">

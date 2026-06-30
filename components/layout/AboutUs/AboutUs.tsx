@@ -4,11 +4,23 @@
 import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import HeaderDescription from "@/components/common/HeaderDescription";
 import HeadingWithoutLogo from "@/components/common/HeadingWithoutLogo";
+import ScrollReveal from "@/components/Animations/ScrollReveal";
 import Image from "next/image";
-import SubHeading from "@/components/common/SubHeading";
 import CardFlip from "@/components/ui/flip-card";
+
+import { SplitText } from "gsap/SplitText";
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
+
+interface SubHeadingProps {
+    title: string;
+}
+
+interface HeaderDescriptionProps {
+    description: string;
+    scrollContainerRef: any;
+}
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
@@ -107,11 +119,10 @@ export default function AboutUs() {
 
     return (
         <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
-            <header>
-                <HeadingWithoutLogo title="About Us" />
+            <header className="grid lg:grid-cols-[520px_1fr] gap-10 items-start">
                 <SubHeading title="The team behind every celebration" />
                 <HeaderDescription
-                    description="Eventify is a Dubai-born events company redefining how people experience culture, entertainment, and live moments. Built by industry leaders and creatives who have helped shape the region's event scene for over two decades, Eventify thrives at the intersection of ideas, energy, and execution."
+                    description="Eventify is a Dubai-born events company redefining how people experience culture, entertainment, and live moments. Built by industry leaders and creatives who have helped shape the region’s event scene for over two decades, Eventify thrives at the intersection of ideas, energy, and execution."
                     scrollContainerRef={undefined}
                 />
             </header>
@@ -123,21 +134,18 @@ export default function AboutUs() {
                     <div className="space-y-2.5">
                         <CardFlip
                             className="w-full lg:w-[288px] h-51.25 "
-                            title="Being award-winning is part of the story, but not the goal."
-                            description="Whether It's A High-Energy Festival, A Cultural Moment, A Corporate Experience, Or A Brand Activation, Eventify Thrives On Variety, Constantly Evolving And Shaping Each Event Around
-Its Audience And Purpose."
+                            title="What makes Eventify different is simple, people come back."
+                            description="Over the years, Eventify has built lasting relationships with clients who return not just for execution, but for trust, creativity, and a team that genuinely cares about bringing ideas to life. Every project is approached as a partnership, not just an event."
+                        />
+                        <CardFlip
+                            className="w-full lg:w-[288px] h-51.25 "
+                            title="Eventify doesn’t believe in one type of experience."
+                            description="Whether it’s a high-energy festival, a cultural moment, a corporate experience, or a brand activation, Eventify thrives on variety, constantly evolving and shaping each event around its audience and purpose."
                         />
                         <CardFlip
                             className="w-full lg:w-[288px] h-51.25 "
                             title="Being award-winning is part of the story, but not the goal."
-                            description="Whether It's A High-Energy Festival, A Cultural Moment, A Corporate Experience, Or A Brand Activation, Eventify Thrives On Variety, Constantly Evolving And Shaping Each Event Around
-Its Audience And Purpose."
-                        />
-                        <CardFlip
-                            className="w-full lg:w-[288px] h-51.25 "
-                            title="Being award-winning is part of the story, but not the goal."
-                            description="Whether It's A High-Energy Festival, A Cultural Moment, A Corporate Experience, Or A Brand Activation, Eventify Thrives On Variety, Constantly Evolving And Shaping Each Event Around
-Its Audience And Purpose."
+                            description="The real achievement lies in creating moments people remember, conversations that continue long after the lights go down, and experiences that leave a mark on the UAE’s evolving cultural scene."
                         />
                     </div>
                 </div>
@@ -160,5 +168,62 @@ Its Audience And Purpose."
                 </div>
             </div>
         </section>
+    );
+}
+
+export function SubHeading({ title }: SubHeadingProps) {
+    const textRef = useRef(null);
+
+    useEffect(() => {
+        if (!textRef.current) return;
+
+        // 1. Change type to "words,chars" so words don't break mid-way
+        const split = new SplitText(textRef.current, { type: "words,chars" });
+
+        // Set initial state with blur and opacity on the individual characters
+        gsap.set(split.chars, {
+            opacity: 0,
+            y: 20,
+            filter: "blur(10px)",
+        });
+
+        const ctx = gsap.context(() => {
+            gsap.to(split.chars, {
+                opacity: 1,
+                y: 0,
+                filter: "blur(0px)",
+                duration: 0.6,
+                stagger: 0.03,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: textRef.current,
+                    start: "top 80%",
+                    end: "top 50%",
+                    toggleActions: "play none none reverse",
+                },
+            });
+        }, textRef);
+
+        return () => {
+            ctx.revert();
+            split.revert();
+        };
+    }, [title]);
+
+    return (
+        /* 2. Added 'break-words' to safely handle container limits if needed */
+        <h3 ref={textRef} className="text-2xl lg:text-4xl leading-7 lg:leading-10 font-product-sans-bold font-bold uppercase text-primary break-words pr-26" style={{ willChange: "filter" }}>
+            {title}
+        </h3>
+    );
+}
+
+export function HeaderDescription(params: HeaderDescriptionProps) {
+    return (
+        <p className="mt-2 text-sm lg:text-base font-product-sans-regular leading-5 tracking-wider text-slate-800">
+            <ScrollReveal scrollContainerRef={params.scrollContainerRef} baseOpacity={0.1} enableBlur baseRotation={3} blurStrength={4}>
+                {params.description}
+            </ScrollReveal>
+        </p>
     );
 }

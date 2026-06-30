@@ -57,7 +57,25 @@ export function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props): React
 }
 
 export function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props): React.ReactElement {
-    return <TabsPrimitive.Panel className={cn("flex-1 outline-none relative", className)} data-slot="tabs-content" {...props} />;
+    return (
+        <TabsPrimitive.Panel
+            className={cn(
+                // ── Override hidden attribute so CSS transitions work ──
+                // When [hidden]: force display:block, take out of flow, hide visually
+                "[&[hidden]]:!block [&[hidden]]:absolute [&[hidden]]:inset-x-0 [&[hidden]]:top-0",
+                "[&[hidden]]:opacity-0 [&[hidden]]:translate-y-3 [&[hidden]]:pointer-events-none",
+                // ── Active state (no [hidden]) ──
+                "opacity-100 translate-y-0",
+                // ── Transition ──
+                "transition-[opacity,transform] duration-350 ease-out",
+                // ── Base styles ──
+                "flex-1 outline-none relative",
+                className,
+            )}
+            data-slot="tabs-content"
+            {...props}
+        />
+    );
 }
 
 export { TabsPrimitive, TabsTab as TabsTrigger, TabsPanel as TabsContent };

@@ -44,7 +44,7 @@ export default function AnimatedFavicon() {
     }, []);
 
     return (
-        <ul ref={containerRef} className="flex flex-col items-center justify-between w-6.25 h-6.5">
+        <ul ref={containerRef} className="flex flex-col items-center justify-between w-6.25 h-6.5 -translate-y-px">
             <li className="block w-full h-1.25 bg-primary"></li>
             <li className="block w-full h-1.25 bg-primary"></li>
             <li className="block w-full h-1.25 bg-primary"></li>

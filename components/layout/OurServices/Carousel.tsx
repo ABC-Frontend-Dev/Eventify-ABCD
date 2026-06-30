@@ -123,24 +123,26 @@ export function EmblaCarousel() {
         const ctx = gsap.context(() => {
             const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
 
-            validSlides.forEach((slide) => {
+            // Example fixed random-like durations per card
+            const durations = [1.6, 1.4, 1.8, 1.5, 1.6, 1.1];
+
+            validSlides.forEach((slide, index) => {
                 const inner = slide.querySelector(".slide-reveal-inner");
 
                 if (!inner) return;
 
+                // Hide from bottom, so reveal goes top -> bottom
                 gsap.set(inner, {
-                    clipPath: "inset(0 100% 0 0)",
-                    scale: 1.08,
+                    clipPath: "inset(0 0 100% 0)",
                     transformOrigin: "center center",
                 });
 
                 gsap.to(inner, {
-                    clipPath: "inset(0 0% 0 0)",
-                    scale: 1,
-                    duration: 1.2,
+                    clipPath: "inset(0 0 0% 0)",
+                    duration: durations[index] ?? 2.2,
                     ease: "power3.out",
                     scrollTrigger: {
-                        trigger: slide,
+                        trigger: containerRef.current, // all cards use same trigger
                         start: "top 85%",
                         toggleActions: "play none none reverse",
                     },

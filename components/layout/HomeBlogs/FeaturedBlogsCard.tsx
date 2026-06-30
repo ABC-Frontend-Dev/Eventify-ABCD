@@ -5,6 +5,7 @@ import { useRef, useCallback, useState } from "react";
 import gsap from "gsap";
 import Image from "next/image";
 import Link from "next/link";
+import { GoesOutComesInUnderline } from "@/components/ui/underline-animation";
 
 export default function FeaturedBlogsCard() {
     const cardRef = useRef<HTMLDivElement>(null);
@@ -46,7 +47,10 @@ export default function FeaturedBlogsCard() {
                     <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">Event drive Prepares the Event Managers of Tomorrow</p>
                     <p className="absolute px-7.5 w-full bottom-5 left-1/2 -translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
                         The dark cloud is gradually dissipating and we can see the future of our events taking shape. After more than a year{" "}
-                        <span className="hidden lg:inline-flex">of organizing virtual events you were able to develop ne</span> ... <span className="underline">Read more</span>
+                        <span className="hidden lg:inline-flex">of organizing virtual events you were able to develop ne</span> ...{" "}
+                        <span className="">
+                            <GoesOutComesInUnderline label="Read More" direction="right" />
+                        </span>
                     </p>
                 </div>
             </div>

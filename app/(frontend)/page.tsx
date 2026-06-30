@@ -2,6 +2,7 @@
 import AboutUs from "@/components/layout/AboutUs/AboutUs";
 import Awards from "@/components/layout/Awards/Awards";
 import ContactModal from "@/components/layout/Contact/ContactModal";
+import HeroPageLoader from "@/components/layout/HeroPageLoader/HeroPageLoader";
 import HeroSection from "@/components/layout/HeroSection/HeroSection";
 import HomeBlogs from "@/components/layout/HomeBlogs/HomeBlogs";
 import InspirationInFrames from "@/components/layout/InspirationInFrames/InspirationInFrames";
@@ -14,13 +15,14 @@ export default function Home() {
     return (
         <>
             {/* <ContactModal /> */}
+            {/* <HeroPageLoader /> */}
             <HeroSection />
             <AboutUs />
             <OurClients />
             <OurServices />
             <OurTeam />
             <Awards />
-            {/* <Projects />*/}
+            <Projects />
             <HomeBlogs />
             <InspirationInFrames />
         </>

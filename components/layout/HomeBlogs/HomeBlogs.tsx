@@ -18,11 +18,11 @@ export default function HomeBlogs() {
                 <div className="flex items-center justify-center flex-col lg:flex-row w-full mt-9 gap-y-1.5 lg:gap-5.5">
                     <BlogsCard />
                 </div>
-                <div className="mt-5">
+                {/* <div className="mt-5">
                     <Link href="/blog" className="text-xl font-helvetica-bold text-primary text-center py-5.25 border border-[#7D09CA] rounded-[1px] overflow-hidden w-full block">
                         View All
                     </Link>
-                </div>
+                </div> */}
             </div>
         </section>
     );

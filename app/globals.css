@@ -56,7 +56,8 @@
   --font-product-sans-medium: var(--font-product-sans-medium);
   --font-product-sans-bold: var(--font-product-sans-bold);
   --font-product-sans-black: var(--font-product-sans-black);
-  --color-primary: #570689;
+  --color-primary: #7E0ACB;
+  /* --color-primary: #570689; */
   --color-slate-50: #F8FAFC;
   --color-slate-100: #F1F5F9;
   --color-slate-200: #E2E8F0;
@@ -262,7 +263,11 @@
   --ds-gray-900: hsla(0, 0%, 63%, 1);
 }
 
-html {
+/* html {
+  scroll-behavior: smooth;
+} */
+
+.smooth-scroll-target {
   scroll-behavior: smooth;
 }
 
