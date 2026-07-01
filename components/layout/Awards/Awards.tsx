@@ -10,11 +10,10 @@ interface yearTabsProps {
 }
 export default function Awards() {
     const yearTabs: yearTabsProps[] = [
-        { id: 5, years: 2025 },
-        { id: 4, years: 2024 },
-        { id: 3, years: 2023 },
-        { id: 2, years: 2022 },
-        { id: 1, years: 2021 },
+        { id: 4, years: 2025 },
+        { id: 3, years: 2024 },
+        { id: 2, years: 2023 },
+        { id: 1, years: 2022 },
     ];
     return (
         <section id="awards" className="hidden lg:block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-14">
@@ -44,7 +43,7 @@ export default function Awards() {
                     </TabsPanel>
 
                     <TabsPanel value="tab-2">
-                        <p className="p-4 text-center text-muted-foreground text-xs">Tab 2 content</p>
+                        <AwardsTabContent2024 />
                     </TabsPanel>
 
                     <TabsPanel value="tab-3">

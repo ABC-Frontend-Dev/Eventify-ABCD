@@ -15,7 +15,7 @@ export default function Home() {
     return (
         <>
             {/* <ContactModal /> */}
-            {/* <HeroPageLoader /> */}
+            <HeroPageLoader />
             <HeroSection />
             <AboutUs />
             <OurClients />
