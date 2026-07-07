@@ -287,6 +287,11 @@
 
 /* Remove the old embla styles and add these updated ones */
 
+body.custom-cursor-active,
+body.custom-cursor-active * {
+  cursor: none !important;
+}
+
 /* Embla Carousel Styles */
 .embla {
   position: relative;

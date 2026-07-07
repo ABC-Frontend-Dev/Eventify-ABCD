@@ -164,7 +164,7 @@ export default function InspirationInFrames() {
                         )}
 
                         {hoveredIndex !== null && (
-                            <div className="absolute left-2.5 bottom-2.5 z-100">
+                            <div className="absolute left-2.5 bottom-2.5 z-1000">
                                 <Image src="/images/icons/instagram.png" alt="Instagram" width={1000} height={1000} className="w-10 h-10 object-contain" />
                             </div>
                         )}

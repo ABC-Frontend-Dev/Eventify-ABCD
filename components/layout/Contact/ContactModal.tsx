@@ -194,7 +194,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <motion.div key="contact-modal-root" className="fixed inset-0 z-[9999] overflow-y-auto" initial="closed" animate="open" exit="closed" onClick={onClose}>
+                <motion.div key="contact-modal-root" className="fixed inset-0 z-[999] overflow-y-auto" initial="closed" animate="open" exit="closed" onClick={onClose}>
                     {/* Backdrop */}
                     <motion.div
                         className="absolute inset-0 bg-black/60 backdrop-blur-[3px]"

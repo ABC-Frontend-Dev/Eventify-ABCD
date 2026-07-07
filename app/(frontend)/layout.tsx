@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <LenisScrollTriggerSync />
             <Navbar />
             {children}
-            {/* <SmoothCursor /> */}
+            <SmoothCursor />
             <Footer />
         </ReactLenis>
     );

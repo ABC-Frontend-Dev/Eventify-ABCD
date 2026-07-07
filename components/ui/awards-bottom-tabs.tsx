@@ -21,7 +21,7 @@ export function AwardsTabsList({
     return (
         <TabsPrimitive.List
             className={cn(
-                "relative z-0 flex w-fit items-center justify-center gap-x-0.5",
+                "relative z-0 flex w-fit items-center justify-center gap-x-0.5 bg-red-600",
                 "data-[orientation=vertical]:flex-col",
                 variant === "default" ? "rounded-lg bg-muted p-0.5 " : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent",
                 className,

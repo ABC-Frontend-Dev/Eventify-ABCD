@@ -3,12 +3,13 @@
 import HeaderDescription from "@/components/common/HeaderDescription";
 import HeadingWithLogo from "@/components/common/HeadingWithLogo";
 import SubHeading from "@/components/common/SubHeading";
-import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import Image from "next/image";
 import axios from "axios";
 import Modal from "@/components/ui/modal-drop";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmblaCarousel } from "./Carousel";
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 
 interface Category {
     id: number;
@@ -31,6 +32,7 @@ export default function Projects() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+    const [activeTab, setActiveTab] = useState("tab-all");
 
     useEffect(() => {
         fetchProjects();
@@ -50,7 +52,9 @@ export default function Projects() {
         }
     };
 
-    const categories = Array.from(new Map(projects.map((project) => [project.category.id, project.category])).values());
+    const categories = useMemo(() => Array.from(new Map(projects.map((project) => [project.category.id, project.category])).values()), [projects]);
+
+    const filteredProjects = activeTab === "tab-all" ? projects : projects.filter((project) => project.categoryId === Number(activeTab.replace("tab-", "")));
 
     const openModal = (project: Project) => {
         setSelectedProject(project);
@@ -59,7 +63,6 @@ export default function Projects() {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        // Delay clearing selected project for smooth exit animation
         setTimeout(() => setSelectedProject(null), 300);
     };
 
@@ -67,7 +70,7 @@ export default function Projects() {
         return (
             <section className="max-w-360 w-full mx-auto px-20 py-9 scroll-mt-14">
                 <div className="flex items-center justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                    <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900" />
                 </div>
             </section>
         );
@@ -75,7 +78,7 @@ export default function Projects() {
 
     return (
         <section className="max-w-360 w-full mx-auto px-20 py-9 scroll-mt-14">
-            <Tabs defaultValue="tab-all">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <header className="flex items-end justify-between">
                     <div>
                         <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
@@ -97,44 +100,45 @@ export default function Projects() {
                 </header>
 
                 <div className="mt-9">
-                    {/* ALL PROJECTS */}
-                    <TabsPanel value="tab-all">
-                        <div className="grid grid-cols-3 gap-1.5">
-                            {projects.map((project) => (
-                                <ProjectCard key={`all-${project.id}`} project={project} onClick={() => openModal(project)} />
+                    <div className="grid grid-cols-3 gap-1.5">
+                        <AnimatePresence mode="popLayout">
+                            {filteredProjects.map((project) => (
+                                <motion.div
+                                    key={project.id}
+                                    layout
+                                    initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                                    transition={{
+                                        duration: 0.4,
+                                        ease: [0.22, 1, 0.36, 1],
+                                        layout: {
+                                            duration: 0.45,
+                                            ease: [0.22, 1, 0.36, 1],
+                                        },
+                                    }}
+                                >
+                                    <ProjectCard project={project} onClick={() => openModal(project)} />
+                                </motion.div>
                             ))}
-                        </div>
-                    </TabsPanel>
-
-                    {/* CATEGORY PROJECTS */}
-                    {categories.map((category) => (
-                        <TabsPanel key={`panel-${category.id}`} value={`tab-${category.id}`}>
-                            <div className="grid grid-cols-3 gap-1.5">
-                                {projects
-                                    .filter((project) => project.categoryId === category.id)
-                                    .map((project) => (
-                                        <ProjectCard key={`cat-${category.id}-${project.id}`} project={project} onClick={() => openModal(project)} />
-                                    ))}
-                            </div>
-                        </TabsPanel>
-                    ))}
+                        </AnimatePresence>
+                    </div>
                 </div>
             </Tabs>
 
-            {/* Dynamic Modal */}
-            <Modal isOpen={isModalOpen} onClose={closeModal} className="p-0 max-w-166 w-full h-165.25 bg-white" allowEasyClose={true}>
+            <Modal isOpen={isModalOpen} onClose={closeModal} className="h-165.25 w-full max-w-166 bg-white p-0" allowEasyClose={true}>
                 {selectedProject && (
                     <div className="p-2.5">
-                        {/* Carousel with dynamic images */}
-                        <div className="w-full h-103 overflow-hidden">
+                        <div className="h-103 w-full overflow-hidden rounded-xl">
                             <EmblaCarousel images={selectedProject.images} />
                         </div>
 
-                        {/* Dynamic content */}
                         <div className="p-5">
-                            <p className="text-[34px] font-product-sans-bold font-semibold tracking-wide leading-10 text-footer-bg">{selectedProject.title}</p>
-                            <p className="text-xl font-product-sans-medium tracking-wide leading-6.5 mt-2 text-footer-bg">{selectedProject.description}</p>
-                            <div className="mt-4 inline-block px-4 py-2 bg-primary/10 rounded-md">
+                            <p className="font-product-sans-bold text-[34px] font-semibold leading-10 tracking-wide text-footer-bg">{selectedProject.title}</p>
+
+                            <p className="mt-2 font-product-sans-medium text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>
+
+                            <div className="mt-4 inline-block rounded-md bg-primary/10 px-4 py-2">
                                 <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
                             </div>
                         </div>
@@ -145,7 +149,6 @@ export default function Projects() {
     );
 }
 
-// Extracted ProjectCard component to avoid duplication
 interface ProjectCardProps {
     project: Project;
     onClick: () => void;
@@ -155,11 +158,9 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
     return (
         <div className="relative group h-105.5">
             <Image src={project.bannerImage} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
-
             <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-18.25 bg-black/50 backdrop-blur-lg">
                 <div className="flex items-center justify-center flex-col w-full h-full text-white">
                     <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>
-
                     <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>
                 </div>
 
