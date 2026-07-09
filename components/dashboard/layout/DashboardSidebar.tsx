@@ -17,7 +17,7 @@ import {
     SidebarMenuAction,
     SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Home, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List } from "lucide-react";
+import { Home, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -102,6 +102,11 @@ export function DashboardSidebar() {
             title: "Settings",
             icon: Settings,
             href: "/dashboard/settings",
+        },
+        {
+            title: "Contacts",
+            icon: Mail,
+            href: "/dashboard/contacts",
         },
     ];
 

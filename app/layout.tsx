@@ -1,6 +1,30 @@
 // app/layout.tsx
 import "./globals.css";
+import type { Metadata } from "next";
 
+import { SITE_CONFIG, getAbsoluteUrl } from "@/lib/constants";
+export const metadata: Metadata = {
+    metadataBase: new URL(SITE_CONFIG.baseUrl),
+    title: {
+        default: SITE_CONFIG.name,
+        template: `%s | ${SITE_CONFIG.name}`,
+    },
+    description: SITE_CONFIG.description,
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+        },
+    },
+    alternates: {
+        canonical: getAbsoluteUrl("/"),
+    },
+};
 import {
     fontHelvetica,
     fontHelveticaNeueHeavy,
