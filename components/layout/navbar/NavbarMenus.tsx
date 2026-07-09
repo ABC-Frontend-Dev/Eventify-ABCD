@@ -5,7 +5,7 @@ import NavBar from "@/components/ui/navbar";
 import { useState } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import ContactModal from "../Contact/ContactModal";
-import { PhoneIconForHeader } from "@/components/icons/PhoneIconForHeader";
+import { ShineButton } from "@/components/lightswind/shine-button";
 
 type NavbarMenuProps = {
     isScrolled: boolean;
@@ -82,20 +82,23 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
                             layoutId="contact-modal-shell"
                             onClick={() => setOpen(true)}
                             transition={{ layout: morphTransition }}
-                            className="flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-[5px]
-    bg-[linear-gradient(0deg,#6009F0_0%,#8105F0_100%)]
-    shadow-[inset_2px_2px_2px_0_rgba(255,255,255,0.5),7px_7px_20px_0_rgba(0,0,0,0.1),4px_4px_5px_0_rgba(0,0,0,0.1)] px-3.5 py-2 text-sm text-white font-product-sans-regular transition-opacity duration-200 will-change-transform hover:opacity-95"
+                            className=""
                             whileTap={{ scale: 0.985 }}
                         >
-                            <span>Begin Your Project</span>
+                            {/* <span>Begin Your Project</span>
                             <span className="shrink-0">
                                 <PhoneIconForHeader />
-                            </span>
+                            </span> */}
+                            <ShineButton label="Begin Your Project" size="md" bgColor="linear-gradient(325deg, #57068C 0%, #bd76eb 55%, #57068C 90%)" />
                         </motion.button>
                     )}
                 </AnimatePresence>
 
                 <ContactModal isOpen={open} onClose={() => setOpen(false)} />
+
+                {/* <MagneticButton variant="primary" size="lg">
+                    Get Started
+                </MagneticButton> */}
             </div>
         </LayoutGroup>
     );

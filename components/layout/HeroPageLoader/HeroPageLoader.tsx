@@ -69,14 +69,12 @@ export default function HeroPageLoader() {
 
         if (!loader || !barsGroup || currentBars.length !== 3) return;
 
-        // ── Lock scroll completely ────────────────────────
         const scrollY = window.scrollY;
         document.body.style.overflow = "hidden";
         document.body.style.position = "fixed";
         document.body.style.top = `-${scrollY}px`;
         document.body.style.width = "100%";
 
-        // Block wheel, touch, and keyboard scroll on the loader
         const preventScroll = (e: Event) => {
             e.preventDefault();
         };
@@ -91,7 +89,6 @@ export default function HeroPageLoader() {
         loader.addEventListener("touchmove", preventScroll, { passive: false });
         document.addEventListener("keydown", preventKey);
 
-        // ── GSAP setup ────────────────────────────────────
         currentBars.forEach((bar, index) => {
             gsap.set(bar, {
                 rotation: 0,
@@ -106,7 +103,6 @@ export default function HeroPageLoader() {
 
         const tl = gsap.timeline({
             onComplete: () => {
-                // ── Unlock scroll ─────────────────────────
                 document.body.style.overflow = "";
                 document.body.style.position = "";
                 document.body.style.top = "";
@@ -121,13 +117,13 @@ export default function HeroPageLoader() {
             },
         });
 
-        tl.to({}, { duration: 1.8 })
+        tl.to({}, { duration: 1.2 })
             .to(currentBars, {
                 rotation: (index) => [-20, 11, 0][index],
                 duration: 0.6,
                 ease: "power2.inOut",
             })
-            .to({}, { duration: 1.2 })
+            .to({}, { duration: 0.8 })
             .to(barsGroup, {
                 scale: 80,
                 duration: 1,
@@ -160,7 +156,6 @@ export default function HeroPageLoader() {
 
     return (
         <div ref={loaderRef} className="fixed inset-0 z-[9999] h-screen w-screen overflow-hidden">
-            {/* SVG overlay with bar cutouts — video visible through cutouts */}
             <svg className="absolute inset-0 h-full w-full" viewBox={`0 0 ${viewport.width} ${viewport.height}`} preserveAspectRatio="none">
                 <defs>
                     <mask id="hero-loader-mask">

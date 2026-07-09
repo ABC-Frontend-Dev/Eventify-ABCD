@@ -1,3 +1,4 @@
+// components/ui/awards-bottom-tabs.tsx
 "use client";
 
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
@@ -9,7 +10,6 @@ export type TabsVariant = "default" | "underline";
 export function AwardsTabs({ className, ...props }: TabsPrimitive.Root.Props): React.ReactElement {
     return <TabsPrimitive.Root className={cn("relative flex flex-col gap-2 data-[orientation=vertical]:flex-row", className)} data-slot="tabs" {...props} />;
 }
-
 export function AwardsTabsList({
     variant = "default",
     className,
@@ -21,7 +21,7 @@ export function AwardsTabsList({
     return (
         <TabsPrimitive.List
             className={cn(
-                "relative z-0 flex w-fit items-center justify-center gap-x-0.5 bg-red-600",
+                "relative z-0 flex w-fit items-center justify-center gap-x-0.5", // removed bg-red-600
                 "data-[orientation=vertical]:flex-col",
                 variant === "default" ? "rounded-lg bg-muted p-0.5 " : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent",
                 className,

@@ -1,3 +1,4 @@
+// components/layout/Projects/Projects.tsx
 "use client";
 
 import HeaderDescription from "@/components/common/HeaderDescription";
@@ -82,7 +83,7 @@ export default function Projects() {
                 <header className="flex items-end justify-between">
                     <div>
                         <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
-                        <SubHeading title="Explore remaining projects" />
+                        <SubHeading title="Explore projects" />
                         <HeaderDescription description="The talented individuals working together to create memorable events." scrollContainerRef={undefined} />
                     </div>
 
@@ -157,23 +158,19 @@ interface ProjectCardProps {
 function ProjectCard({ project, onClick }: ProjectCardProps) {
     return (
         <div className="relative group h-105.5">
-            <Image src={project.bannerImage} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
-            <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-18.25 bg-black/50 backdrop-blur-lg">
-                <div className="flex items-center justify-center flex-col w-full h-full text-white">
-                    <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>
-                    <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>
-                </div>
+            <button type="button" onClick={onClick} className="w-full h-full">
+                <Image src={project.bannerImage} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-18.25 bg-black/50 backdrop-blur-lg">
+                    <div className="flex items-center justify-center flex-col w-full h-full text-white">
+                        <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>
+                        <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>
+                    </div>
 
-                <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[93%] z-20 bg-white">
-                    <button
-                        type="button"
-                        onClick={onClick}
-                        className="block w-full px-3.75 py-2.5 font-helvetica font-medium text-[16px] text-center text-slate-950 cursor-pointer hover:bg-gray-100 transition-colors"
-                    >
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[93%] z-20 bg-white block w-full px-3.75 py-2.5 font-helvetica font-medium text-[16px] text-center text-slate-950 cursor-pointer hover:bg-gray-100 transition-colors">
                         {project.category.name}
-                    </button>
+                    </div>
                 </div>
-            </div>
+            </button>
         </div>
     );
 }
