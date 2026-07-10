@@ -22,7 +22,6 @@ model Clients {
   description String?
   image       String
 }
-
 model ProjectCategory {
   id          Int       @id @default(autoincrement())
   name        String
@@ -35,11 +34,24 @@ model Project {
   title       String
   description String
   bannerImage String
-  images      String[]
   categoryId  Int
+  hasTabs     Boolean         @default(false)  // Toggle for tabs
+  tabs        ProjectTab[]    // Relation to tabs
+  images      String[]        // Images if no tabs
   category    ProjectCategory @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
+}
+
+model ProjectTab {
+  id        Int      @id @default(autoincrement())
+  name      String   // Tab name (e.g., "Interior", "Exterior", "Gallery")
+  images    String[] // Array of image URLs for this tab
+  order     Int      @default(0) // Display order
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
 
 model Author {

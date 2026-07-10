@@ -4,13 +4,20 @@
 import HeaderDescription from "@/components/common/HeaderDescription";
 import HeadingWithLogo from "@/components/common/HeadingWithLogo";
 import SubHeading from "@/components/common/SubHeading";
-import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
+import { Tabs as MainTabs, TabsList, TabsTab, TabsPanel } from "@/components/ui/tabs";
 import Image from "next/image";
 import axios from "axios";
 import Modal from "@/components/ui/modal-drop";
 import { useEffect, useMemo, useState } from "react";
 import { EmblaCarousel } from "./Carousel";
-import { AnimatePresence, LayoutGroup, motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+
+interface ProjectTab {
+    id: number;
+    name: string;
+    images: string[];
+    order: number;
+}
 
 interface Category {
     id: number;
@@ -23,6 +30,8 @@ interface Project {
     title: string;
     description: string;
     bannerImage: string;
+    hasTabs: boolean;
+    tabs: ProjectTab[];
     images: string[];
     categoryId: number;
     category: Category;
@@ -34,6 +43,7 @@ export default function Projects() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [activeTab, setActiveTab] = useState("tab-all");
+    const [activeInnerTab, setActiveInnerTab] = useState("");
 
     useEffect(() => {
         fetchProjects();
@@ -59,12 +69,18 @@ export default function Projects() {
 
     const openModal = (project: Project) => {
         setSelectedProject(project);
+        if (project.hasTabs && project.tabs.length > 0) {
+            setActiveInnerTab(`inner-tab-${project.tabs[0].id}`);
+        }
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setTimeout(() => setSelectedProject(null), 300);
+        setTimeout(() => {
+            setSelectedProject(null);
+            setActiveInnerTab("");
+        }, 300);
     };
 
     if (loading) {
@@ -79,7 +95,7 @@ export default function Projects() {
 
     return (
         <section className="max-w-360 w-full mx-auto px-20 py-9 scroll-mt-14">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <MainTabs value={activeTab} onValueChange={setActiveTab}>
                 <header className="flex items-end justify-between">
                     <div>
                         <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
@@ -125,22 +141,54 @@ export default function Projects() {
                         </AnimatePresence>
                     </div>
                 </div>
-            </Tabs>
+            </MainTabs>
 
             <Modal isOpen={isModalOpen} onClose={closeModal} className="h-165.25 w-full max-w-166 bg-white p-0" allowEasyClose={true}>
                 {selectedProject && (
-                    <div className="p-2.5">
-                        <div className="h-103 w-full overflow-hidden rounded-xl">
-                            <EmblaCarousel images={selectedProject.images} />
-                        </div>
+                    <div className="p-2.5 h-full flex flex-col bg-white">
+                        {/* Modal Content */}
+                        {selectedProject.hasTabs && selectedProject.tabs.length > 0 ? (
+                            /* PROJECT WITH TABS */
+                            <MainTabs value={activeInnerTab} onValueChange={setActiveInnerTab} className="flex-1 flex flex-col">
+                                {/* Tabs Navigation - Using your existing style */}
+                                <div className="mb-2.5">
+                                    <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
+                                        {selectedProject.tabs.map((tab) => (
+                                            <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-4 px-6.75">
+                                                {tab.name}
+                                            </TabsTab>
+                                        ))}
+                                    </TabsList>
+                                </div>
 
-                        <div className="p-5">
+                                {/* Tab Content */}
+                                <div className="flex-1 overflow-hidden">
+                                    {selectedProject.tabs.map((tab) => (
+                                        <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
+                                            <div className="h-103 w-full overflow-hidden rounded-xl">
+                                                <EmblaCarousel images={tab.images} />
+                                            </div>
+                                        </TabsPanel>
+                                    ))}
+                                </div>
+                            </MainTabs>
+                        ) : (
+                            /* PROJECT WITHOUT TABS */
+                            <div className="h-103 w-full overflow-hidden rounded-xl">
+                                <EmblaCarousel images={selectedProject.images} />
+                            </div>
+                        )}
+
+                        {/* Project Info Section */}
+                        <div className="p-5 mt-auto">
                             <p className="font-product-sans-bold text-[34px] font-semibold leading-10 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
                             <p className="mt-2 font-product-sans-medium text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>
 
-                            <div className="mt-4 inline-block rounded-md bg-primary/10 px-4 py-2">
-                                <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
+                            <div className="mt-4 flex items-center gap-3">
+                                <div className="inline-block rounded-md bg-primary/10 px-4 py-2">
+                                    <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -160,13 +208,30 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
         <div className="relative group h-105.5">
             <button type="button" onClick={onClick} className="w-full h-full">
                 <Image src={project.bannerImage} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
-                <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-18.25 bg-black/50 backdrop-blur-lg">
+                <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-10 bg-black/50 backdrop-blur-lg">
                     <div className="flex items-center justify-center flex-col w-full h-full text-white">
                         <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>
                         <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>
+
+                        {/* Show tabs indicator if project has tabs */}
+                        {/* {project.hasTabs && project.tabs.length > 0 && (
+                            <div className="mt-4 flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5z"
+                                    />
+                                </svg>
+                                <span className="text-sm font-medium">
+                                    {project.tabs.length} {project.tabs.length === 1 ? "Category" : "Categories"}
+                                </span>
+                            </div>
+                        )} */}
                     </div>
 
-                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[93%] z-20 bg-white block w-full px-3.75 py-2.5 font-helvetica font-medium text-[16px] text-center text-slate-950 cursor-pointer hover:bg-gray-100 transition-colors">
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-fit z-20 bg-white/30 rounded-full block px-4 py-0.5 font-helvetica font-medium text-[16px] text-center text-white cursor-pointer">
                         {project.category.name}
                     </div>
                 </div>

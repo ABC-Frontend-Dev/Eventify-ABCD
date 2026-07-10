@@ -126,9 +126,9 @@ export function EmblaCarousel({ images = [], className = "" }: EmblaCarouselProp
             )}
 
             {/* Optional: Image Counter */}
-            <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm">
+            {/* <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm">
                 {selectedIndex + 1} / {displayImages.length}
-            </div>
+            </div> */}
         </div>
     );
 }

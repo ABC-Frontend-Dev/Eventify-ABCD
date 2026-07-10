@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion, MotionConfig } from "framer-motion";
-import * as React from "react";
 import { usePathname } from "next/navigation";
 
 export type IMenu = {
@@ -24,28 +23,26 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
     const [hovered, setHovered] = useState<number | null>(null);
     const pathname = usePathname();
 
-    // Determine if a menu item is active
     const isActive = (item: IMenu) => {
-        // On homepage — use scroll-based section tracking
         if (pathname === "/") {
-            // Anchor link with a section ID
             if (item.sectionId) {
                 return activeSection === item.sectionId;
             }
-            // Home link — active when no section is in view (user at top)
             if (item.url === "/") {
                 return activeSection === null;
             }
         }
 
-        // For regular page links — use pathname
         if (item.url === "/" && currentPath === "/") return true;
         if (item.url !== "/" && !item.url.startsWith("#") && currentPath?.startsWith(item.url)) return true;
 
         return false;
     };
 
-    // Define pages that should always have black text (regardless of scroll)
+    // const isActive = (item: IMenu) => {
+    //     return false; // TEMP TEST
+    // };
+
     const getColorForPage = () => {
         if (pathname.startsWith("/blog")) {
             return {

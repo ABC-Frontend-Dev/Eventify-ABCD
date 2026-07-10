@@ -25,6 +25,11 @@ export default function Navbar() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    useEffect(() => {
+        console.log("Navbar mounted");
+        return () => console.log("Navbar unmounted");
+    }, []);
+
     const defaultLogos = {
         default: "/images/logo-light.png",
         scrolled: "/images/logo.png",
@@ -67,7 +72,7 @@ export default function Navbar() {
                 </Link>
             </div>
             <nav className="shrink-0">
-                <div className="hidden lg:block">
+                <div className="hidden lg:block overflow-hidden">
                     <NavbarMenu isScrolled={isScrolled} activeSection={activeSection} />
                 </div>
                 <div className="lg:hidden">

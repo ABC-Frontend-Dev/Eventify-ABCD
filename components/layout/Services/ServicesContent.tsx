@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import ServicesBannerReveal from "./ServicesBannerReveal";
 
 interface ServicesImages {
     id: number;
@@ -54,17 +55,7 @@ const Services_Images_Data: ServicesImages[] = [
 export default function ServicesContent() {
     return (
         <>
-            <div className="w-full h-full">
-                <figure>
-                    <Image
-                        src={"/images/services/conferences/conferences-banner-image.png"}
-                        alt="conferences banner image"
-                        width={1000}
-                        height={1000}
-                        className="w-full h-68.5 lg:h-105 object-cover"
-                    />
-                </figure>
-            </div>
+            <ServicesBannerReveal desktopSrc={""} mobileSrc={""} alt={""} />
             <article className="bg-slate-50 p-5 lg:p-7.5">
                 <header>
                     <h1 className="text-4xl font-helvetica-medium leading-8 text-primary">Conferences</h1>

@@ -71,34 +71,21 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
     ];
 
     return (
-        <LayoutGroup id="contact-modal-flow">
+        <LayoutGroup id={`contact-modal-flow-${pathname}`}>
+            {" "}
+            {/* 👈 scoped per route */}
             <div className="flex gap-2">
                 <NavBar list={menus} currentPath={pathname} isScrolled={isScrolled} activeSection={activeSection} />
 
                 <AnimatePresence initial={false} mode="popLayout">
                     {!open && (
-                        <motion.button
-                            key="contact-trigger"
-                            layoutId="contact-modal-shell"
-                            onClick={() => setOpen(true)}
-                            transition={{ layout: morphTransition }}
-                            className=""
-                            whileTap={{ scale: 0.985 }}
-                        >
-                            {/* <span>Begin Your Project</span>
-                            <span className="shrink-0">
-                                <PhoneIconForHeader />
-                            </span> */}
+                        <motion.button key="contact-trigger" layoutId="contact-modal-shell" onClick={() => setOpen(true)} transition={{ layout: morphTransition }} whileTap={{ scale: 0.985 }}>
                             <ShineButton label="Begin Your Project" size="md" bgColor="linear-gradient(325deg, #57068C 0%, #bd76eb 55%, #57068C 90%)" />
                         </motion.button>
                     )}
                 </AnimatePresence>
 
                 <ContactModal isOpen={open} onClose={() => setOpen(false)} />
-
-                {/* <MagneticButton variant="primary" size="lg">
-                    Get Started
-                </MagneticButton> */}
             </div>
         </LayoutGroup>
     );

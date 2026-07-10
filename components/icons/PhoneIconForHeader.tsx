@@ -9,8 +9,8 @@ export function PhoneIconForHeader(props: SVGProps<SVGSVGElement>) {
                 stroke-linecap="round"
                 stroke-linejoin="round"
             />
-            <path d="M14 3C15.8565 3 17.637 3.7375 18.9497 5.05025C20.2625 6.36301 21 8.14348 21 10" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M14 7C14.7956 7 15.5587 7.31607 16.1213 7.87868C16.6839 8.44129 17 9.20435 17 10" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M14 3C15.8565 3 17.637 3.7375 18.9497 5.05025C20.2625 6.36301 21 8.14348 21 10" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M14 7C14.7956 7 15.5587 7.31607 16.1213 7.87868C16.6839 8.44129 17 9.20435 17 10" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     );
 }

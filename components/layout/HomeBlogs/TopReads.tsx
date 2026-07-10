@@ -27,7 +27,7 @@ const BLOGS: BlogItem[] = [
     },
     {
         id: 2,
-        href: "/blogs//plan-a-successful-product-launch-event",
+        href: "/blogs/plan-a-successful-product-launch-event",
         image: "/images/blogs/Rectangle 283.png",
         alt: "Blog 2",
         title: "Event drive Prepares the Event Managers of Tomorrow",
