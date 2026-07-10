@@ -42,4 +42,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Uploaded media
+/public/images/*
+!/public/images/.gitkeep
+/public/videos/*
+!/public/videos/.gitkeep
+
+
 /lib/generated/prisma

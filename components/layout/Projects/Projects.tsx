@@ -37,6 +37,13 @@ interface Project {
     category: Category;
 }
 
+// Helper function to check if a file is a video
+const isVideoFile = (url: string): boolean => {
+    const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
+    const lowerUrl = url.toLowerCase();
+    return videoExtensions.some((ext) => lowerUrl.endsWith(ext)) || lowerUrl.includes("/videos/");
+};
+
 export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
@@ -150,7 +157,7 @@ export default function Projects() {
                         {selectedProject.hasTabs && selectedProject.tabs.length > 0 ? (
                             /* PROJECT WITH TABS */
                             <MainTabs value={activeInnerTab} onValueChange={setActiveInnerTab} className="flex-1 flex flex-col">
-                                {/* Tabs Navigation - Using your existing style */}
+                                {/* Tabs Navigation */}
                                 <div className="mb-2.5">
                                     <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
                                         {selectedProject.tabs.map((tab) => (
@@ -166,7 +173,7 @@ export default function Projects() {
                                     {selectedProject.tabs.map((tab) => (
                                         <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
                                             <div className="h-103 w-full overflow-hidden rounded-xl">
-                                                <EmblaCarousel images={tab.images} />
+                                                <EmblaCarousel media={tab.images} />
                                             </div>
                                         </TabsPanel>
                                     ))}
@@ -175,7 +182,7 @@ export default function Projects() {
                         ) : (
                             /* PROJECT WITHOUT TABS */
                             <div className="h-103 w-full overflow-hidden rounded-xl">
-                                <EmblaCarousel images={selectedProject.images} />
+                                <EmblaCarousel media={selectedProject.images} />
                             </div>
                         )}
 
@@ -204,31 +211,32 @@ interface ProjectCardProps {
 }
 
 function ProjectCard({ project, onClick }: ProjectCardProps) {
+    const isBannerVideo = isVideoFile(project.bannerImage);
+
     return (
         <div className="relative group h-105.5">
             <button type="button" onClick={onClick} className="w-full h-full">
-                <Image src={project.bannerImage} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                {isBannerVideo ? (
+                    <video
+                        src={project.bannerImage}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.pause();
+                            e.currentTarget.currentTime = 0;
+                        }}
+                    />
+                ) : (
+                    <Image src={project.bannerImage} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                )}
+
                 <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-10 bg-black/50 backdrop-blur-lg">
                     <div className="flex items-center justify-center flex-col w-full h-full text-white">
                         <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>
                         <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>
-
-                        {/* Show tabs indicator if project has tabs */}
-                        {/* {project.hasTabs && project.tabs.length > 0 && (
-                            <div className="mt-4 flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5z"
-                                    />
-                                </svg>
-                                <span className="text-sm font-medium">
-                                    {project.tabs.length} {project.tabs.length === 1 ? "Category" : "Categories"}
-                                </span>
-                            </div>
-                        )} */}
                     </div>
 
                     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-fit z-20 bg-white/30 rounded-full block px-4 py-0.5 font-helvetica font-medium text-[16px] text-center text-white cursor-pointer">

@@ -156,6 +156,9 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         setUploadingBanner(true);
         const file = uploadedFiles[0];
 
+        // Check if file is video or image
+        const isVideo = file.type.startsWith("video/");
+
         try {
             const formDataUpload = new FormData();
             formDataUpload.append("file", file);
@@ -172,13 +175,13 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     ...prev,
                     bannerImage: result.path,
                 }));
-                toast.success("Banner image uploaded successfully!");
+                toast.success(`Banner ${isVideo ? "video" : "image"} uploaded successfully!`);
             } else {
-                toast.error(result.error || "Failed to upload banner image");
+                toast.error(result.error || "Failed to upload banner");
             }
         } catch (error) {
             console.error("Upload error:", error);
-            toast.error("Failed to upload banner image");
+            toast.error("Failed to upload banner");
         } finally {
             setUploadingBanner(false);
         }
@@ -592,8 +595,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                             handleBannerUpload(newFiles);
                                         }}
                                         maxFiles={1}
-                                        maxSize={4}
-                                        accept="image/*"
+                                        maxSize={10} // 50MB
+                                        accept="image/*,video/*" // Accept both images and videos
                                     />
 
                                     {uploadingBanner && (
@@ -731,8 +734,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                                 handleGalleryUpload(newFiles);
                                             }}
                                             maxFiles={10 - formData.images.length}
-                                            maxSize={4}
-                                            accept="image/*"
+                                            maxSize={10}
+                                            accept="image/*,video/*"
                                         />
 
                                         {uploadingImages && (

@@ -1,5 +1,4 @@
-// components/layout/OurServices/Carousel.tsx
-
+// components/layout/Projects/Carousel.tsx
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
@@ -8,11 +7,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 interface EmblaCarouselProps {
-    images?: string[];
+    media?: string[]; // Changed from 'images' to 'media' to support both
     className?: string;
 }
 
-export function EmblaCarousel({ images = [], className = "" }: EmblaCarouselProps) {
+// Helper function to check if URL is a video
+const isVideo = (url: string): boolean => {
+    const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
+    const lowerUrl = url.toLowerCase();
+    return videoExtensions.some((ext) => lowerUrl.endsWith(ext)) || lowerUrl.includes("/videos/");
+};
+
+export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: false,
         align: "start",
@@ -25,9 +31,9 @@ export function EmblaCarousel({ images = [], className = "" }: EmblaCarouselProp
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     // Fallback to default images if none provided
-    const displayImages =
-        images.length > 0
-            ? images
+    const displayMedia =
+        media.length > 0
+            ? media
             : [
                   "/images/our-services/slide-1.png",
                   "/images/our-services/slide-2.png",
@@ -76,18 +82,26 @@ export function EmblaCarousel({ images = [], className = "" }: EmblaCarouselProp
             {/* Carousel Viewport */}
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
-                    {displayImages.map((image, index) => (
-                        <div key={`slide-${index}`} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-103 group">
-                            <div className="relative overflow-hidden h-full">
-                                <Image src={image} alt={`Slide ${index + 1}`} width={1000} height={1000} className="w-full h-full object-cover" priority={index === 0} />
+                    {displayMedia.map((mediaUrl, index) => {
+                        const isVideoFile = isVideo(mediaUrl);
+
+                        return (
+                            <div key={`slide-${index}`} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-103 group">
+                                <div className="relative overflow-hidden h-full">
+                                    {isVideoFile ? (
+                                        <video src={mediaUrl} className="w-full h-full object-cover" controls playsInline preload="metadata" />
+                                    ) : (
+                                        <Image src={mediaUrl} alt={`Slide ${index + 1}`} width={1000} height={1000} className="w-full h-full object-cover" priority={index === 0} />
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
             {/* Navigation Buttons */}
-            {displayImages.length > 1 && (
+            {displayMedia.length > 1 && (
                 <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(97%+20px)] h-full flex items-center justify-between gap-4 pointer-events-none">
                     <button
                         onClick={scrollPrev}
@@ -110,7 +124,7 @@ export function EmblaCarousel({ images = [], className = "" }: EmblaCarouselProp
                     {/* Dots Indicator */}
                     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10">
                         <div className="flex gap-2">
-                            {displayImages.map((_, index) => (
+                            {displayMedia.map((_, index) => (
                                 <button
                                     key={`dot-${index}`}
                                     onClick={() => scrollTo(index)}
@@ -125,9 +139,12 @@ export function EmblaCarousel({ images = [], className = "" }: EmblaCarouselProp
                 </div>
             )}
 
-            {/* Optional: Image Counter */}
-            {/* <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm">
-                {selectedIndex + 1} / {displayImages.length}
+            {/* Media Counter with Type Indicator */}
+            {/* <div className="absolute top-4 right-4 flex items-center gap-2">
+                <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm">
+                    {selectedIndex + 1} / {displayMedia.length}
+                </div>
+                {isVideo(displayMedia[selectedIndex]) && <div className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-medium">VIDEO</div>}
             </div> */}
         </div>
     );
