@@ -32,20 +32,20 @@ export default function Navbar() {
 
     const defaultLogos = {
         default: "/images/logo-light.png",
-        scrolled: "/images/logo.png",
+        scrolled: "/images/logo-dark.png",
     };
 
     const getLogosForPage = () => {
         if (pathname.startsWith("/blog")) {
             return {
-                default: "/images/logo.png",
-                scrolled: "/images/logo.png",
+                default: "/images/logo-light.png",
+                scrolled: "/images/logo-dark.png",
             };
         }
         if (pathname.startsWith("/services")) {
             return {
-                default: "/images/logo.png",
-                scrolled: "/images/logo.png",
+                default: "/images/logo-light.png",
+                scrolled: "/images/logo-dark.png",
             };
         }
         return defaultLogos;

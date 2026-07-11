@@ -1,4 +1,4 @@
-// components/layout/blogs/RelatedBlog.tsx
+// components/layout/Blog/RelatedBlog.tsx
 "use client";
 
 import Link from "next/link";
@@ -9,7 +9,7 @@ interface Blog {
     slug: string;
     description: string;
     thumbnail: string;
-    createdAt: Date;
+    createdAt: string; // ← was Date, now string
 }
 
 interface RelatedBlogListProps {
@@ -17,7 +17,8 @@ interface RelatedBlogListProps {
 }
 
 export function RelatedBlogList({ blogs }: RelatedBlogListProps) {
-    const formatDate = (date: Date) => {
+    const formatDate = (date: string) => {
+        // ← was Date, now string
         return new Intl.DateTimeFormat("en-US", {
             year: "numeric",
             month: "long",
@@ -25,7 +26,6 @@ export function RelatedBlogList({ blogs }: RelatedBlogListProps) {
         }).format(new Date(date));
     };
 
-    // Truncate text helper
     const truncate = (text: string, maxLength: number) => {
         if (text.length <= maxLength) return text;
         return text.slice(0, maxLength) + "...";

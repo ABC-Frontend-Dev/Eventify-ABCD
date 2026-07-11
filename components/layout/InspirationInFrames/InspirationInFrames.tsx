@@ -28,11 +28,8 @@ export default function InspirationInFrames() {
 
     // ── Hover overlay state (desktop only) ───────────────
     const overlayRef = useRef<HTMLDivElement>(null);
-    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     const handleCardHover = useCallback((index: number, e: React.MouseEvent<HTMLLIElement>) => {
-        setHoveredIndex(index);
-
         const overlay = overlayRef.current;
         const card = e.currentTarget;
         const grid = desktopGridRef.current;
@@ -58,17 +55,17 @@ export default function InspirationInFrames() {
         });
     }, []);
 
-    const handleGridLeave = useCallback(() => {
-        setHoveredIndex(null);
-        const overlay = overlayRef.current;
-        if (!overlay) return;
+    // const handleGridLeave = useCallback(() => {
+    //     setHoveredIndex(null);
+    //     const overlay = overlayRef.current;
+    //     if (!overlay) return;
 
-        gsap.to(overlay, {
-            opacity: 0,
-            duration: 0.3,
-            ease: "power2.in",
-        });
-    }, []);
+    //     gsap.to(overlay, {
+    //         opacity: 0,
+    //         duration: 0.3,
+    //         ease: "power2.in",
+    //     });
+    // }, []);
 
     // ── Scroll reveal animation ──────────────────────────
     useEffect(() => {
@@ -155,8 +152,8 @@ export default function InspirationInFrames() {
             </header>
 
             <div className="mt-7.5">
-                <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative" onMouseLeave={handleGridLeave}>
-                    <div ref={overlayRef} className="absolute top-0 left-0 z-20 pointer-events-none overflow-hidden opacity-0" style={{ willChange: "transform, width, height" }}>
+                <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative">
+                    {/* <div ref={overlayRef} className="absolute top-0 left-0 z-20 pointer-events-none overflow-hidden opacity-0" style={{ willChange: "transform, width, height" }}>
                         <div className="absolute inset-0 bg-black/30 z-30" />
 
                         {hoveredIndex !== null && (
@@ -164,11 +161,11 @@ export default function InspirationInFrames() {
                         )}
 
                         {hoveredIndex !== null && (
-                            <div className="absolute left-2.5 bottom-2.5 z-1000">
+                            <div className="absolute left-2.5 bottom-2.5 z-100 bg-white">
                                 <Image src="/images/icons/instagram.png" alt="Instagram" width={1000} height={1000} className="w-10 h-10 object-contain" />
                             </div>
                         )}
-                    </div>
+                    </div> */}
 
                     {ITEMS.map((item, index) => (
                         <FrameItem key={item.id} index={index} src={item.src} onMouseEnter={handleCardHover} />
@@ -199,13 +196,86 @@ interface FrameItemProps {
     onMouseEnter?: (index: number, e: React.MouseEvent<HTMLLIElement>) => void;
 }
 
+// Add at top: import { motion, AnimatePresence } from "framer-motion";
+
 function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
+    const [hovered, setHovered] = useState(false);
+
     return (
         <li
-            className={["frame-item w-full flex items-center justify-center relative overflow-hidden cursor-pointer", "lg:h-87.5", tall ? "h-48 sm:h-56" : "h-32 sm:h-40"].join(" ")}
-            onMouseEnter={onMouseEnter ? (e) => onMouseEnter(index, e) : undefined}
+            className={["frame-item group w-full flex items-center justify-center relative overflow-hidden cursor-pointer", "lg:h-87.5", tall ? "h-48 sm:h-56" : "h-32 sm:h-40"].join(" ")}
+            onMouseEnter={(e) => {
+                setHovered(true);
+                onMouseEnter?.(index, e);
+            }}
+            onMouseLeave={() => setHovered(false)}
         >
             <Image src={src} alt={`Inspiration frame ${index + 1}`} width={1000} height={1000} className="frame-image w-full h-full object-cover will-change-transform" />
+
+            {/* Overlay slides up from bottom */}
+            <div
+                className="absolute inset-0 z-10 pointer-events-none bg-black/25"
+                style={{
+                    transform: hovered ? "translateY(0%)" : "translateY(100%)",
+                    transition: "transform 0.5s cubic-bezier(0.22,1,0.36,1) 0.15s",
+                }}
+            />
+
+            {/* Instagram icon — scales + fades in from center */}
+            <div
+                className="absolute top-1/2 left-1/2 z-30 pointer-events-none bg-white"
+                style={{
+                    transform: hovered ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.5)",
+                    opacity: hovered ? 1 : 0,
+                    transition: hovered ? "transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.3s, opacity 0.35s ease 0.3s" : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
+                }}
+            >
+                <Image src="/images/icons/instagram.png" alt="Instagram" width={1000} height={1000} className="w-10 h-10 object-contain drop-shadow-lg" />
+            </div>
+
+            {/* Lines with stagger */}
+            <div className="absolute inset-0 z-20 pointer-events-none">
+                {/* Top horizontal */}
+                <div
+                    className="absolute h-[1.25px] bg-white top-3.5"
+                    style={{
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: hovered ? "89%" : "0%",
+                        transition: "width 0.65s cubic-bezier(0.22,1,0.36,1) 0.25s",
+                    }}
+                />
+                {/* Bottom horizontal */}
+                <div
+                    className="absolute h-[1.25px] bg-white bottom-3.5"
+                    style={{
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: hovered ? "89%" : "0%",
+                        transition: "width 0.65s cubic-bezier(0.22,1,0.36,1) 0.25s",
+                    }}
+                />
+                {/* Left vertical */}
+                <div
+                    className="absolute w-[1.25px] bg-white left-3.5"
+                    style={{
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        height: hovered ? "91%" : "0%",
+                        transition: "height 0.45s cubic-bezier(0.22,1,0.36,1) 0.25s",
+                    }}
+                />
+                {/* Right vertical */}
+                <div
+                    className="absolute w-[1.25px] bg-white right-3.5"
+                    style={{
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        height: hovered ? "91%" : "0%",
+                        transition: "height 0.45s cubic-bezier(0.22,1,0.36,1) 0.25s",
+                    }}
+                />
+            </div>
         </li>
     );
 }

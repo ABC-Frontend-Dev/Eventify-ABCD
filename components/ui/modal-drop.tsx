@@ -231,10 +231,10 @@ const Modal: React.FC<ModalProps> = ({
                             </div>
                         ) : (
                             showCloseButton && (
-                                <div className="absolute -top-11.25 right-0 flex items-center gap-2 z-100 bg-white">
+                                <div className="absolute top-2.5 right-2.5 flex items-center gap-2 z-100 bg-white rounded-xl shadow-sm">
                                     {/* {showEscText && <span className="hidden lg:inline px-2 py-1 text-xs font-medium bg-muted text-muted-foreground rounded">ESC</span>} */}
                                     <button className="p-3 hover:bg-muted transition-colors" onClick={onClose} aria-label="Close modal">
-                                        <X size={20} weight="bold" />
+                                        <X size={14} weight="bold" />
                                     </button>
                                 </div>
                             )

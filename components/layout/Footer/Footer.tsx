@@ -9,7 +9,7 @@ export default function Footer() {
             <div className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9">
                 <div>
                     <figure className="w-56 h-9">
-                        <Image src="/images/logo-light-with-location.png" alt="Eventify light logo" width={1000} height={1000} className="w-full h-full object-contain" />
+                        <Image src="/images/logo-light.png" alt="Eventify light logo" width={1000} height={1000} className="w-full h-full object-contain" />
                     </figure>
                 </div>
 

@@ -30,9 +30,10 @@ interface FieldProps {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     name: string;
+    error?: string;
 }
 
-function AnimatedField({ label, type = "text", as = "input", rows = 3, value, onChange, name }: FieldProps) {
+function AnimatedField({ label, type = "text", as = "input", rows = 3, value, onChange, name, error }: FieldProps) {
     const id = useId();
     const [focused, setFocused] = useState(false);
     const [hovered, setHovered] = useState(false);
@@ -154,14 +155,38 @@ function AnimatedField({ label, type = "text", as = "input", rows = 3, value, on
                     className="pointer-events-none absolute inset-x-0 bottom-0 h-[10px] bg-primary/10 blur-md"
                 />
             </div>
+
+            {/* Inline error message */}
+            <AnimatePresence>
+                {error && (
+                    <motion.p
+                        key={`${name}-error`}
+                        initial={{ opacity: 0, y: -4, height: 0 }}
+                        animate={{ opacity: 1, y: 0, height: "auto" }}
+                        exit={{ opacity: 0, y: -4, height: 0 }}
+                        transition={{ duration: 0.18, ease: easeOut }}
+                        className="mt-1 text-xs font-product-sans-regular text-red-500"
+                    >
+                        {error}
+                    </motion.p>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
+}
+
+interface FormErrors {
+    name?: string;
+    email?: string;
+    phone?: string;
+    message?: string;
 }
 
 export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     const [mounted, setMounted] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [errors, setErrors] = useState<FormErrors>({});
     const toast = useToasts();
 
     const [formData, setFormData] = useState({
@@ -177,10 +202,10 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
     useEffect(() => {
         if (!isOpen) {
-            // Reset form when modal closes
             setTimeout(() => {
                 setFormData({ name: "", email: "", phone: "", message: "" });
                 setSubmitted(false);
+                setErrors({});
             }, 300);
             return;
         }
@@ -203,16 +228,46 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+        // Clear error for this field as user types
+        if (errors[name as keyof FormErrors]) {
+            setErrors((prev) => ({ ...prev, [name]: undefined }));
+        }
+    };
+
+    const validate = (): FormErrors => {
+        const newErrors: FormErrors = {};
+
+        if (!formData.name.trim()) {
+            newErrors.name = "Name is required.";
+        }
+
+        if (!formData.email.trim()) {
+            newErrors.email = "Email is required.";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+            newErrors.email = "Please enter a valid email address.";
+        }
+
+        if (!formData.phone.trim()) {
+            newErrors.phone = "Phone number is required.";
+        }
+
+        if (!formData.message.trim()) {
+            newErrors.message = "Message is required.";
+        }
+
+        return newErrors;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.message.trim()) {
-            toast.warning("Please fill in all fields");
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
             return;
         }
 
+        setErrors({});
         setSubmitting(true);
 
         try {
@@ -226,7 +281,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
             if (result.success) {
                 setSubmitted(true);
-                toast.success("Thank you! We'll get back to you soon.");
+                // toast.success("Thank you! We'll get back to you soon.");
                 setTimeout(() => {
                     onClose();
                 }, 2000);
@@ -300,10 +355,10 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                         </div>
 
                                         <form onSubmit={handleSubmit} className="mt-7.5 space-y-2">
-                                            <AnimatedField label="NAME" type="text" name="name" value={formData.name} onChange={handleChange} />
-                                            <AnimatedField label="EMAIL" type="email" name="email" value={formData.email} onChange={handleChange} />
-                                            <AnimatedField label="PHONE" type="tel" name="phone" value={formData.phone} onChange={handleChange} />
-                                            <AnimatedField label="MESSAGE" as="textarea" rows={3} name="message" value={formData.message} onChange={handleChange} />
+                                            <AnimatedField label="NAME" type="text" name="name" value={formData.name} onChange={handleChange} error={errors.name} />
+                                            <AnimatedField label="EMAIL" type="email" name="email" value={formData.email} onChange={handleChange} error={errors.email} />
+                                            <AnimatedField label="PHONE" type="tel" name="phone" value={formData.phone} onChange={handleChange} error={errors.phone} />
+                                            <AnimatedField label="MESSAGE" as="textarea" rows={3} name="message" value={formData.message} onChange={handleChange} error={errors.message} />
 
                                             <button
                                                 type="submit"
