@@ -17,6 +17,11 @@ export default function Navbar() {
     const activeSection = useActiveSection(sectionIds);
 
     useEffect(() => {
+        console.log("Navbar mounted");
+        return () => console.log("Navbar unmounted");
+    }, []);
+
+    useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 0);
         };

@@ -1,13 +1,9 @@
+// middleware.ts (your proxy file)
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
-
-    // allow login/register
-    if (pathname.startsWith("/dashboard/login") || pathname.startsWith("/dashboard/register")) {
-        return NextResponse.next();
-    }
 
     const token = await getToken({
         req,
@@ -15,10 +11,10 @@ export default async function proxy(req: NextRequest) {
     });
 
     if (!token && pathname.startsWith("/dashboard")) {
-        const loginUrl = new URL("/dashboard/login", req.url);
-
+        // Redirect to /login with callbackUrl so after login
+        // the user is sent back to where they were going
+        const loginUrl = new URL("/login", req.url);
         loginUrl.searchParams.set("callbackUrl", pathname);
-
         return NextResponse.redirect(loginUrl);
     }
 
@@ -26,5 +22,7 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
+    // Protect all /dashboard routes
+    // /login is at the root so it is NOT matched here — no infinite redirect
     matcher: ["/dashboard/:path*"],
 };

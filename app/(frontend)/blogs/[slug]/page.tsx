@@ -165,7 +165,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
         <section className="mt-20 lg:mt-25 scroll-mt-14">
             <div className="absolute top-12 lg:top-16 left-0 w-full h-140 after:absolute after:top-0 after:left-0 after:w-full after:h-full after:black/90 after:z-10 after:backdrop-blur-sm">
                 <figure>
-                    <Image src={blog.banner_image || blog.thumbnail} alt={blog.title} fill className="object-cover" />
+                    <Image src={blog.banner_image || blog.thumbnail} alt={blog.title} fill priority className="object-cover" />
                 </figure>
                 <div className="max-w-360 px-5 lg:px-20 absolute left-1/2 -translate-x-1/2 top-12 lg:top-16 w-full z-20 text-white">
                     <div className="text-[40px] leading-10 font-helvetica font-bold tracking-wide">Blog</div>
