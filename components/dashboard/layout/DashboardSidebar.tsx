@@ -6,7 +6,6 @@ import {
     SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
@@ -14,142 +13,133 @@ import {
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
-    SidebarMenuAction,
-    SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Home, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail } from "lucide-react";
+import { Home, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { signOut } from "next-auth/react";
+
+const menuItems = [
+    {
+        title: "Dashboard",
+        icon: Home,
+        href: "/dashboard",
+        live: true,
+    },
+    {
+        title: "Clients",
+        icon: Users,
+        href: "/dashboard/clients",
+        subItems: [
+            { title: "All Clients", icon: List, href: "/dashboard/clients" },
+            { title: "Add New Client", icon: Plus, href: "/dashboard/clients/new" },
+        ],
+    },
+    {
+        title: "Projects",
+        icon: FolderKanban,
+        href: "/dashboard/projects",
+        subItems: [
+            { title: "All Projects", icon: List, href: "/dashboard/projects" },
+            { title: "Add New Project", icon: Plus, href: "/dashboard/projects/new" },
+            { title: "Project Categories", icon: List, href: "/dashboard/project-categories" },
+        ],
+    },
+    {
+        title: "Blogs",
+        icon: Newspaper,
+        href: "/dashboard/blogs",
+        subItems: [
+            { title: "All Blogs", icon: List, href: "/dashboard/blogs" },
+            { title: "Add New Blog", icon: Plus, href: "/dashboard/blogs/new" },
+            { title: "Blog Categories", icon: List, href: "/dashboard/blog-categories" },
+            { title: "Authors", icon: List, href: "/dashboard/authors" },
+        ],
+    },
+    {
+        title: "Contacts",
+        icon: Mail,
+        href: "/dashboard/contacts",
+    },
+    {
+        title: "Settings",
+        icon: Settings,
+        href: "/dashboard/settings",
+    },
+];
 
 export function DashboardSidebar() {
     const pathname = usePathname();
 
-    const menuItems = [
-        {
-            title: "Dashboard",
-            icon: Home,
-            href: "/dashboard",
-        },
-        {
-            title: "Clients",
-            icon: Users,
-            href: "",
-            subItems: [
-                {
-                    title: "All Clients",
-                    icon: List,
-                    href: "/dashboard/clients",
-                },
-                {
-                    title: "Add New Client",
-                    icon: Plus,
-                    href: "/dashboard/clients/new",
-                },
-            ],
-        },
-        {
-            title: "Projects",
-            icon: FolderKanban,
-            href: "/dashboard/projects",
-            subItems: [
-                {
-                    title: "All Projects",
-                    icon: List,
-                    href: "/dashboard/projects",
-                },
-                {
-                    title: "Add New Project",
-                    icon: Plus,
-                    href: "/dashboard/projects/new",
-                },
-                {
-                    title: "Project Categories",
-                    icon: Plus,
-                    href: "/dashboard/project-categories",
-                },
-            ],
-        },
-        {
-            title: "Blogs",
-            icon: Newspaper,
-            href: "/dashboard/blogs",
-            subItems: [
-                {
-                    title: "All Blogs",
-                    icon: List,
-                    href: "/dashboard/blogs",
-                },
-                {
-                    title: "Add New Blog",
-                    icon: Plus,
-                    href: "/dashboard/blogs/new",
-                },
-                {
-                    title: "Blog Categories",
-                    icon: Plus,
-                    href: "/dashboard/blog-categories",
-                },
-                {
-                    title: "Authors",
-                    icon: Plus,
-                    href: "/dashboard/authors",
-                },
-            ],
-        },
-        {
-            title: "Settings",
-            icon: Settings,
-            href: "/dashboard/settings",
-        },
-        {
-            title: "Contacts",
-            icon: Mail,
-            href: "/dashboard/contacts",
-        },
-    ];
-
     return (
-        <Sidebar>
-            <SidebarHeader className="border-b p-4">
-                <Link href="/dashboard" className="flex items-center gap-2">
-                    <Image src={"/images/logo.png"} alt="about us" loading="eager" width={1000} height={1000} className="w-full h-12.5 object-contain" />
+        <Sidebar className="border-r border-slate-200/80 bg-white">
+            {/* ── Logo ──────────────────────────────────── */}
+            <SidebarHeader className="border-b border-slate-100 px-4 py-3.5">
+                <Link href="/dashboard" className="flex items-center gap-2.5 group">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white">E</div>
+                    <div>
+                        <p className="text-sm font-semibold leading-none text-slate-900 tracking-tight">Eventify</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">Admin console</p>
+                    </div>
                 </Link>
             </SidebarHeader>
 
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+            {/* ── Nav ───────────────────────────────────── */}
+            <SidebarContent className="px-2 py-3">
+                <SidebarGroup className="p-0">
+                    <p className="px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Menu</p>
                     <SidebarGroupContent>
-                        <SidebarMenu>
+                        <SidebarMenu className="space-y-0.5">
                             {menuItems.map((item) => {
-                                const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+                                const isActive = item.subItems
+                                    ? item.subItems.some((s) => pathname === s.href) || pathname === item.href
+                                    : item.href === "/dashboard"
+                                      ? pathname === item.href
+                                      : pathname.startsWith(item.href);
 
-                                // If item has subItems, render collapsible menu
                                 if (item.subItems) {
                                     return (
                                         <Collapsible key={item.title} defaultOpen={isActive} className="group/collapsible">
                                             <SidebarMenuItem>
                                                 <CollapsibleTrigger asChild>
-                                                    <SidebarMenuButton isActive={isActive} tooltip={item.title}>
-                                                        <item.icon />
+                                                    <SidebarMenuButton
+                                                        isActive={isActive}
+                                                        tooltip={item.title}
+                                                        className={`
+                                                            h-8 rounded-md text-xs font-medium transition-colors
+                                                            text-slate-600 hover:bg-slate-100 hover:text-slate-900
+                                                            data-[active=true]:bg-slate-100 data-[active=true]:text-slate-900 data-[active=true]:font-semibold
+                                                        `}
+                                                    >
+                                                        <item.icon className="h-[15px] w-[15px] shrink-0" />
                                                         <span>{item.title}</span>
-                                                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                                        <ChevronRight className="ml-auto h-3.5 w-3.5 text-slate-400 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                                     </SidebarMenuButton>
                                                 </CollapsibleTrigger>
                                                 <CollapsibleContent>
-                                                    <SidebarMenuSub>
-                                                        {item.subItems.map((subItem) => (
-                                                            <SidebarMenuSubItem key={subItem.title}>
-                                                                <SidebarMenuSubButton asChild isActive={pathname === subItem.href}>
-                                                                    <Link href={subItem.href}>
-                                                                        <subItem.icon className="h-4 w-4" />
-                                                                        <span>{subItem.title}</span>
-                                                                    </Link>
-                                                                </SidebarMenuSubButton>
-                                                            </SidebarMenuSubItem>
-                                                        ))}
+                                                    <SidebarMenuSub className="ml-2 mt-0.5 space-y-0.5 border-l border-slate-100 pl-3">
+                                                        {item.subItems.map((sub) => {
+                                                            const isSubActive = pathname === sub.href;
+                                                            return (
+                                                                <SidebarMenuSubItem key={sub.title}>
+                                                                    <SidebarMenuSubButton
+                                                                        asChild
+                                                                        isActive={isSubActive}
+                                                                        className={`
+                                                                            h-7 rounded-md text-[11px] font-medium transition-colors
+                                                                            text-slate-500 hover:bg-slate-100 hover:text-slate-900
+                                                                            data-[active=true]:bg-slate-100 data-[active=true]:text-slate-900 data-[active=true]:font-semibold
+                                                                        `}
+                                                                    >
+                                                                        <Link href={sub.href}>
+                                                                            <sub.icon className="h-3 w-3 shrink-0" />
+                                                                            <span>{sub.title}</span>
+                                                                        </Link>
+                                                                    </SidebarMenuSubButton>
+                                                                </SidebarMenuSubItem>
+                                                            );
+                                                        })}
                                                     </SidebarMenuSub>
                                                 </CollapsibleContent>
                                             </SidebarMenuItem>
@@ -157,13 +147,27 @@ export function DashboardSidebar() {
                                     );
                                 }
 
-                                // Regular menu item without subItems
                                 return (
                                     <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={isActive}
+                                            tooltip={item.title}
+                                            className={`
+                                                h-8 rounded-md text-xs font-medium transition-colors
+                                                text-slate-600 hover:bg-slate-100 hover:text-slate-900
+                                                data-[active=true]:bg-slate-100 data-[active=true]:text-slate-900 data-[active=true]:font-semibold
+                                            `}
+                                        >
                                             <Link href={item.href}>
-                                                <item.icon />
+                                                <item.icon className="h-[15px] w-[15px] shrink-0" />
                                                 <span>{item.title}</span>
+                                                {/* live dot on Dashboard */}
+                                                {item.live && (
+                                                    <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-emerald-500">
+                                                        <span className="h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                                                    </span>
+                                                )}
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
@@ -174,15 +178,25 @@ export function DashboardSidebar() {
                 </SidebarGroup>
             </SidebarContent>
 
-            <SidebarFooter className="border-t p-4">
-                <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                        <span className="text-xs font-medium text-primary-foreground">A</span>
+            {/* ── Footer / user ─────────────────────────── */}
+            <SidebarFooter className="border-t border-slate-100 p-3">
+                <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5 hover:bg-slate-50 transition-colors">
+                    {/* avatar */}
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">A</div>
+                    {/* info */}
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-slate-800">Admin User</p>
+                        <p className="truncate text-[10px] text-slate-400">admin@eventify.com</p>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium">Admin User</span>
-                        <span className="text-xs text-muted-foreground">admin@eventify.com</span>
-                    </div>
+                    {/* sign out */}
+                    <button
+                        type="button"
+                        onClick={() => signOut({ callbackUrl: "/login" })}
+                        aria-label="Sign out"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-500"
+                    >
+                        <LogOut className="h-3.5 w-3.5" />
+                    </button>
                 </div>
             </SidebarFooter>
         </Sidebar>

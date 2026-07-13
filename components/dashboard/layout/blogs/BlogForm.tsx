@@ -1,19 +1,17 @@
 // components/dashboard/layout/blogs/BlogForm.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useToasts } from "@/components/ui/toast";
-import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, FileText, AlertCircle, CheckCircle2, Eye, Calendar, Tag } from "lucide-react";
+import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, FileText, AlertCircle, CheckCircle2, Eye, Tag, Search, Link2, Code2, Hash, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import DashboardHeader from "../common/Header";
-import { Separator } from "@/components/ui/separator";
 import TiptapEditor from "@/components/Editor/TiptapEditor";
 import TableOfContents, { HeadingItem } from "@/components/Editor/TableOfContents";
 
@@ -28,7 +26,6 @@ interface BlogCategory {
     name: string;
     description: string | null;
 }
-
 interface Author {
     id: number;
     name: string;
@@ -59,6 +56,33 @@ interface BlogFormProps {
     mode: "create" | "edit";
 }
 
+const NAV = [
+    { id: "basic", label: "Basic Info" },
+    { id: "content", label: "Content" },
+    { id: "media", label: "Media" },
+    { id: "seo", label: "SEO" },
+] as const;
+
+// ── tiny helpers ──────────────────────────────────────────
+function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
+    return (
+        <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
+            {children}
+            {required && <span className="text-red-400">*</span>}
+            {ok && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 ml-auto" />}
+        </label>
+    );
+}
+
+function SectionHeading({ label }: { label: string }) {
+    return (
+        <div className="flex items-center gap-2 mb-4">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">{label}</span>
+            <div className="flex-1 h-px bg-slate-100" />
+        </div>
+    );
+}
+
 export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     const router = useRouter();
     const toast = useToasts();
@@ -71,7 +95,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     const [loadingCategories, setLoadingCategories] = useState(true);
     const [loadingAuthors, setLoadingAuthors] = useState(true);
     const [headings, setHeadings] = useState<HeadingItem[]>([]);
-
+    const [activeSection, setActiveSection] = useState("basic");
     const [thumbnailFiles, setThumbnailFiles] = useState<File[]>([]);
     const [bannerFiles, setBannerFiles] = useState<File[]>([]);
     const [editorContent, setEditorContent] = useState("");
@@ -95,791 +119,588 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         categoryId: initialData?.categoryId || 0,
     });
 
-    // Fetch categories and authors
+    const completion = useMemo(
+        () => [
+            { label: "Title", ok: !!formData.title.trim() },
+            { label: "Slug", ok: !!formData.slug.trim() },
+            { label: "Description", ok: !!formData.description.trim() },
+            { label: "Content", ok: !!formData.content.trim() },
+            { label: "Thumbnail", ok: !!formData.thumbnail },
+            { label: "Banner", ok: !!formData.banner_image },
+            { label: "Category", ok: formData.categoryId !== 0 },
+            { label: "Author", ok: formData.authorId !== 0 },
+        ],
+        [formData],
+    );
+
+    const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
+    const isFormValid = completion.every((c) => c.ok);
+
+    // ── fetch categories + authors ────────────────────────
     useEffect(() => {
-        const fetchData = async () => {
+        (async () => {
             try {
-                const [categoriesRes, authorsRes] = await Promise.all([fetch("/api/blog-categories"), fetch("/api/authors")]);
-
-                const categoriesData = await categoriesRes.json();
-                const authorsData = await authorsRes.json();
-
-                if (categoriesData.success) {
-                    setCategories(categoriesData.data);
-                }
-
-                if (authorsData.success) {
-                    setAuthors(authorsData.data);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
+                const [cRes, aRes] = await Promise.all([fetch("/api/blog-categories"), fetch("/api/authors")]);
+                const [cData, aData] = await Promise.all([cRes.json(), aRes.json()]);
+                if (cData.success) setCategories(cData.data);
+                if (aData.success) setAuthors(aData.data);
+            } catch {
                 toast.error("Failed to load categories or authors");
             } finally {
                 setLoadingCategories(false);
                 setLoadingAuthors(false);
             }
-        };
-
-        fetchData();
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // For Edit mode - fetch latest data
+    // ── edit mode: load blog ──────────────────────────────
     useEffect(() => {
-        if (mode === "edit" && blogId) {
-            fetch(`/api/blogs/${blogId}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success && data.data) {
-                        const blog = data.data;
-                        setFormData({
-                            title: blog.title,
-                            slug: blog.slug,
-                            description: blog.description,
-                            content: blog.content,
-                            status: blog.status,
-                            metaTitle: blog.metaTitle,
-                            metaDescription: blog.metaDescription,
-                            keywords: blog.keywords || [],
-                            thumbnail: blog.thumbnail,
-                            banner_image: blog.banner_image,
-                            canonical: blog.canonical,
-                            schemaScript: blog.schemaScript,
-                            timeToRead: blog.timeToRead || "",
-                            authorId: blog.authorId,
-                            categoryId: blog.categoryId,
-                        });
-                        setEditorContent(blog.content);
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                    toast.error("Failed to load blog data");
+        if (mode !== "edit" || !blogId) return;
+        fetch(`/api/blogs/${blogId}`)
+            .then((r) => r.json())
+            .then((data) => {
+                if (!data.success) return toast.error("Failed to load blog data");
+                const b = data.data;
+                setFormData({
+                    title: b.title,
+                    slug: b.slug,
+                    description: b.description,
+                    content: b.content,
+                    status: b.status,
+                    metaTitle: b.metaTitle,
+                    metaDescription: b.metaDescription,
+                    keywords: b.keywords || [],
+                    thumbnail: b.thumbnail,
+                    banner_image: b.banner_image,
+                    canonical: b.canonical,
+                    schemaScript: b.schemaScript,
+                    timeToRead: b.timeToRead || "",
+                    authorId: b.authorId,
+                    categoryId: b.categoryId,
                 });
-        }
+                setEditorContent(b.content);
+            })
+            .catch(() => toast.error("Failed to load blog data"));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mode, blogId]);
 
-    // Auto-generate slug from title
+    // ── auto slug ─────────────────────────────────────────
     useEffect(() => {
-        if (mode === "create" && formData.title) {
-            const slug = formData.title
+        if (mode !== "create" || !formData.title) return;
+        setFormData((p) => ({
+            ...p,
+            slug: p.title
                 .toLowerCase()
                 .replace(/[^a-z0-9]+/g, "-")
-                .replace(/(^-|-$)/g, "");
-            setFormData((prev) => ({ ...prev, slug }));
-        }
-    }, [formData.title, mode]);
+                .replace(/(^-|-$)/g, ""),
+        }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.title]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === "categoryId" || name === "authorId" ? parseInt(value) : value,
-        }));
+        setFormData((p) => ({ ...p, [name]: name === "categoryId" || name === "authorId" ? parseInt(value) : value }));
     };
 
-    // Handle thumbnail upload
-    const handleThumbnailUpload = async (uploadedFiles: File[]) => {
-        if (uploadedFiles.length === 0) return;
+    // ── image upload helper ───────────────────────────────
+    const uploadImage = async (file: File): Promise<string | null> => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const result = await res.json();
+        return result.success ? result.path : null;
+    };
 
+    const handleThumbnailUpload = async (files: File[]) => {
+        if (!files.length) return;
         setUploadingThumbnail(true);
-        const file = uploadedFiles[0];
-
-        try {
-            const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
-
-            const response = await fetch("/api/upload", {
-                method: "POST",
-                body: formDataUpload,
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                setFormData((prev) => ({
-                    ...prev,
-                    thumbnail: result.path,
-                }));
-                toast.success("Thumbnail uploaded successfully!");
-            } else {
-                toast.error(result.error || "Failed to upload thumbnail");
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to upload thumbnail");
-        } finally {
-            setUploadingThumbnail(false);
-        }
+        const path = await uploadImage(files[0]).catch(() => null);
+        setUploadingThumbnail(false);
+        if (path) {
+            setFormData((p) => ({ ...p, thumbnail: path }));
+            toast.success("Thumbnail uploaded");
+        } else toast.error("Failed to upload thumbnail");
     };
 
-    // Handle banner upload
-    const handleBannerUpload = async (uploadedFiles: File[]) => {
-        if (uploadedFiles.length === 0) return;
-
+    const handleBannerUpload = async (files: File[]) => {
+        if (!files.length) return;
         setUploadingBanner(true);
-        const file = uploadedFiles[0];
-
-        try {
-            const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
-
-            const response = await fetch("/api/upload", {
-                method: "POST",
-                body: formDataUpload,
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                setFormData((prev) => ({
-                    ...prev,
-                    banner_image: result.path,
-                }));
-                toast.success("Banner uploaded successfully!");
-            } else {
-                toast.error(result.error || "Failed to upload banner");
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to upload banner");
-        } finally {
-            setUploadingBanner(false);
-        }
+        const path = await uploadImage(files[0]).catch(() => null);
+        setUploadingBanner(false);
+        if (path) {
+            setFormData((p) => ({ ...p, banner_image: path }));
+            toast.success("Banner uploaded");
+        } else toast.error("Failed to upload banner");
     };
 
-    // Handle keyword addition
     const handleAddKeyword = () => {
-        if (keywordInput.trim() && !formData.keywords.includes(keywordInput.trim())) {
-            setFormData((prev) => ({
-                ...prev,
-                keywords: [...prev.keywords, keywordInput.trim()],
-            }));
+        const kw = keywordInput.trim();
+        if (kw && !formData.keywords.includes(kw)) {
+            setFormData((p) => ({ ...p, keywords: [...p.keywords, kw] }));
             setKeywordInput("");
         }
     };
 
-    // Handle keyword removal
-    const handleRemoveKeyword = (keyword: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            keywords: prev.keywords.filter((k) => k !== keyword),
-        }));
-    };
-
-    // Handle editor content change
-    const handleEditorChange = (content: string) => {
-        setEditorContent(content);
-        setFormData((prev) => ({ ...prev, content }));
-    };
-
-    const handleHeadingsChange = (newHeadings: HeadingItem[]) => {
-        setHeadings(newHeadings);
-    };
-
-    // ✅ FIX: Handle save as draft
-    const handleSaveAsDraft = async (e: React.FormEvent) => {
-        e.preventDefault();
-        await handleSubmit(e, BlogStatus.DRAFT);
-    };
-
-    // ✅ FIX: Handle publish
-    const handlePublish = async (e: React.FormEvent) => {
-        e.preventDefault();
-        await handleSubmit(e, BlogStatus.PUBLISHED);
-    };
-
-    // ✅ UPDATED: Main submit function with status parameter
+    // ── submit ────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent, statusOverride?: BlogStatus) => {
         e.preventDefault();
-
-        // Validation
-        if (!formData.title.trim()) {
-            toast.warning("Please enter a blog title");
+        if (!isFormValid) {
+            toast.warning("Please complete all required fields");
             return;
         }
-
-        if (!formData.slug.trim()) {
-            toast.warning("Please enter a slug");
-            return;
-        }
-
-        if (!formData.description.trim()) {
-            toast.warning("Please enter a description");
-            return;
-        }
-
-        if (!formData.content.trim()) {
-            toast.warning("Please write blog content");
-            return;
-        }
-
-        if (!formData.thumbnail) {
-            toast.warning("Please upload a thumbnail");
-            return;
-        }
-
-        if (!formData.banner_image) {
-            toast.warning("Please upload a banner image");
-            return;
-        }
-
-        if (!formData.authorId || formData.authorId === 0) {
-            toast.warning("Please select an author");
-            return;
-        }
-
-        if (!formData.categoryId || formData.categoryId === 0) {
-            toast.warning("Please select a category");
-            return;
-        }
-
         setLoading(true);
-
         try {
-            const url = mode === "create" ? "/api/blogs" : `/api/blogs/${blogId}`;
-
-            // ✅ Use the status override if provided, otherwise use form status
-            const finalStatus = statusOverride || formData.status;
-
-            const response = await fetch(url, {
+            const finalStatus = statusOverride ?? formData.status;
+            const res = await fetch(mode === "create" ? "/api/blogs" : `/api/blogs/${blogId}`, {
                 method: mode === "create" ? "POST" : "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...formData,
-                    status: finalStatus, // ✅ Set the correct status
+                    status: finalStatus,
                     metaTitle: formData.metaTitle || formData.title,
                     metaDescription: formData.metaDescription || formData.description,
                     canonical: formData.canonical || `https://yoursite.com/blogs/${formData.slug}`,
                 }),
             });
-
-            const result = await response.json();
-
+            const result = await res.json();
             if (result.success) {
-                const actionText = finalStatus === BlogStatus.PUBLISHED ? "published" : "saved as draft";
-                toast.success(mode === "create" ? `Blog ${actionText} successfully!` : `Blog updated successfully!`);
-
+                toast.success(mode === "create" ? `Blog ${finalStatus === BlogStatus.PUBLISHED ? "published" : "saved as draft"}!` : "Blog updated successfully!");
                 setTimeout(() => {
                     router.push("/dashboard/blogs");
                     router.refresh();
-                }, 1000);
-            } else {
-                toast.error(result.error || "Failed to save blog");
-            }
-        } catch (error) {
-            console.error(error);
+                }, 800);
+            } else toast.error(result.error || "Failed to save blog");
+        } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
     };
 
-    const isFormValid =
-        formData.title && formData.slug && formData.description && formData.content && formData.thumbnail && formData.banner_image && formData.authorId !== 0 && formData.categoryId !== 0;
+    const scrollTo = (id: string) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 130, behavior: "smooth" });
+        setActiveSection(id);
+    };
+
+    // ── common input class ────────────────────────────────
+    const inp = "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
+    const sel = "w-full h-9 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 text-slate-700 disabled:opacity-50";
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-            <div className="max-w-[1800px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header Section */}
-                <div className="flex items-center justify-between gap-5 mb-8">
-                    <div className="flex items-start justify-center gap-4">
-                        <Button variant="outline" size="icon" asChild className="mt-1 shrink-0 hover:bg-slate-100 transition-colors">
-                            <Link href="/dashboard/blogs">
-                                <ArrowLeft className="h-5 w-5" />
-                            </Link>
-                        </Button>
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                                    <FileText className="h-6 w-6 text-white" />
+        <div className="min-h-screen bg-slate-50/60">
+            {/* ── sticky topbar ─────────────────────────── */}
+            <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
+                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
+                    {/* back */}
+                    <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
+                        <Link href="/dashboard/blogs">
+                            <ArrowLeft className="h-4 w-4" />
+                        </Link>
+                    </Button>
+
+                    <div className="h-4 w-px bg-slate-200" />
+
+                    {/* breadcrumb */}
+                    <span className="text-xs text-slate-400">Blogs</span>
+                    <ChevronRight className="h-3 w-3 text-slate-300" />
+                    <span className="text-xs font-medium text-slate-700 truncate max-w-[200px]">{mode === "create" ? "New post" : formData.title || "Edit post"}</span>
+
+                    {/* progress pill */}
+                    <div className="hidden md:flex items-center gap-2 ml-3">
+                        <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
+                        </div>
+                        <span className="text-[11px] text-slate-400">{completionPct}%</span>
+                    </div>
+
+                    {/* spacer */}
+                    <div className="flex-1" />
+
+                    {/* actions */}
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleSubmit(e, BlogStatus.DRAFT)}
+                        disabled={loading || !isFormValid}
+                        className="h-7 text-xs text-slate-600 hover:text-slate-900 hidden sm:inline-flex"
+                    >
+                        <Save className="h-3.5 w-3.5 mr-1.5" />
+                        Save draft
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        onClick={(e) => handleSubmit(e, BlogStatus.PUBLISHED)}
+                        disabled={loading || uploadingThumbnail || uploadingBanner || !isFormValid}
+                        className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white"
+                    >
+                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
+                        {mode === "create" ? "Publish" : "Update"}
+                    </Button>
+                </div>
+
+                {/* section tabs */}
+                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 flex items-center gap-0 border-t border-slate-100">
+                    {NAV.map((s) => (
+                        <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => scrollTo(s.id)}
+                            className={`px-3 py-2 text-[11px] font-medium border-b-2 transition-colors ${
+                                activeSection === s.id ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"
+                            }`}
+                        >
+                            {s.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* ── body ──────────────────────────────────── */}
+            <form onSubmit={handleSubmit} className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 flex flex-col xl:flex-row gap-5">
+                {/* ── left / main ───────────────────────── */}
+                <div className="flex-1 min-w-0 space-y-5">
+                    {/* BASIC INFO */}
+                    <section id="basic" className="scroll-mt-32 bg-white border border-slate-200 rounded-xl p-5">
+                        <SectionHeading label="Basic Info" />
+
+                        <div className="space-y-4">
+                            {/* title */}
+                            <div>
+                                <FieldLabel required ok={!!formData.title}>
+                                    Title
+                                </FieldLabel>
+                                <Input name="title" value={formData.title} onChange={handleChange} placeholder="e.g. 10 Tips for Successful Event Planning" className={inp} maxLength={100} />
+                                <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.title.length}/100</p>
+                            </div>
+
+                            {/* slug */}
+                            <div>
+                                <FieldLabel required ok={!!formData.slug}>
+                                    URL Slug
+                                </FieldLabel>
+                                <div className="flex">
+                                    <span className="flex items-center px-2.5 text-[11px] text-slate-400 border border-r-0 border-slate-200 rounded-l-md bg-slate-50 whitespace-nowrap">/blogs/</span>
+                                    <Input name="slug" value={formData.slug} onChange={handleChange} placeholder="your-slug" className={`${inp} rounded-l-none`} maxLength={100} />
+                                </div>
+                            </div>
+
+                            {/* description */}
+                            <div>
+                                <FieldLabel required ok={!!formData.description}>
+                                    Description
+                                </FieldLabel>
+                                <Textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    placeholder="Brief description shown in listings and meta…"
+                                    rows={3}
+                                    className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
+                                    maxLength={160}
+                                />
+                                <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.description.length}/160</p>
+                            </div>
+
+                            {/* category / author / read time */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <FieldLabel required ok={formData.categoryId !== 0}>
+                                        Category
+                                    </FieldLabel>
+                                    <select name="categoryId" value={formData.categoryId} onChange={handleChange} className={sel} disabled={loadingCategories}>
+                                        <option value={0}>Select…</option>
+                                        {categories.map((c) => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-slate-900">{mode === "create" ? "Create New Blog" : "Edit Blog"}</h1>
-                                    <p className="text-slate-600 mt-1">{mode === "create" ? "Write and publish a new blog post" : "Update blog post content and settings"}</p>
+                                    <FieldLabel required ok={formData.authorId !== 0}>
+                                        Author
+                                    </FieldLabel>
+                                    <select name="authorId" value={formData.authorId} onChange={handleChange} className={sel} disabled={loadingAuthors}>
+                                        <option value={0}>Select…</option>
+                                        {authors.map((a) => (
+                                            <option key={a.id} value={a.id}>
+                                                {a.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <FieldLabel>Reading time</FieldLabel>
+                                    <Input name="timeToRead" value={formData.timeToRead} onChange={handleChange} placeholder="5 min read" className={inp} />
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    {/* ✅ UPDATED: Action Buttons */}
-                    <div className="flex gap-3">
-                        <Button variant="outline" onClick={handleSaveAsDraft} disabled={loading || !isFormValid}>
-                            <Save className="h-4 w-4 mr-2" />
-                            Save as Draft
+                    </section>
+
+                    {/* CONTENT */}
+                    <section id="content" className="scroll-mt-32 bg-white border border-slate-200 rounded-xl p-5">
+                        <SectionHeading label="Content" />
+                        <TiptapEditor
+                            content={editorContent}
+                            onChange={(c) => {
+                                setEditorContent(c);
+                                setFormData((p) => ({ ...p, content: c }));
+                            }}
+                            onHeadingsChange={setHeadings}
+                        />
+                    </section>
+
+                    {/* MEDIA */}
+                    <section id="media" className="scroll-mt-32">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {/* thumbnail */}
+                            <div className="bg-white border border-slate-200 rounded-xl p-5">
+                                <SectionHeading label="Thumbnail" />
+                                <ImageUploader
+                                    files={thumbnailFiles}
+                                    onChange={(f) => {
+                                        setThumbnailFiles(f);
+                                        handleThumbnailUpload(f);
+                                    }}
+                                    maxFiles={1}
+                                    maxSize={4}
+                                    accept="image/*"
+                                />
+                                {uploadingThumbnail && (
+                                    <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
+                                    </div>
+                                )}
+                                {formData.thumbnail && !uploadingThumbnail && (
+                                    <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100">
+                                        <img src={formData.thumbnail} alt="" className="w-full h-28 object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData((p) => ({ ...p, thumbnail: "" }));
+                                                setThumbnailFiles([]);
+                                            }}
+                                            className="absolute top-1.5 right-1.5 p-1 rounded-md bg-white/90 shadow text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
+                                        >
+                                            <X className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* banner */}
+                            <div className="bg-white border border-slate-200 rounded-xl p-5">
+                                <SectionHeading label="Banner Image" />
+                                <ImageUploader
+                                    files={bannerFiles}
+                                    onChange={(f) => {
+                                        setBannerFiles(f);
+                                        handleBannerUpload(f);
+                                    }}
+                                    maxFiles={1}
+                                    maxSize={4}
+                                    accept="image/*"
+                                />
+                                {uploadingBanner && (
+                                    <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
+                                    </div>
+                                )}
+                                {formData.banner_image && !uploadingBanner && (
+                                    <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100">
+                                        <img src={formData.banner_image} alt="" className="w-full h-28 object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData((p) => ({ ...p, banner_image: "" }));
+                                                setBannerFiles([]);
+                                            }}
+                                            className="absolute top-1.5 right-1.5 p-1 rounded-md bg-white/90 shadow text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
+                                        >
+                                            <X className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* SEO */}
+                    <section id="seo" className="scroll-mt-32 bg-white border border-slate-200 rounded-xl p-5">
+                        <SectionHeading label="SEO" />
+
+                        <div className="space-y-4">
+                            {/* meta title */}
+                            <div>
+                                <FieldLabel>Meta title</FieldLabel>
+                                <Input
+                                    name="metaTitle"
+                                    value={formData.metaTitle}
+                                    onChange={handleChange}
+                                    placeholder={formData.title || "Leave blank to inherit blog title"}
+                                    className={inp}
+                                    maxLength={60}
+                                />
+                                <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.metaTitle.length}/60</p>
+                            </div>
+
+                            {/* meta description */}
+                            <div>
+                                <FieldLabel>Meta description</FieldLabel>
+                                <Textarea
+                                    name="metaDescription"
+                                    value={formData.metaDescription}
+                                    onChange={handleChange}
+                                    placeholder={formData.description || "Leave blank to inherit blog description"}
+                                    rows={2}
+                                    className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
+                                    maxLength={160}
+                                />
+                                <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.metaDescription.length}/160</p>
+                            </div>
+
+                            {/* keywords */}
+                            <div>
+                                <FieldLabel>Keywords</FieldLabel>
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={keywordInput}
+                                        onChange={(e) => setKeywordInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                handleAddKeyword();
+                                            }
+                                        }}
+                                        placeholder="Add a keyword and press Enter"
+                                        className={inp}
+                                    />
+                                    <Button type="button" variant="outline" size="sm" onClick={handleAddKeyword} className="h-9 text-xs shrink-0">
+                                        Add
+                                    </Button>
+                                </div>
+                                {formData.keywords.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {formData.keywords.map((kw, i) => (
+                                            <span key={`${kw}-${i}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] rounded-full">
+                                                {kw}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData((p) => ({ ...p, keywords: p.keywords.filter((k) => k !== kw) }))}
+                                                    className="hover:text-red-500 transition-colors"
+                                                >
+                                                    <X className="h-2.5 w-2.5" />
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* canonical */}
+                            <div>
+                                <FieldLabel>Canonical URL</FieldLabel>
+                                <Input
+                                    name="canonical"
+                                    value={formData.canonical}
+                                    onChange={handleChange}
+                                    placeholder={`https://yoursite.com/blogs/${formData.slug || "your-slug"}`}
+                                    className={`${inp} font-mono text-[12px]`}
+                                />
+                            </div>
+
+                            {/* schema */}
+                            <div>
+                                <FieldLabel>Schema markup (JSON-LD)</FieldLabel>
+                                <Textarea
+                                    name="schemaScript"
+                                    value={formData.schemaScript}
+                                    onChange={handleChange}
+                                    placeholder={'{"@context":"https://schema.org",...}'}
+                                    rows={5}
+                                    className="text-[11px] font-mono border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* mobile action footer */}
+                    <div className="flex sm:hidden gap-2">
+                        <Button type="button" variant="outline" size="sm" onClick={(e) => handleSubmit(e, BlogStatus.DRAFT)} disabled={loading || !isFormValid} className="flex-1 h-9 text-xs">
+                            <Save className="h-3.5 w-3.5 mr-1.5" /> Save draft
                         </Button>
-                        <Button onClick={handlePublish} disabled={loading || uploadingThumbnail || uploadingBanner || !isFormValid} className="px-7 py-5 bg-primary text-white disabled:opacity-50">
-                            {loading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Publishing...
-                                </>
-                            ) : (
-                                <>
-                                    <Eye className="mr-2 h-5 w-5" />
-                                    Publish Blog
-                                </>
-                            )}
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={(e) => handleSubmit(e, BlogStatus.PUBLISHED)}
+                            disabled={loading || uploadingThumbnail || uploadingBanner || !isFormValid}
+                            className="flex-1 h-9 text-xs bg-slate-900 hover:bg-slate-700 text-white"
+                        >
+                            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
+                            {mode === "create" ? "Publish" : "Update"}
                         </Button>
                     </div>
                 </div>
-                {/* Form Section */}
-                <form onSubmit={handleSubmit} className="flex gap-6">
-                    {/* Left Column - Main Content */}
-                    <div className="flex-1 space-y-6">
-                        {/* Basic Information */}
-                        <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                            <CardHeader className="border-b border-slate-200 px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-blue-100 rounded-lg">
-                                        <AlertCircle className="h-5 w-5 text-blue-600" />
+
+                {/* ── right / sidebar ───────────────────── */}
+                <aside className="w-full xl:w-64 shrink-0">
+                    <div className="xl:sticky xl:top-[108px] space-y-4">
+                        {/* completion */}
+                        <div className="bg-white border border-slate-200 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-medium text-slate-600">Completion</span>
+                                <span className="text-[11px] text-slate-400">
+                                    {completion.filter((c) => c.ok).length}/{completion.length}
+                                </span>
+                            </div>
+                            <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-3">
+                                <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
+                            </div>
+                            <div className="space-y-1.5">
+                                {completion.map((item) => (
+                                    <div key={item.label} className="flex items-center gap-2">
+                                        {item.ok ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> : <AlertCircle className="h-3.5 w-3.5 text-slate-200 shrink-0" />}
+                                        <span className={`text-[11px] ${item.ok ? "text-slate-600" : "text-slate-400"}`}>{item.label}</span>
                                     </div>
-                                    <div>
-                                        <CardTitle className="text-xl">Basic Information</CardTitle>
-                                        <CardDescription className="mt-1">Essential blog details</CardDescription>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-6 space-y-6">
-                                {/* Title */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="title" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                        Blog Title <span className="text-red-500">*</span>
-                                        {formData.title && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                    </Label>
-                                    <Input
-                                        id="title"
-                                        name="title"
-                                        value={formData.title}
-                                        onChange={handleChange}
-                                        placeholder="e.g., 10 Tips for Successful Event Planning"
-                                        className="h-11 border-slate-300 focus:border-blue-500"
-                                        required
-                                        maxLength={100}
-                                    />
-                                    <p className="text-xs text-slate-500">{formData.title.length}/100 characters</p>
-                                </div>
-
-                                <Separator />
-
-                                {/* Slug */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="slug" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                        URL Slug <span className="text-red-500">*</span>
-                                        {formData.slug && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                    </Label>
-                                    <Input
-                                        id="slug"
-                                        name="slug"
-                                        value={formData.slug}
-                                        onChange={handleChange}
-                                        placeholder="e.g., 10-tips-event-planning"
-                                        className="h-11 border-slate-300 focus:border-blue-500 font-mono text-sm"
-                                        required
-                                        maxLength={100}
-                                    />
-                                    <p className="text-xs text-slate-500">yoursite.com/blogs/{formData.slug || "your-slug"}</p>
-                                </div>
-
-                                <Separator />
-
-                                {/* Description */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="description" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                        Description <span className="text-red-500">*</span>
-                                        {formData.description && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                    </Label>
-                                    <Textarea
-                                        id="description"
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        placeholder="Brief description of the blog post..."
-                                        rows={3}
-                                        className="resize-none border-slate-300 focus:border-blue-500"
-                                        required
-                                        maxLength={160}
-                                    />
-                                    <p className="text-xs text-slate-500">{formData.description.length}/160 characters</p>
-                                </div>
-
-                                <Separator />
-
-                                {/* Category and Author */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="categoryId" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                            Category <span className="text-red-500">*</span>
-                                            {formData.categoryId !== 0 && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                        </Label>
-                                        <select
-                                            id="categoryId"
-                                            name="categoryId"
-                                            value={formData.categoryId}
-                                            onChange={handleChange}
-                                            className="w-full h-11 px-4 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            required
-                                            disabled={loadingCategories}
-                                        >
-                                            <option value={0}>Select category...</option>
-                                            {categories.map((category) => (
-                                                <option key={category.id} value={category.id}>
-                                                    {category.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="authorId" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                            Author <span className="text-red-500">*</span>
-                                            {formData.authorId !== 0 && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                        </Label>
-                                        <select
-                                            id="authorId"
-                                            name="authorId"
-                                            value={formData.authorId}
-                                            onChange={handleChange}
-                                            className="w-full h-11 px-4 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            required
-                                            disabled={loadingAuthors}
-                                        >
-                                            <option value={0}>Select author...</option>
-                                            {authors.map((author) => (
-                                                <option key={author.id} value={author.id}>
-                                                    {author.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                {/* Time to Read */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="timeToRead" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                        <Calendar className="h-4 w-4" />
-                                        Reading Time (optional)
-                                    </Label>
-                                    <Input
-                                        id="timeToRead"
-                                        name="timeToRead"
-                                        value={formData.timeToRead}
-                                        onChange={handleChange}
-                                        placeholder="e.g., 5 min read"
-                                        className="h-11 border-slate-300 focus:border-blue-500"
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Content Editor */}
-                        <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                            <CardHeader className="border-b border-slate-200 px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-purple-100 rounded-lg">
-                                        <FileText className="h-5 w-5 text-purple-600" />
-                                    </div>
-                                    <div>
-                                        <CardTitle className="text-xl">Blog Content</CardTitle>
-                                        <CardDescription className="mt-1">Write your blog post content</CardDescription>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                                <TiptapEditor content={editorContent} onChange={handleEditorChange} onHeadingsChange={handleHeadingsChange} />
-                            </CardContent>
-                        </Card>
-
-                        {/* Images */}
-                        <div className="grid grid-cols-2 gap-6">
-                            {/* Thumbnail */}
-                            <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                                <CardHeader className="border-b border-slate-200 px-4 py-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-indigo-100 rounded-lg">
-                                            <ImageIcon className="h-5 w-5 text-indigo-600" />
-                                        </div>
-                                        <div>
-                                            <CardTitle className="text-lg">Thumbnail</CardTitle>
-                                            <CardDescription>Max 4MB</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-4">
-                                    <ImageUploader
-                                        files={thumbnailFiles}
-                                        onChange={(files) => {
-                                            setThumbnailFiles(files);
-                                            handleThumbnailUpload(files);
-                                        }}
-                                        maxFiles={1}
-                                        maxSize={4}
-                                        accept="image/*"
-                                    />
-                                    {uploadingThumbnail && (
-                                        <div className="flex items-center gap-2 mt-3 p-3 bg-blue-50 rounded-lg">
-                                            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                                            <p className="text-sm text-blue-900">Uploading...</p>
-                                        </div>
-                                    )}
-                                    {formData.thumbnail && !uploadingThumbnail && (
-                                        <div className="mt-3 relative group">
-                                            <img src={formData.thumbnail} alt="Thumbnail" className="w-full h-32 object-cover rounded-lg" />
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="destructive"
-                                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
-                                                onClick={() => {
-                                                    setFormData((prev) => ({ ...prev, thumbnail: "" }));
-                                                    setThumbnailFiles([]);
-                                                }}
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Banner */}
-                            <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                                <CardHeader className="border-b border-slate-200 px-4 py-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-pink-100 rounded-lg">
-                                            <ImageIcon className="h-5 w-5 text-pink-600" />
-                                        </div>
-                                        <div>
-                                            <CardTitle className="text-lg">Banner</CardTitle>
-                                            <CardDescription>Max 4MB</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-4">
-                                    <ImageUploader
-                                        files={bannerFiles}
-                                        onChange={(files) => {
-                                            setBannerFiles(files);
-                                            handleBannerUpload(files);
-                                        }}
-                                        maxFiles={1}
-                                        maxSize={4}
-                                        accept="image/*"
-                                    />
-                                    {uploadingBanner && (
-                                        <div className="flex items-center gap-2 mt-3 p-3 bg-blue-50 rounded-lg">
-                                            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                                            <p className="text-sm text-blue-900">Uploading...</p>
-                                        </div>
-                                    )}
-                                    {formData.banner_image && !uploadingBanner && (
-                                        <div className="mt-3 relative group">
-                                            <img src={formData.banner_image} alt="Banner" className="w-full h-32 object-cover rounded-lg" />
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="destructive"
-                                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
-                                                onClick={() => {
-                                                    setFormData((prev) => ({ ...prev, banner_image: "" }));
-                                                    setBannerFiles([]);
-                                                }}
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* SEO Settings */}
-                        <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                            <CardHeader className="border-b border-slate-200 px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-green-100 rounded-lg">
-                                        <Tag className="h-5 w-5 text-green-600" />
-                                    </div>
-                                    <div>
-                                        <CardTitle className="text-xl">SEO Settings</CardTitle>
-                                        <CardDescription className="mt-1">Optimize for search engines</CardDescription>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-6 space-y-6">
-                                {/* Meta Title */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="metaTitle" className="text-sm font-semibold text-slate-700">
-                                        Meta Title
-                                    </Label>
-                                    <Input
-                                        id="metaTitle"
-                                        name="metaTitle"
-                                        value={formData.metaTitle}
-                                        onChange={handleChange}
-                                        placeholder={formData.title || "Leave empty to use blog title"}
-                                        className="h-11 border-slate-300"
-                                        maxLength={60}
-                                    />
-                                    <p className="text-xs text-slate-500">{formData.metaTitle.length}/60 characters</p>
-                                </div>
+                        {/* table of contents */}
+                        <div className="bg-white border border-slate-200 rounded-xl p-4">
+                            <span className="text-xs font-medium text-slate-600 block mb-3">Table of Contents</span>
+                            <div className="max-h-60 overflow-y-auto">
+                                <TableOfContents headings={headings} />
+                            </div>
+                        </div>
 
-                                {/* Meta Description */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="metaDescription" className="text-sm font-semibold text-slate-700">
-                                        Meta Description
-                                    </Label>
-                                    <Textarea
-                                        id="metaDescription"
-                                        name="metaDescription"
-                                        value={formData.metaDescription}
-                                        onChange={handleChange}
-                                        placeholder={formData.description || "Leave empty to use blog description"}
-                                        rows={2}
-                                        className="resize-none border-slate-300"
-                                        maxLength={160}
-                                    />
-                                    <p className="text-xs text-slate-500">{formData.metaDescription.length}/160 characters</p>
-                                </div>
-
-                                {/* Keywords */}
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold text-slate-700">Keywords</Label>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            value={keywordInput}
-                                            onChange={(e) => setKeywordInput(e.target.value)}
-                                            onKeyPress={(e) => {
-                                                if (e.key === "Enter") {
-                                                    e.preventDefault();
-                                                    handleAddKeyword();
-                                                }
-                                            }}
-                                            placeholder="Add keyword and press Enter"
-                                            className="h-11 border-slate-300"
-                                        />
-                                        <Button type="button" onClick={handleAddKeyword} variant="outline">
-                                            Add
-                                        </Button>
-                                    </div>
-                                    {formData.keywords.length > 0 && (
-                                        <div className="flex flex-wrap gap-2 mt-3">
-                                            {formData.keywords.map((keyword, index) => (
-                                                <span key={index} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                                                    {keyword}
-                                                    <button type="button" onClick={() => handleRemoveKeyword(keyword)} className="hover:bg-blue-200 rounded-full p-0.5">
-                                                        <X className="h-3 w-3" />
-                                                    </button>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Canonical URL */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="canonical" className="text-sm font-semibold text-slate-700">
-                                        Canonical URL
-                                    </Label>
-                                    <Input
-                                        id="canonical"
-                                        name="canonical"
-                                        value={formData.canonical}
-                                        onChange={handleChange}
-                                        placeholder={`https://yoursite.com/blogs/${formData.slug || "your-slug"}`}
-                                        className="h-11 border-slate-300 font-mono text-sm"
-                                    />
-                                </div>
-
-                                {/* Schema Script */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="schemaScript" className="text-sm font-semibold text-slate-700">
-                                        Schema Markup (JSON-LD)
-                                    </Label>
-                                    <Textarea
-                                        id="schemaScript"
-                                        name="schemaScript"
-                                        value={formData.schemaScript}
-                                        onChange={handleChange}
-                                        placeholder='{"@context": "https://schema.org", ...}'
-                                        rows={6}
-                                        className="resize-none border-slate-300 font-mono text-xs"
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Right Column - Table of Contents */}
-                    <div className="w-80 shrink-0">
-                        <div className="sticky top-6">
-                            <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                                <CardHeader className="border-b border-slate-200 px-4 py-3">
-                                    <CardTitle className="text-lg">Table of Contents</CardTitle>
-                                    <CardDescription>Article structure</CardDescription>
-                                </CardHeader>
-                                <CardContent className="pt-4">
-                                    <TableOfContents headings={headings} />
-                                    {/* Type '{ content: string; }' is not assignable to type 'IntrinsicAttributes & TableOfContentsProps'.
-  Property 'content' does not exist on type 'IntrinsicAttributes & TableOfContentsProps'.ts(2322)
-⚠ Error (TS2322)  |  |  | 
-
-Type 
- is not assignable to type 
- .
-   
-
-Property content does not exist on type 
- .
-(property) content: string
-*/}
-                                </CardContent>
-                            </Card>
-
-                            {/* Form Validation Status */}
-                            <Card className="mt-4 border-slate-200 shadow-lg shadow-slate-200/50">
-                                <CardHeader className="border-b border-slate-200 px-4 py-3">
-                                    <CardTitle className="text-lg">Completion Status</CardTitle>
-                                </CardHeader>
-                                <CardContent className="pt-4 space-y-2">
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.title ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.title ? "text-slate-700" : "text-slate-400"}>Title</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.slug ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.slug ? "text-slate-700" : "text-slate-400"}>URL Slug</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.description ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.description ? "text-slate-700" : "text-slate-400"}>Description</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.content ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.content ? "text-slate-700" : "text-slate-400"}>Content</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.thumbnail ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.thumbnail ? "text-slate-700" : "text-slate-400"}>Thumbnail</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.banner_image ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.banner_image ? "text-slate-700" : "text-slate-400"}>Banner Image</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.categoryId !== 0 ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.categoryId !== 0 ? "text-slate-700" : "text-slate-400"}>Category</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        {formData.authorId !== 0 ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-slate-400" />}
-                                        <span className={formData.authorId !== 0 ? "text-slate-700" : "text-slate-400"}>Author</span>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                        {/* tips */}
+                        <div className="bg-white border border-slate-200 rounded-xl p-4">
+                            <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
+                            <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
+                                <li>Keep title under 60 chars for SEO.</li>
+                                <li>Use 2–5 targeted keywords.</li>
+                                <li>Banner: 1200×630 ideal for social.</li>
+                                <li>H2/H3 headings auto-build the TOC.</li>
+                            </ul>
                         </div>
                     </div>
-                </form>
-            </div>
+                </aside>
+            </form>
         </div>
+    );
+}
+
+export function DashboardHeader({ title, description }: { title: string; description?: string }) {
+    return (
+        <>
+            <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+            <p className="text-muted-foreground">{description}</p>
+        </>
     );
 }

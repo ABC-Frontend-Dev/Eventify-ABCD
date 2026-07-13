@@ -8,10 +8,16 @@ export default function Breadcrumb({ props }: { props?: any }) {
 
     const pathSegments = pathname.split("/").filter(Boolean);
 
+    // Check if current page is a blog detail page: /blogs/some-slug
+    const isBlogDetailPage = pathSegments[0] === "blogs" && pathSegments.length > 1;
+
+    const textColor = isBlogDetailPage ? "text-white" : "text-footer-bg";
+    const separatorColor = isBlogDetailPage ? "text-white" : "text-footer-bg";
+
     return (
         <ul className={`flex items-start lg:items-center flex-wrap gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>
             <li>
-                <Link href="/" className="text-xs lg:text-lg leading-4.5 lg:leading-4 text-footer-bg hover:text-primary transition-colors duration-200">
+                <Link href="/" className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200`}>
                     Home
                 </Link>
             </li>
@@ -29,13 +35,13 @@ export default function Breadcrumb({ props }: { props?: any }) {
 
                 return (
                     <div key={href} className="flex items-center gap-2">
-                        <li className="text-xs lg:text-lg leading-4.5 lg:leading-4 text-footer-bg">/</li>
+                        <li className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${separatorColor}`}>/</li>
 
                         <li>
                             {isLast ? (
                                 <span className="text-xs lg:text-lg leading-4.5 lg:leading-4 text-primary capitalize">{segment.replace(/-/g, " ")}</span>
                             ) : (
-                                <Link href={href} className="text-xs lg:text-lg leading-4.5 lg:leading-4 text-footer-bg hover:text-primary transition-colors duration-200 capitalize">
+                                <Link href={href} className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200 capitalize`}>
                                     {segment.replace(/-/g, " ")}
                                 </Link>
                             )}

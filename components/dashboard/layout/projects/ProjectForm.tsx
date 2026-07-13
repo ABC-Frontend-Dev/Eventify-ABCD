@@ -1,20 +1,18 @@
 // components/dashboard/layout/projects/ProjectForm.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Switch } from "@/components/ui/switch";
 import { useToasts } from "@/components/ui/toast";
-import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, FolderOpen, AlertCircle, CheckCircle2, Plus, Edit, Trash2, Layers } from "lucide-react";
+import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, AlertCircle, CheckCircle2, Plus, Edit, Trash2, Layers, ChevronRight, Eye } from "lucide-react";
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
 
+// ── Types ─────────────────────────────────────────────────
 interface ProjectCategory {
     id: number;
     name: string;
@@ -36,17 +34,33 @@ interface ProjectFormProps {
         images: string[];
         categoryId: number;
         hasTabs: boolean;
-        tabs: Array<{
-            id: number;
-            name: string;
-            images: string[];
-            order: number;
-        }>;
+        tabs: Array<{ id: number; name: string; images: string[]; order: number }>;
     };
     projectId?: number;
     mode: "create" | "edit";
 }
 
+// ── Shared micro-components ───────────────────────────────
+function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
+    return (
+        <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
+            {children}
+            {required && <span className="text-red-400">*</span>}
+            {ok && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 ml-auto" />}
+        </label>
+    );
+}
+
+function SectionHeading({ label }: { label: string }) {
+    return (
+        <div className="flex items-center gap-2 mb-4">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">{label}</span>
+            <div className="flex-1 h-px bg-slate-100" />
+        </div>
+    );
+}
+
+// ── Main component ────────────────────────────────────────
 export default function ProjectForm({ initialData, projectId, mode }: ProjectFormProps) {
     const router = useRouter();
     const toast = useToasts();
@@ -56,9 +70,12 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     const [uploadingImages, setUploadingImages] = useState(false);
     const [categories, setCategories] = useState<ProjectCategory[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
-
     const [bannerFiles, setBannerFiles] = useState<File[]>([]);
     const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+    const [isTabModalOpen, setIsTabModalOpen] = useState(false);
+    const [currentTab, setCurrentTab] = useState<ProjectTab | null>(null);
+    const [tabImageFiles, setTabImageFiles] = useState<File[]>([]);
+    const [uploadingTabImages, setUploadingTabImages] = useState(false);
 
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
@@ -69,788 +86,538 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         hasTabs: initialData?.hasTabs || false,
     });
 
-    const [tabs, setTabs] = useState<ProjectTab[]>(
-        initialData?.tabs?.map((tab) => ({
-            id: tab.id,
-            tempId: `tab-${tab.id}`,
-            name: tab.name,
-            images: tab.images,
-        })) || [],
+    const [tabs, setTabs] = useState<ProjectTab[]>(initialData?.tabs?.map((t) => ({ id: t.id, tempId: `tab-${t.id}`, name: t.name, images: t.images })) || []);
+
+    // ── completion ────────────────────────────────────────
+    const completion = useMemo(
+        () => [
+            { label: "Title", ok: !!formData.title.trim() },
+            { label: "Description", ok: !!formData.description.trim() },
+            { label: "Banner", ok: !!formData.bannerImage },
+            { label: "Category", ok: formData.categoryId !== 0 },
+            {
+                label: formData.hasTabs ? "Tabs" : "Gallery",
+                ok: formData.hasTabs ? tabs.length > 0 : formData.images.length > 0,
+            },
+        ],
+        [formData, tabs],
     );
 
-    const [isTabModalOpen, setIsTabModalOpen] = useState(false);
-    const [currentTab, setCurrentTab] = useState<ProjectTab | null>(null);
-    const [tabImageFiles, setTabImageFiles] = useState<File[]>([]);
-    const [uploadingTabImages, setUploadingTabImages] = useState(false);
+    const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
+    const isFormValid = completion.every((c) => c.ok);
 
-    // Fetch categories
+    // ── fetch categories ──────────────────────────────────
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch("/api/project-categories");
-                const result = await response.json();
-
-                if (result.success) {
-                    setCategories(result.data);
-                } else {
-                    toast.error("Failed to load categories");
-                }
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-                toast.error("Failed to load categories");
-            } finally {
-                setLoadingCategories(false);
-            }
-        };
-
-        fetchCategories();
+        fetch("/api/project-categories")
+            .then((r) => r.json())
+            .then((d) => {
+                if (d.success) setCategories(d.data);
+                else toast.error("Failed to load categories");
+            })
+            .catch(() => toast.error("Failed to load categories"))
+            .finally(() => setLoadingCategories(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // For Edit mode - fetch latest data
+    // ── edit mode load ────────────────────────────────────
     useEffect(() => {
-        if (mode === "edit" && projectId) {
-            fetch(`/api/projects/${projectId}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success && data.data) {
-                        setFormData({
-                            title: data.data.title,
-                            description: data.data.description,
-                            bannerImage: data.data.bannerImage,
-                            images: data.data.images || [],
-                            categoryId: data.data.categoryId,
-                            hasTabs: data.data.hasTabs || false,
-                        });
-
-                        if (data.data.tabs && data.data.tabs.length > 0) {
-                            setTabs(
-                                data.data.tabs.map((tab: any) => ({
-                                    id: tab.id,
-                                    tempId: `tab-${tab.id}`,
-                                    name: tab.name,
-                                    images: tab.images,
-                                })),
-                            );
-                        }
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                    toast.error("Failed to load project data");
+        if (mode !== "edit" || !projectId) return;
+        fetch(`/api/projects/${projectId}`)
+            .then((r) => r.json())
+            .then((data) => {
+                if (!data.success) return toast.error("Failed to load project data");
+                const d = data.data;
+                setFormData({
+                    title: d.title,
+                    description: d.description,
+                    bannerImage: d.bannerImage,
+                    images: d.images || [],
+                    categoryId: d.categoryId,
+                    hasTabs: d.hasTabs || false,
                 });
-        }
+                if (d.tabs?.length) {
+                    setTabs(d.tabs.map((t: any) => ({ id: t.id, tempId: `tab-${t.id}`, name: t.name, images: t.images })));
+                }
+            })
+            .catch(() => toast.error("Failed to load project data"));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mode, projectId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === "categoryId" ? parseInt(value) : value,
-        }));
+        setFormData((p) => ({ ...p, [name]: name === "categoryId" ? parseInt(value) : value }));
     };
 
-    // Handle banner image upload
-    const handleBannerUpload = async (uploadedFiles: File[]) => {
-        if (uploadedFiles.length === 0) return;
+    // ── upload helpers ────────────────────────────────────
+    const uploadFile = async (file: File): Promise<string | null> => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const result = await res.json();
+        return result.success ? result.path : null;
+    };
 
+    const handleBannerUpload = async (files: File[]) => {
+        if (!files.length) return;
         setUploadingBanner(true);
-        const file = uploadedFiles[0];
-
-        // Check if file is video or image
-        const isVideo = file.type.startsWith("video/");
-
-        try {
-            const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
-
-            const response = await fetch("/api/upload", {
-                method: "POST",
-                body: formDataUpload,
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                setFormData((prev) => ({
-                    ...prev,
-                    bannerImage: result.path,
-                }));
-                toast.success(`Banner ${isVideo ? "video" : "image"} uploaded successfully!`);
-            } else {
-                toast.error(result.error || "Failed to upload banner");
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to upload banner");
-        } finally {
-            setUploadingBanner(false);
-        }
+        const path = await uploadFile(files[0]).catch(() => null);
+        setUploadingBanner(false);
+        if (path) {
+            setFormData((p) => ({ ...p, bannerImage: path }));
+            toast.success("Banner uploaded");
+        } else toast.error("Failed to upload banner");
     };
 
-    // Handle multiple gallery images upload (for non-tab projects)
-    const handleGalleryUpload = async (uploadedFiles: File[]) => {
-        if (uploadedFiles.length === 0) return;
-
+    const handleGalleryUpload = async (files: File[]) => {
+        if (!files.length) return;
         setUploadingImages(true);
+        const paths = (await Promise.all(files.map(uploadFile))).filter(Boolean) as string[];
+        setUploadingImages(false);
+        setGalleryFiles([]);
+        if (paths.length) {
+            setFormData((p) => ({ ...p, images: [...p.images, ...paths] }));
+            toast.success(`${paths.length} image(s) uploaded`);
+        }
+        if (paths.length < files.length) toast.warning("Some images failed to upload");
+    };
 
-        try {
-            const uploadPromises = uploadedFiles.map(async (file) => {
-                const formDataUpload = new FormData();
-                formDataUpload.append("file", file);
-
-                const response = await fetch("/api/upload", {
-                    method: "POST",
-                    body: formDataUpload,
-                });
-
-                const result = await response.json();
-                return result.success ? result.path : null;
-            });
-
-            const uploadedPaths = await Promise.all(uploadPromises);
-            const successfulUploads = uploadedPaths.filter((path) => path !== null) as string[];
-
-            if (successfulUploads.length > 0) {
-                setFormData((prev) => ({
-                    ...prev,
-                    images: [...prev.images, ...successfulUploads],
-                }));
-                toast.success(`${successfulUploads.length} image(s) uploaded successfully!`);
-            }
-
-            if (successfulUploads.length < uploadedFiles.length) {
-                toast.warning("Some images failed to upload");
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to upload images");
-        } finally {
-            setUploadingImages(false);
-            setGalleryFiles([]);
+    const handleTabImageUpload = async (files: File[]) => {
+        if (!files.length || !currentTab) return;
+        setUploadingTabImages(true);
+        const paths = (await Promise.all(files.map(uploadFile))).filter(Boolean) as string[];
+        setUploadingTabImages(false);
+        setTabImageFiles([]);
+        if (paths.length) {
+            setCurrentTab((t) => (t ? { ...t, images: [...t.images, ...paths] } : t));
+            toast.success(`${paths.length} image(s) uploaded`);
         }
     };
 
-    // Remove image from gallery (non-tab projects)
-    const removeImage = (index: number) => {
-        setFormData((prev) => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index),
-        }));
-        toast.success("Image removed");
-    };
-
-    // TAB MANAGEMENT FUNCTIONS
-
-    // Add new tab
-    const handleAddTab = () => {
-        setCurrentTab({
-            tempId: `temp-${Date.now()}`,
-            name: "",
-            images: [],
-        });
+    // ── tab management ────────────────────────────────────
+    const openAddTab = () => {
+        setCurrentTab({ tempId: `temp-${Date.now()}`, name: "", images: [] });
         setIsTabModalOpen(true);
     };
-
-    // Edit existing tab
-    const handleEditTab = (tab: ProjectTab) => {
-        setCurrentTab({ ...tab });
+    const openEditTab = (t: ProjectTab) => {
+        setCurrentTab({ ...t });
         setIsTabModalOpen(true);
     };
-
-    // Delete tab
-    const handleDeleteTab = (tempId: string) => {
-        setTabs(tabs.filter((t) => t.tempId !== tempId));
-        toast.success("Tab deleted");
-    };
-
-    // Save tab (create or update)
-    const handleSaveTab = () => {
-        if (!currentTab?.name.trim()) {
-            toast.warning("Tab name is required");
-            return;
-        }
-
-        if (currentTab.images.length === 0) {
-            toast.warning("Add at least one image to the tab");
-            return;
-        }
-
-        const existingTabIndex = tabs.findIndex((t) => t.tempId === currentTab.tempId);
-
-        if (existingTabIndex >= 0) {
-            // Update existing tab
-            const updatedTabs = [...tabs];
-            updatedTabs[existingTabIndex] = currentTab;
-            setTabs(updatedTabs);
-            toast.success("Tab updated");
-        } else {
-            // Add new tab
-            setTabs([...tabs, currentTab]);
-            toast.success("Tab added");
-        }
-
+    const closeModal = () => {
         setIsTabModalOpen(false);
         setCurrentTab(null);
         setTabImageFiles([]);
     };
 
-    // Upload images for tab
-    const handleTabImageUpload = async (uploadedFiles: File[]) => {
-        if (uploadedFiles.length === 0 || !currentTab) return;
+    const handleDeleteTab = (tempId: string) => {
+        setTabs((ts) => ts.filter((t) => t.tempId !== tempId));
+        toast.success("Tab deleted");
+    };
 
-        setUploadingTabImages(true);
-
-        try {
-            const uploadPromises = uploadedFiles.map(async (file) => {
-                const formDataUpload = new FormData();
-                formDataUpload.append("file", file);
-
-                const response = await fetch("/api/upload", {
-                    method: "POST",
-                    body: formDataUpload,
-                });
-
-                const result = await response.json();
-                return result.success ? result.path : null;
-            });
-
-            const uploadedPaths = await Promise.all(uploadPromises);
-            const successfulUploads = uploadedPaths.filter((path) => path !== null) as string[];
-
-            if (successfulUploads.length > 0) {
-                setCurrentTab({
-                    ...currentTab,
-                    images: [...currentTab.images, ...successfulUploads],
-                });
-                toast.success(`${successfulUploads.length} image(s) uploaded!`);
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Failed to upload images");
-        } finally {
-            setUploadingTabImages(false);
-            setTabImageFiles([]);
+    const handleSaveTab = () => {
+        if (!currentTab?.name.trim()) {
+            toast.warning("Tab name is required");
+            return;
         }
-    };
-
-    // Remove image from tab
-    const removeTabImage = (index: number) => {
-        if (!currentTab) return;
-        setCurrentTab({
-            ...currentTab,
-            images: currentTab.images.filter((_, i) => i !== index),
-        });
-    };
-
-    // Handle tabs toggle
-    const handleTabsToggle = (checked: boolean) => {
-        setFormData((prev) => ({ ...prev, hasTabs: checked }));
-        if (!checked) {
-            setTabs([]);
+        if (!currentTab.images.length) {
+            toast.warning("Add at least one image");
+            return;
         }
+        const idx = tabs.findIndex((t) => t.tempId === currentTab.tempId);
+        if (idx >= 0) {
+            const ts = [...tabs];
+            ts[idx] = currentTab;
+            setTabs(ts);
+            toast.success("Tab updated");
+        } else {
+            setTabs((ts) => [...ts, currentTab]);
+            toast.success("Tab added");
+        }
+        closeModal();
     };
 
+    // ── submit ────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Validation
-        if (!formData.title.trim()) {
-            toast.warning("Please enter a project title");
+        if (!isFormValid) {
+            toast.warning("Please complete all required fields");
             return;
         }
-
-        if (!formData.description.trim()) {
-            toast.warning("Please enter a project description");
-            return;
-        }
-
-        if (!formData.bannerImage.trim()) {
-            toast.warning("Please upload a banner image");
-            return;
-        }
-
-        if (!formData.categoryId || formData.categoryId === 0) {
-            toast.warning("Please select a project category");
-            return;
-        }
-
-        if (formData.hasTabs) {
-            if (tabs.length === 0) {
-                toast.warning("Please add at least one tab or disable tabs");
-                return;
-            }
-        } else {
-            if (formData.images.length === 0) {
-                toast.warning("Please upload at least one project image");
-                return;
-            }
-        }
-
         setLoading(true);
-
         try {
-            const url = mode === "create" ? "/api/projects" : `/api/projects/${projectId}`;
-
-            const payload = {
-                ...formData,
-                tabs: formData.hasTabs ? tabs.map(({ name, images }) => ({ name, images })) : undefined,
-            };
-
-            const response = await fetch(url, {
+            const res = await fetch(mode === "create" ? "/api/projects" : `/api/projects/${projectId}`, {
                 method: mode === "create" ? "POST" : "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({
+                    ...formData,
+                    tabs: formData.hasTabs ? tabs.map(({ name, images }) => ({ name, images })) : undefined,
+                }),
             });
-
-            const result = await response.json();
-
+            const result = await res.json();
             if (result.success) {
-                toast.success(mode === "create" ? "Project created successfully!" : "Project updated successfully!");
-
+                toast.success(mode === "create" ? "Project created!" : "Project updated!");
                 setTimeout(() => {
                     router.push("/dashboard/projects");
                     router.refresh();
-                }, 1000);
-            } else {
-                toast.error(result.message || result.error || "Failed to save project");
-            }
-        } catch (error) {
-            console.error(error);
+                }, 800);
+            } else toast.error(result.message || result.error || "Failed to save project");
+        } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
     };
 
-    const isFormValid = formData.title && formData.description && formData.bannerImage && formData.categoryId !== 0 && (formData.hasTabs ? tabs.length > 0 : formData.images.length > 0);
+    // ── shared styles ─────────────────────────────────────
+    const inp = "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
+    const sel = "w-full h-9 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 text-slate-700 disabled:opacity-50";
 
     return (
-        <div className="">
-            <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-                {/* Header Section */}
-                <div className="flex items-center justify-between gap-5">
-                    <div className="flex items-start justify-center gap-4">
-                        <Button variant="outline" size="icon" asChild className="mt-1 shrink-0">
-                            <Link href="/dashboard/projects">
-                                <ArrowLeft className="h-5 w-5" />
-                            </Link>
-                        </Button>
-                        <div className="flex-1">
-                            <div className="flex items-center justify-center gap-3 mb-2">
-                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                                    <FolderOpen className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-3xl font-bold text-slate-900">{mode === "create" ? "Create New Project" : "Edit Project"}</h1>
-                                    <p className="text-slate-600 mt-1">{mode === "create" ? "Add a new project to your portfolio" : "Update project information and media"}</p>
-                                </div>
-                            </div>
+        <div className="min-h-screen bg-slate-50/60">
+            {/* ── sticky topbar ─────────────────────────── */}
+            <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
+                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
+                    <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
+                        <Link href="/dashboard/projects">
+                            <ArrowLeft className="h-4 w-4" />
+                        </Link>
+                    </Button>
+
+                    <div className="h-4 w-px bg-slate-200" />
+
+                    <span className="text-xs text-slate-400">Projects</span>
+                    <ChevronRight className="h-3 w-3 text-slate-300" />
+                    <span className="text-xs font-medium text-slate-700 truncate max-w-[200px]">{mode === "create" ? "New project" : formData.title || "Edit project"}</span>
+
+                    {/* progress */}
+                    <div className="hidden md:flex items-center gap-2 ml-3">
+                        <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
                         </div>
+                        <span className="text-[11px] text-slate-400">{completionPct}%</span>
                     </div>
 
-                    <Card className="border-transparent rounded-lg p-0 border-none ring-0 shadow-none">
-                        <CardContent className="p-0">
-                            <Button
-                                type="submit"
-                                form="project-form"
-                                disabled={loading || uploadingBanner || uploadingImages || !isFormValid}
-                                className="px-7 py-5 bg-primary text-white disabled:opacity-50 transition-all duration-300"
-                            >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                        {mode === "create" ? "Creating..." : "Updating..."}
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="mr-2 h-5 w-5" />
-                                        {mode === "create" ? "Create Project" : "Update Project"}
-                                    </>
-                                )}
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <div className="flex-1" />
+
+                    <Button
+                        type="submit"
+                        form="project-form"
+                        size="sm"
+                        disabled={loading || uploadingBanner || uploadingImages || !isFormValid}
+                        className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white"
+                    >
+                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
+                        {mode === "create" ? "Create" : "Update"}
+                    </Button>
                 </div>
-
-                {/* Form Section */}
-                <form onSubmit={handleSubmit} className="space-y-6" id="project-form">
-                    <div className="flex flex-row gap-6">
-                        {/* Basic Information Card */}
-                        <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                            <CardHeader className="border-b border-slate-200 px-3 py-2 gap-0">
-                                <div className="flex items-center">
-                                    <div className="p-2 bg-blue-100 rounded-lg">
-                                        <AlertCircle className="h-5 w-5 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <CardTitle className="text-xl">Basic Information</CardTitle>
-                                        <CardDescription className="mt-1">Essential project details and categorization</CardDescription>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-6 space-y-6">
-                                {/* Project Title */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="title" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                        Project Title <span className="text-red-500">*</span>
-                                        {formData.title && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                    </Label>
-                                    <Input
-                                        id="title"
-                                        name="title"
-                                        value={formData.title}
-                                        onChange={handleChange}
-                                        placeholder="e.g., Annual Tech Conference 2024"
-                                        className="h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    />
-                                    <p className="text-xs text-slate-500">Choose a clear, descriptive title for your project</p>
-                                </div>
-
-                                <Separator className="my-4" />
-
-                                {/* Project Category */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="categoryId" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                        Project Category <span className="text-red-500">*</span>
-                                        {formData.categoryId !== 0 && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                    </Label>
-                                    <div className="relative">
-                                        <select
-                                            id="categoryId"
-                                            name="categoryId"
-                                            value={formData.categoryId}
-                                            onChange={handleChange}
-                                            className="w-full h-11 px-4 pr-10 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer disabled:bg-slate-100 disabled:cursor-not-allowed"
-                                            required
-                                            disabled={loadingCategories}
-                                        >
-                                            <option value={0}>Select a category...</option>
-                                            {categories.map((category) => (
-                                                <option key={category.id} value={category.id}>
-                                                    {category.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                            <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    {loadingCategories && (
-                                        <p className="text-xs text-slate-500 flex items-center gap-2">
-                                            <Loader2 className="h-3 w-3 animate-spin" />
-                                            Loading categories...
-                                        </p>
-                                    )}
-                                </div>
-
-                                <Separator className="my-4" />
-
-                                {/* Project Description */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="description" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                        Project Description <span className="text-red-500">*</span>
-                                        {formData.description && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                                    </Label>
-                                    <Textarea
-                                        id="description"
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        placeholder="Provide a detailed description..."
-                                        rows={6}
-                                        className="resize-none border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    />
-                                    <div className="flex justify-between items-center">
-                                        <p className="text-xs text-slate-500">Write a compelling description</p>
-                                        <span className="text-xs text-slate-400">{formData.description.length} characters</span>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Right Column */}
-                        <div className="space-y-6 flex-1">
-                            {/* Banner Image Card */}
-                            <Card className="border-slate-200 shadow-lg shadow-slate-200/50 pt-0">
-                                <CardHeader className="border-b border-slate-200 px-3 py-2 gap-0">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-indigo-100 rounded-lg">
-                                            <ImageIcon className="h-5 w-5 text-indigo-600" />
-                                        </div>
-                                        <div>
-                                            <CardTitle className="text-xl">Banner Image</CardTitle>
-                                            <CardDescription className="mt-1">Upload a high-quality banner image (Max 4MB)</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-6 space-y-4">
-                                    <ImageUploader
-                                        files={bannerFiles}
-                                        onChange={(newFiles) => {
-                                            setBannerFiles(newFiles);
-                                            handleBannerUpload(newFiles);
-                                        }}
-                                        maxFiles={1}
-                                        maxSize={10} // 50MB
-                                        accept="image/*,video/*" // Accept both images and videos
-                                    />
-
-                                    {uploadingBanner && (
-                                        <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                            <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                                            <div>
-                                                <p className="text-sm font-medium text-blue-900">Uploading banner image...</p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {formData.bannerImage && !uploadingBanner && (
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-2">
-                                                <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                                <p className="text-sm font-medium text-green-700">Banner uploaded</p>
-                                            </div>
-                                            <div className="relative group overflow-hidden rounded-xl border-2 border-slate-200 bg-slate-50">
-                                                <img src={formData.bannerImage} alt="Banner preview" className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                                                    <Button
-                                                        type="button"
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            setFormData((prev) => ({ ...prev, bannerImage: "" }));
-                                                            setBannerFiles([]);
-                                                        }}
-                                                        className="bg-white/90 hover:bg-white"
-                                                    >
-                                                        <X className="h-4 w-4 mr-2" />
-                                                        Remove
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Tabs Toggle */}
-                            <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center justify-between p-4 border rounded-lg bg-gradient-to-r from-purple-50 to-blue-50">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-purple-100 rounded-lg">
-                                                <Layers className="h-5 w-5 text-purple-600" />
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold text-slate-900">Enable Tabs</p>
-                                                <p className="text-sm text-slate-500">Organize images into categorized tabs</p>
-                                            </div>
-                                        </div>
-                                        <Switch checked={formData.hasTabs} onCheckedChange={handleTabsToggle} />
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Conditional: Tabs or Gallery */}
-                            {formData.hasTabs ? (
-                                /* TABS SECTION */
-                                <Card className="border-slate-200 shadow-lg shadow-slate-200/50">
-                                    <CardHeader className="border-b border-slate-200 px-3 py-2">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-purple-100 rounded-lg">
-                                                    <Layers className="h-5 w-5 text-purple-600" />
-                                                </div>
-                                                <div>
-                                                    <CardTitle className="text-xl">Project Tabs ({tabs.length})</CardTitle>
-                                                    <CardDescription className="mt-1">Organize your project images by categories</CardDescription>
-                                                </div>
-                                            </div>
-                                            <Button type="button" onClick={handleAddTab} size="sm">
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                Add Tab
-                                            </Button>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="pt-6">
-                                        {tabs.length === 0 ? (
-                                            <div className="text-center py-12 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                                                <Layers className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-                                                <p className="text-sm font-medium text-slate-600">No tabs created yet</p>
-                                                <p className="text-xs text-slate-500 mt-1">Click "Add Tab" to create your first tab</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-3">
-                                                {tabs.map((tab) => (
-                                                    <div key={tab.tempId} className="flex items-center justify-between p-4 border rounded-lg hover:border-purple-300 transition-colors">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                                                <Layers className="h-6 w-6 text-purple-600" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-semibold text-slate-900">{tab.name}</p>
-                                                                <p className="text-sm text-slate-500">{tab.images.length} images</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <Button type="button" variant="outline" size="sm" onClick={() => handleEditTab(tab)}>
-                                                                <Edit className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button type="button" variant="outline" size="sm" onClick={() => handleDeleteTab(tab.tempId)}>
-                                                                <Trash2 className="h-4 w-4 text-red-500" />
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            ) : (
-                                /* GALLERY SECTION (No Tabs) */
-                                <Card className="pt-0 border-slate-200 shadow-lg shadow-slate-200/50">
-                                    <CardHeader className="border-b border-slate-200 px-3 py-2 gap-0">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-purple-100 rounded-lg">
-                                                    <ImageIcon className="h-5 w-5 text-purple-600" />
-                                                </div>
-                                                <div>
-                                                    <CardTitle className="text-xl">Project Gallery</CardTitle>
-                                                    <CardDescription className="mt-1">Upload multiple images (Max 10 images, 4MB each)</CardDescription>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="pt-6 space-y-4">
-                                        <ImageUploader
-                                            files={galleryFiles}
-                                            onChange={(newFiles) => {
-                                                setGalleryFiles(newFiles);
-                                                handleGalleryUpload(newFiles);
-                                            }}
-                                            maxFiles={10 - formData.images.length}
-                                            maxSize={10}
-                                            accept="image/*,video/*"
-                                        />
-
-                                        {uploadingImages && (
-                                            <div className="flex items-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                                                <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
-                                                <div>
-                                                    <p className="text-sm font-medium text-purple-900">Uploading images...</p>
-                                                    <p className="text-xs text-purple-700">Processing {galleryFiles.length} image(s)</p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {formData.images.length > 0 && (
-                                            <div className="space-y-4">
-                                                <Separator />
-                                                <div className="flex items-center justify-between">
-                                                    <h4 className="text-sm font-semibold text-slate-700">Uploaded Images</h4>
-                                                    <span className="text-xs text-slate-500">{formData.images.length}/10 image(s)</span>
-                                                </div>
-                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                    {formData.images.map((image, index) => (
-                                                        <div key={index} className="relative group">
-                                                            <div className="aspect-square rounded-lg overflow-hidden border-2 border-slate-200 bg-slate-50">
-                                                                <img
-                                                                    src={image}
-                                                                    alt={`Gallery ${index + 1}`}
-                                                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                                                />
-                                                            </div>
-                                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
-                                                                <Button type="button" size="sm" variant="destructive" onClick={() => removeImage(index)}>
-                                                                    <X className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">#{index + 1}</div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {formData.images.length === 0 && !uploadingImages && (
-                                            <div className="text-center py-12 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                                                <ImageIcon className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-                                                <p className="text-sm font-medium text-slate-600">No images uploaded yet</p>
-                                                <p className="text-xs text-slate-500 mt-1">Upload at least one image to continue</p>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            )}
-                        </div>
-                    </div>
-                </form>
             </div>
 
-            {/* TAB MODAL */}
-            {isTabModalOpen && currentTab && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-purple-100 rounded-lg">
-                                    <Layers className="h-5 w-5 text-purple-600" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-slate-900">{tabs.find((t) => t.tempId === currentTab.tempId) ? "Edit Tab" : "Add New Tab"}</h3>
-                                    <p className="text-sm text-slate-500">Create a categorized section for your project images</p>
-                                </div>
+            {/* ── body ──────────────────────────────────── */}
+            <form id="project-form" onSubmit={handleSubmit} className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 flex flex-col xl:flex-row gap-5">
+                {/* ── main column ───────────────────────── */}
+                <div className="flex-1 min-w-0 space-y-5">
+                    {/* BASIC INFO */}
+                    <section className="bg-white border border-slate-200 rounded-xl p-5">
+                        <SectionHeading label="Basic Info" />
+                        <div className="space-y-4">
+                            {/* title */}
+                            <div>
+                                <FieldLabel required ok={!!formData.title}>
+                                    Project Title
+                                </FieldLabel>
+                                <Input name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Annual Tech Conference 2024" className={inp} />
                             </div>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                    setIsTabModalOpen(false);
-                                    setCurrentTab(null);
-                                    setTabImageFiles([]);
+
+                            {/* category */}
+                            <div>
+                                <FieldLabel required ok={formData.categoryId !== 0}>
+                                    Category
+                                </FieldLabel>
+                                <select name="categoryId" value={formData.categoryId} onChange={handleChange} className={sel} disabled={loadingCategories}>
+                                    <option value={0}>{loadingCategories ? "Loading…" : "Select category…"}</option>
+                                    {categories.map((c) => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* description */}
+                            <div>
+                                <FieldLabel required ok={!!formData.description}>
+                                    Description
+                                </FieldLabel>
+                                <Textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    placeholder="Provide a detailed description of the project…"
+                                    rows={5}
+                                    className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
+                                />
+                                <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.description.length} chars</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* BANNER */}
+                    <section className="bg-white border border-slate-200 rounded-xl p-5">
+                        <SectionHeading label="Banner Image" />
+
+                        <ImageUploader
+                            files={bannerFiles}
+                            onChange={(f) => {
+                                setBannerFiles(f);
+                                handleBannerUpload(f);
+                            }}
+                            maxFiles={1}
+                            maxSize={10}
+                            accept="image/*,video/*"
+                        />
+
+                        {uploadingBanner && (
+                            <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading banner…
+                            </div>
+                        )}
+
+                        {formData.bannerImage && !uploadingBanner && (
+                            <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100">
+                                <img src={formData.bannerImage} alt="Banner" className="w-full h-40 object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setFormData((p) => ({ ...p, bannerImage: "" }));
+                                        setBannerFiles([]);
+                                    }}
+                                    className="absolute top-2 right-2 p-1 rounded-md bg-white/90 shadow text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
+                                >
+                                    <X className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* TABS TOGGLE */}
+                    <section className="bg-white border border-slate-200 rounded-xl p-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-semibold text-slate-700">Enable Tabs</p>
+                                <p className="text-[11px] text-slate-400 mt-0.5">Organise images into categorised tabs</p>
+                            </div>
+                            <Switch
+                                checked={formData.hasTabs}
+                                onCheckedChange={(checked) => {
+                                    setFormData((p) => ({ ...p, hasTabs: checked }));
+                                    if (!checked) setTabs([]);
                                 }}
-                            >
-                                <X className="h-5 w-5" />
-                            </Button>
+                            />
+                        </div>
+                    </section>
+
+                    {/* TABS or GALLERY */}
+                    {formData.hasTabs ? (
+                        <section className="bg-white border border-slate-200 rounded-xl p-5">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Tabs</span>
+                                    <div className="h-px bg-slate-100 w-16" />
+                                </div>
+                                <Button type="button" size="sm" onClick={openAddTab} className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white">
+                                    <Plus className="h-3.5 w-3.5 mr-1" /> Add Tab
+                                </Button>
+                            </div>
+
+                            {tabs.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-slate-100 rounded-lg">
+                                    <Layers className="h-8 w-8 text-slate-200 mb-2" />
+                                    <p className="text-xs text-slate-400">No tabs yet — click Add Tab to start</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {tabs.map((tab) => (
+                                        <div key={tab.tempId} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-slate-200 transition-colors">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+                                                    <Layers className="h-4 w-4 text-slate-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-semibold text-slate-800">{tab.name}</p>
+                                                    <p className="text-[11px] text-slate-400">
+                                                        {tab.images.length} image{tab.images.length !== 1 ? "s" : ""}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openEditTab(tab)}
+                                                    className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                                                >
+                                                    <Edit className="h-3.5 w-3.5" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteTab(tab.tempId)}
+                                                    className="p-1.5 rounded-md text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+                    ) : (
+                        <section className="bg-white border border-slate-200 rounded-xl p-5">
+                            <SectionHeading label="Project Gallery" />
+
+                            <ImageUploader
+                                files={galleryFiles}
+                                onChange={(f) => {
+                                    setGalleryFiles(f);
+                                    handleGalleryUpload(f);
+                                }}
+                                maxFiles={10 - formData.images.length}
+                                maxSize={10}
+                                accept="image/*,video/*"
+                            />
+
+                            {uploadingImages && (
+                                <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
+                                </div>
+                            )}
+
+                            {formData.images.length > 0 && (
+                                <div className="mt-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-[11px] text-slate-400">{formData.images.length}/10 images</span>
+                                    </div>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                        {formData.images.map((img, i) => (
+                                            <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-100">
+                                                <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData((p) => ({ ...p, images: p.images.filter((_, idx) => idx !== i) }))}
+                                                        className="p-1 rounded-md bg-white/90 text-red-500 shadow"
+                                                    >
+                                                        <X className="h-3.5 w-3.5" />
+                                                    </button>
+                                                </div>
+                                                <span className="absolute top-1 left-1 text-[10px] font-medium bg-black/60 text-white px-1.5 py-0.5 rounded-full">{i + 1}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {formData.images.length === 0 && !uploadingImages && (
+                                <div className="flex flex-col items-center justify-center py-8 mt-3 border-2 border-dashed border-slate-100 rounded-lg">
+                                    <ImageIcon className="h-8 w-8 text-slate-200 mb-2" />
+                                    <p className="text-xs text-slate-400">No images yet — upload at least one</p>
+                                </div>
+                            )}
+                        </section>
+                    )}
+
+                    {/* mobile footer */}
+                    <div className="flex sm:hidden gap-2">
+                        <Button
+                            type="submit"
+                            form="project-form"
+                            size="sm"
+                            disabled={loading || uploadingBanner || uploadingImages || !isFormValid}
+                            className="flex-1 h-9 text-xs bg-slate-900 hover:bg-slate-700 text-white"
+                        >
+                            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
+                            {mode === "create" ? "Create" : "Update"}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* ── sidebar ───────────────────────────── */}
+                <aside className="w-full xl:w-64 shrink-0">
+                    <div className="xl:sticky xl:top-[108px] space-y-4">
+                        {/* completion */}
+                        <div className="bg-white border border-slate-200 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-medium text-slate-600">Completion</span>
+                                <span className="text-[11px] text-slate-400">
+                                    {completion.filter((c) => c.ok).length}/{completion.length}
+                                </span>
+                            </div>
+                            <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-3">
+                                <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
+                            </div>
+                            <div className="space-y-1.5">
+                                {completion.map((item) => (
+                                    <div key={item.label} className="flex items-center gap-2">
+                                        {item.ok ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> : <AlertCircle className="h-3.5 w-3.5 text-slate-200  shrink-0" />}
+                                        <span className={`text-[11px] ${item.ok ? "text-slate-600" : "text-slate-400"}`}>{item.label}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="p-6 space-y-6">
-                            {/* Tab Name */}
-                            <div className="space-y-2">
-                                <Label htmlFor="tab-name" className="text-sm font-semibold">
-                                    Tab Name <span className="text-red-500">*</span>
-                                </Label>
+                        {/* tips */}
+                        <div className="bg-white border border-slate-200 rounded-xl p-4">
+                            <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
+                            <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
+                                <li>Banner: 1200×630 works great for all viewports.</li>
+                                <li>Use tabs to split images by room, area, or phase.</li>
+                                <li>Keep gallery images under 1 MB each for fast load.</li>
+                                <li>Short, clear descriptions improve SEO.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+            </form>
+
+            {/* ── Tab Modal ─────────────────────────────── */}
+            {isTabModalOpen && currentTab && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+                        {/* modal header */}
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+                            <div>
+                                <p className="text-sm font-semibold text-slate-800">{tabs.find((t) => t.tempId === currentTab.tempId) ? "Edit Tab" : "Add Tab"}</p>
+                                <p className="text-[11px] text-slate-400 mt-0.5">Name this section and upload its images</p>
+                            </div>
+                            <button type="button" onClick={closeModal} className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+
+                        {/* modal body */}
+                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                            {/* tab name */}
+                            <div>
+                                <FieldLabel required ok={!!currentTab.name.trim()}>
+                                    Tab Name
+                                </FieldLabel>
                                 <Input
-                                    id="tab-name"
                                     value={currentTab.name}
-                                    onChange={(e) => setCurrentTab({ ...currentTab, name: e.target.value })}
-                                    placeholder="e.g., Interior, Exterior, Stage Setup, Decoration"
-                                    className="h-11"
+                                    onChange={(e) => setCurrentTab((t) => (t ? { ...t, name: e.target.value } : t))}
+                                    placeholder="e.g. Interior, Exterior, Stage Setup…"
+                                    className="h-9 text-sm border-slate-200 focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
                                 />
-                                <p className="text-xs text-slate-500">Give this tab a descriptive name</p>
                             </div>
 
-                            <Separator />
-
-                            {/* Tab Images */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-semibold">
-                                        Tab Images ({currentTab.images.length}) <span className="text-red-500">*</span>
-                                    </Label>
-                                </div>
+                            {/* tab images */}
+                            <div>
+                                <FieldLabel required ok={currentTab.images.length > 0}>
+                                    Images ({currentTab.images.length})
+                                </FieldLabel>
 
                                 <ImageUploader
                                     files={tabImageFiles}
-                                    onChange={(newFiles) => {
-                                        setTabImageFiles(newFiles);
-                                        handleTabImageUpload(newFiles);
+                                    onChange={(f) => {
+                                        setTabImageFiles(f);
+                                        handleTabImageUpload(f);
                                     }}
                                     maxFiles={20 - currentTab.images.length}
                                     maxSize={4}
@@ -858,54 +625,45 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 />
 
                                 {uploadingTabImages && (
-                                    <div className="flex items-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                                        <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
-                                        <p className="text-sm font-medium text-purple-900">Uploading images...</p>
+                                    <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
                                     </div>
                                 )}
 
                                 {currentTab.images.length > 0 && (
-                                    <div className="grid grid-cols-3 gap-3 mt-4">
-                                        {currentTab.images.map((img, index) => (
-                                            <div key={index} className="relative group">
-                                                <div className="aspect-square rounded-lg overflow-hidden border-2 border-slate-200">
-                                                    <img src={img} alt={`Tab image ${index + 1}`} className="w-full h-full object-cover" />
+                                    <div className="grid grid-cols-3 gap-2 mt-3">
+                                        {currentTab.images.map((img, i) => (
+                                            <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-100">
+                                                <img src={img} alt="" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setCurrentTab((t) => (t ? { ...t, images: t.images.filter((_, idx) => idx !== i) } : t))}
+                                                        className="p-1 rounded-md bg-white/90 text-red-500 shadow"
+                                                    >
+                                                        <X className="h-3.5 w-3.5" />
+                                                    </button>
                                                 </div>
-                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                                                    <Button type="button" size="sm" variant="destructive" onClick={() => removeTabImage(index)}>
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                                <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">#{index + 1}</div>
+                                                <span className="absolute top-1 left-1 text-[10px] font-medium bg-black/60 text-white px-1.5 py-0.5 rounded-full">{i + 1}</span>
                                             </div>
                                         ))}
-                                    </div>
-                                )}
-
-                                {currentTab.images.length === 0 && !uploadingTabImages && (
-                                    <div className="text-center py-8 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                                        <ImageIcon className="h-10 w-10 text-slate-400 mx-auto mb-2" />
-                                        <p className="text-sm text-slate-600">No images in this tab yet</p>
-                                        <p className="text-xs text-slate-500 mt-1">Upload at least one image</p>
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 px-6 py-4 flex gap-3">
-                            <Button onClick={handleSaveTab} className="flex-1" disabled={!currentTab.name.trim() || currentTab.images.length === 0}>
-                                <Save className="h-4 w-4 mr-2" />
-                                Save Tab
-                            </Button>
+                        {/* modal footer */}
+                        <div className="flex items-center gap-2 px-5 py-4 border-t border-slate-100 shrink-0">
                             <Button
                                 type="button"
-                                variant="outline"
-                                onClick={() => {
-                                    setIsTabModalOpen(false);
-                                    setCurrentTab(null);
-                                    setTabImageFiles([]);
-                                }}
+                                onClick={handleSaveTab}
+                                disabled={!currentTab.name.trim() || !currentTab.images.length}
+                                size="sm"
+                                className="flex-1 h-8 text-xs bg-slate-900 hover:bg-slate-700 text-white"
                             >
+                                <Save className="h-3.5 w-3.5 mr-1.5" /> Save Tab
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" onClick={closeModal} className="h-8 text-xs">
                                 Cancel
                             </Button>
                         </div>

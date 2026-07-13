@@ -38,13 +38,13 @@ export default function Navbar() {
     const getLogosForPage = () => {
         if (pathname.startsWith("/blog")) {
             return {
-                default: "/images/logo-light.png",
+                default: "/images/logo-dark.png",
                 scrolled: "/images/logo-dark.png",
             };
         }
         if (pathname.startsWith("/services")) {
             return {
-                default: "/images/logo-light.png",
+                default: "/images/logo-dark.png",
                 scrolled: "/images/logo-dark.png",
             };
         }
