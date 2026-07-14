@@ -43,9 +43,9 @@ yarn-error.log*
 next-env.d.ts
 
 # Uploaded media
-/public/images/*
+# /public/images/*
 !/public/images/.gitkeep
-/public/videos/*
+# /public/videos/*
 !/public/videos/.gitkeep
 
 
