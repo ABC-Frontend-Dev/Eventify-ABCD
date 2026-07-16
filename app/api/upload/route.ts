@@ -1,4 +1,3 @@
-// app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -8,7 +7,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Whitelisted folder map — keeps files organised in Cloudinary
 const FOLDER_MAP: Record<string, string> = {
     clients: "eventify/clients",
     blogs: "eventify/blogs",
@@ -23,11 +21,26 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg", "video/quicktime", "video/x-msvideo"];
 const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
 
+const CONVERSION_CONFIG = {
+    webp: {
+        quality: 95,
+        progressive: true,
+    },
+    webm: {
+        quality: 95,
+        video_codec: "vp9",
+        audio_codec: "libopus",
+        bit_rate: "2000k",
+    },
+};
+
 export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
         const file = formData.get("file") as File;
         const folderKey = request.nextUrl.searchParams.get("folder") ?? "";
+        const imageQuality = request.nextUrl.searchParams.get("imageQuality") ? parseInt(request.nextUrl.searchParams.get("imageQuality")!) : CONVERSION_CONFIG.webp.quality;
+        const videoQuality = request.nextUrl.searchParams.get("videoQuality") ? parseInt(request.nextUrl.searchParams.get("videoQuality")!) : CONVERSION_CONFIG.webm.quality;
 
         if (!file) {
             return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
@@ -38,10 +51,15 @@ export async function POST(request: NextRequest) {
         }
 
         if (!ALLOWED_TYPES.includes(file.type)) {
-            return NextResponse.json({ success: false, error: "Invalid file type. Allowed: Images (JPEG, PNG, WebP, GIF) and Videos (MP4, WebM, OGG, MOV, AVI)" }, { status: 400 });
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "Invalid file type. Allowed: Images (JPEG, PNG, WebP, GIF) and Videos (MP4, WebM, OGG, MOV, AVI)",
+                },
+                { status: 400 },
+            );
         }
 
-        // Convert File → base64 data URI for Cloudinary
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const base64 = buffer.toString("base64");
@@ -50,31 +68,47 @@ export async function POST(request: NextRequest) {
         const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
         const folder = FOLDER_MAP[folderKey] ?? (isVideo ? "eventify/videos" : "eventify/images");
 
-        // Upload to Cloudinary
         const result = await cloudinary.uploader.upload(dataUri, {
             folder,
             resource_type: isVideo ? "video" : "image",
-            // Auto-generate a unique public_id — no need to manage filenames
             unique_filename: true,
             overwrite: false,
+            ...(isVideo
+                ? {
+                      format: "webm",
+                      video_codec: CONVERSION_CONFIG.webm.video_codec,
+                      audio_codec: CONVERSION_CONFIG.webm.audio_codec,
+                      bit_rate: CONVERSION_CONFIG.webm.bit_rate,
+                      quality: videoQuality,
+                      flags: "progressive",
+                  }
+                : {
+                      format: "webp",
+                      quality: imageQuality,
+                      fetch_format: "auto",
+                      flags: "progressive",
+                  }),
         });
 
         return NextResponse.json(
             {
                 success: true,
-                path: result.secure_url, // ← full Cloudinary HTTPS URL
+                path: result.secure_url,
                 publicId: result.public_id,
                 filename: result.original_filename,
                 size: result.bytes,
-                type: file.type,
+                type: isVideo ? "video/webm" : "image/webp",
                 isVideo,
                 width: result.width,
                 height: result.height,
+                format: result.format,
+                duration: isVideo ? result.duration : null,
             },
             { status: 200 },
         );
     } catch (error) {
         console.error("Cloudinary upload error:", error);
+        console.error("Error details:", error instanceof Error ? error.message : error);
         return NextResponse.json({ success: false, error: "Failed to upload file" }, { status: 500 });
     }
 }
