@@ -133,3 +133,16 @@ enum ContactSubmissionStatus {
   NEW
   READ
 }
+
+model Service {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  image       String
+  url         String    @unique
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([order])
+}

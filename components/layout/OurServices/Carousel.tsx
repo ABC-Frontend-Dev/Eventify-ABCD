@@ -17,54 +17,8 @@ interface CarouselItem {
     url: string;
     title: string;
     description: string;
-    image?: string;
+    image: string;
 }
-
-const CAROUSEL_DATA: CarouselItem[] = [
-    {
-        id: 1,
-        url: "services/conferences",
-        title: "Retail Activations",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
-        image: "/images/our-services/slide-1.png",
-    },
-    {
-        id: 2,
-        url: "services/conferences",
-        title: "Live Event Production",
-        description: "We have strong roots in live entertainment production and can effectively manage from as low as 500 and up to 50,000 guests at any event like Maroon Five at Coca-Cola Area.",
-        image: "/images/our-services/slide-2.png",
-    },
-    {
-        id: 3,
-        url: "services/conferences",
-        title: "Wedding Services",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
-        image: "/images/our-services/slide-3.png",
-    },
-    {
-        id: 4,
-        url: "services/conferences",
-        title: "Festival & IP Management",
-        description:
-            "The team until very recently were directly involved in producing and managing Dubai's biggest festivals namely Virgin Radio Redfest DXB, Dubai Jazz Festival, Blended Music and Festival Sole DXB.",
-        image: "/images/our-services/slide-4.png",
-    },
-    {
-        id: 5,
-        url: "services/conferences",
-        title: "Brand Experiences",
-        description: "Our out of the box approach brings alive Product Launches, Opening Events & Ceremonies, Media & PR Events like Porsche Taycan Launch, Caesars Palace Launch.",
-        image: "/images/our-services/slide-5.png",
-    },
-    {
-        id: 6,
-        url: "services/conferences",
-        title: "Special Events",
-        description: "We are adept at planning and executing large cultural events for National Day, Flag Day or Other celebrations like Drone and Light Show DSF Drone and Light show.",
-        image: "/images/our-services/slide-6.png",
-    },
-];
 
 export function EmblaCarousel() {
     const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -77,11 +31,32 @@ export function EmblaCarousel() {
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
     const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [services, setServices] = useState<CarouselItem[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
     const overlayRefs = useRef<(HTMLDivElement | null)[]>([]);
     const hoverTlsRef = useRef<(gsap.core.Timeline | null)[]>([]);
+
+    // Fetch services from API
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                const response = await fetch("/api/services");
+                const data = await response.json();
+                if (data.success) {
+                    setServices(data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch services:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchServices();
+    }, []);
 
     const scrollPrev = useCallback(() => {
         if (emblaApi) emblaApi.scrollPrev();
@@ -109,14 +84,13 @@ export function EmblaCarousel() {
         };
     }, [emblaApi, onSelect]);
 
-    // Scroll-in reveal for each card (unchanged)
+    // Scroll-in reveal
     useEffect(() => {
-        if (!containerRef.current) return;
+        if (!containerRef.current || services.length === 0) return;
 
         const ctx = gsap.context(() => {
             const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
 
-            // Example fixed random-like durations per card
             const durations = [1.6, 1.4, 1.8, 1.5, 1.6, 1.1];
 
             validSlides.forEach((slide, index) => {
@@ -124,7 +98,6 @@ export function EmblaCarousel() {
 
                 if (!inner) return;
 
-                // Hide from bottom, so reveal goes top -> bottom
                 gsap.set(inner, {
                     clipPath: "inset(0 0 100% 0)",
                     transformOrigin: "center center",
@@ -135,7 +108,7 @@ export function EmblaCarousel() {
                     duration: durations[index] ?? 2.2,
                     ease: "power3.out",
                     scrollTrigger: {
-                        trigger: containerRef.current, // all cards use same trigger
+                        trigger: containerRef.current,
                         start: "top 85%",
                         toggleActions: "play none none reverse",
                     },
@@ -144,13 +117,9 @@ export function EmblaCarousel() {
         }, containerRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [services]);
 
-    // Hover effect — a plain dark tint fades in over the image, nothing
-    // else moves. One paused timeline per card, play() on enter /
-    // reverse() on leave, same reasoning as the social icons: a
-    // reversing timeline always unwinds correctly no matter how fast
-    // you hover in and out.
+    // Hover effect
     useEffect(() => {
         const ctx = gsap.context(() => {
             overlayRefs.current.forEach((overlay, index) => {
@@ -169,7 +138,7 @@ export function EmblaCarousel() {
         }, containerRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [services]);
 
     const handleCardEnter = useCallback((index: number) => {
         hoverTlsRef.current[index]?.play();
@@ -179,9 +148,6 @@ export function EmblaCarousel() {
         hoverTlsRef.current[index]?.reverse();
     }, []);
 
-    // Defensive reset: same safety net as the social icons — if the
-    // window loses focus or the tab goes to the background mid-hover,
-    // mouseleave may never fire, so force every card back to rest.
     useEffect(() => {
         const resetAll = () => {
             hoverTlsRef.current.forEach((tl) => tl?.reverse());
@@ -194,12 +160,21 @@ export function EmblaCarousel() {
         };
     }, []);
 
+    if (loading) {
+        return (
+            <div className="flex gap-4">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="flex-[0_0_28.57%] h-130 bg-slate-200 rounded-lg animate-pulse" />
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div className="relative w-full" ref={containerRef}>
-            {/* Carousel Viewport */}
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
-                    {CAROUSEL_DATA.map((item, index) => (
+                    {services.map((item, index) => (
                         <div
                             key={item.id}
                             ref={(el) => {
@@ -209,11 +184,11 @@ export function EmblaCarousel() {
                             onMouseLeave={() => handleCardLeave(index)}
                             className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
-                            {/* This inner wrapper gets the clip-path reveal, and clips/masks the hover overlay below */}
                             <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
-                                <div className="w-full h-full">{item.image && <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />}</div>
+                                <div className="w-full h-full">
+                                    <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                                </div>
 
-                                {/* Dark tint overlay — GSAP fades this in/out on hover */}
                                 <div
                                     ref={(el) => {
                                         overlayRefs.current[index] = el;
