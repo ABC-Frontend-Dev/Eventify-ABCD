@@ -1,6 +1,7 @@
 // app/(frontend)/page.tsx
 import AboutUs from "@/components/layout/AboutUs/AboutUs";
 import Awards from "@/components/layout/Awards/Awards";
+import BeforeAndAfterComparision from "@/components/layout/BeforeAndAfterComparision/BeforeAndAfterComparision";
 import ContactModal from "@/components/layout/Contact/ContactModal";
 import HeroPageLoader from "@/components/layout/HeroPageLoader/HeroPageLoader";
 import HeroSection from "@/components/layout/HeroSection/HeroSection";
@@ -20,6 +21,7 @@ export default function Home() {
             <AboutUs />
             <OurClients />
             <OurServices />
+            <BeforeAndAfterComparision />
             <OurTeam />
             <Awards />
             <Projects />

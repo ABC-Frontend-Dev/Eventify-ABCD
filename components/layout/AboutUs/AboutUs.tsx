@@ -119,7 +119,7 @@ export default function AboutUs() {
 
     return (
         <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
-            <header className="grid lg:grid-cols-[520px_1fr] gap-10 items-start">
+            <header className="grid lg:grid-cols-[460px_1fr] gap-10 items-start">
                 <SubHeading title="The team behind every celebration" />
                 <HeaderDescription
                     description="Eventify is a Dubai-born events company redefining how people experience culture, entertainment, and live moments. Built by industry leaders and creatives who have helped shape the region’s event scene for over two decades, Eventify thrives at the intersection of ideas, energy, and execution."
@@ -212,7 +212,7 @@ export function SubHeading({ title }: SubHeadingProps) {
 
     return (
         /* 2. Added 'break-words' to safely handle container limits if needed */
-        <h3 ref={textRef} className="text-2xl lg:text-4xl leading-7 lg:leading-10 font-product-sans-bold font-bold uppercase text-primary break-words pr-26" style={{ willChange: "filter" }}>
+        <h3 ref={textRef} className="text-2xl lg:text-4xl leading-7 lg:leading-10 font-product-sans-bold font-bold uppercase text-primary break-words pr-16" style={{ willChange: "filter" }}>
             {title}
         </h3>
     );

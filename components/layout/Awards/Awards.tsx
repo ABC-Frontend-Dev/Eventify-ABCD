@@ -1,10 +1,27 @@
-// components/layout/Awards/Awards.tsx
+"use client";
+
+import { useEffect, useState } from "react";
 import HeaderDescription from "@/components/common/HeaderDescription";
 import HeadingWithoutLogo from "@/components/common/HeadingWithoutLogo";
 import SubHeading from "@/components/common/SubHeading";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { AwardsTabContent2025, AwardsTabContent2024, AwardsTabContent2023, AwardsTabContent2022 } from "./AwardsTabContents";
-import { AWARDS_DATA, getAvailableYears } from "@/lib/data/awards-data";
+import AwardsYearTabContent from "./AwardsYearTabContent";
+
+interface AwardCategory {
+    id: number;
+    name: string;
+    icon: string;
+    iconAlt: string;
+    items: Array<{ id: number; title: string; description: string }>;
+    carouselImages: Array<{ id: number; url: string }>;
+    gradientWidthClass: string;
+}
+
+interface Award {
+    id: number;
+    year: number;
+    categories: AwardCategory[];
+}
 
 interface YearTab {
     id: number;
@@ -12,20 +29,52 @@ interface YearTab {
 }
 
 export default function Awards() {
-    const availableYears = getAvailableYears();
+    const [awards, setAwards] = useState<Award[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const yearTabs: YearTab[] = availableYears.map((year, index) => ({
-        id: availableYears.length - index,
-        year,
+    useEffect(() => {
+        const fetchAwards = async () => {
+            try {
+                const response = await fetch("/api/awards");
+                const data = await response.json();
+                if (data.success) {
+                    setAwards(data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch awards:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAwards();
+    }, []);
+
+    if (loading) {
+        return (
+            <section id="awards" className="hidden lg:block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-14">
+                <header className="flex items-end justify-between">
+                    <div>
+                        <HeadingWithoutLogo title="Awards" />
+                        <SubHeading title="Celebrated Achievements" />
+                        <HeaderDescription description="Each recognition reflects the impact of our creative event experiences." scrollContainerRef={undefined} />
+                    </div>
+                </header>
+                <div className="mt-9 flex items-center justify-center py-20">
+                    <p className="text-slate-400">Loading awards...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (awards.length === 0) {
+        return null;
+    }
+
+    const yearTabs: YearTab[] = awards.map((award, index) => ({
+        id: award.id,
+        year: award.year,
     }));
-
-    // Component mapping for each year
-    const YearComponents = {
-        2025: AwardsTabContent2025,
-        2024: AwardsTabContent2024,
-        2023: AwardsTabContent2023,
-        2022: AwardsTabContent2022,
-    };
 
     return (
         <section id="awards" className="hidden lg:block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-14">
@@ -47,18 +96,11 @@ export default function Awards() {
                 </header>
 
                 <div className="mt-9">
-                    {yearTabs.map((tab) => {
-                        const YearComponent = YearComponents[tab.year as keyof typeof YearComponents];
-                        const yearData = AWARDS_DATA[tab.year];
-
-                        if (!YearComponent || !yearData) return null;
-
-                        return (
-                            <TabsPanel key={tab.id} value={`tab-${tab.id}`}>
-                                <YearComponent yearData={yearData} />
-                            </TabsPanel>
-                        );
-                    })}
+                    {awards.map((award) => (
+                        <TabsPanel key={award.id} value={`tab-${award.id}`}>
+                            <AwardsYearTabContent categories={award.categories} />
+                        </TabsPanel>
+                    ))}
                 </div>
             </Tabs>
         </section>

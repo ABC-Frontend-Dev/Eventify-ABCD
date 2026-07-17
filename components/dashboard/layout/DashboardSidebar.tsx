@@ -14,13 +14,27 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Home, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut } from "lucide-react";
+import { Home, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { signOut } from "next-auth/react";
 
-const menuItems = [
+type SubMenuItem = {
+    title: string;
+    icon: LucideIcon;
+    href: string;
+};
+
+type MenuItem = {
+    title: string;
+    icon: LucideIcon;
+    href: string;
+    live?: boolean;
+    subItems?: SubMenuItem[];
+};
+
+const menuItems: MenuItem[] = [
     {
         title: "Dashboard",
         icon: Home,
@@ -47,6 +61,24 @@ const menuItems = [
         ],
     },
     {
+        title: "Services",
+        icon: BriefcaseBusiness,
+        href: "/dashboard/services",
+        subItems: [
+            { title: "All Services", icon: List, href: "/dashboard/services" },
+            { title: "Add New Service", icon: Plus, href: "/dashboard/services/new" },
+        ],
+    },
+    {
+        title: "Awards",
+        icon: Trophy,
+        href: "/dashboard/awards",
+        subItems: [
+            { title: "All Awards", icon: List, href: "/dashboard/awards" },
+            { title: "Add New Award", icon: Plus, href: "/dashboard/awards/new" },
+        ],
+    },
+    {
         title: "Blogs",
         icon: Newspaper,
         href: "/dashboard/blogs",
@@ -55,6 +87,15 @@ const menuItems = [
             { title: "Add New Blog", icon: Plus, href: "/dashboard/blogs/new" },
             { title: "Blog Categories", icon: List, href: "/dashboard/blog-categories" },
             { title: "Authors", icon: List, href: "/dashboard/authors" },
+        ],
+    },
+    {
+        title: "Comparisons",
+        icon: Layers,
+        href: "/dashboard/comparisons",
+        subItems: [
+            { title: "All Comparisons", icon: List, href: "/dashboard/comparisons" },
+            { title: "Add New Comparison", icon: Plus, href: "/dashboard/comparisons/new" },
         ],
     },
     {
@@ -92,11 +133,7 @@ export function DashboardSidebar() {
                     <SidebarGroupContent>
                         <SidebarMenu className="space-y-0.5">
                             {menuItems.map((item) => {
-                                const isActive = item.subItems
-                                    ? item.subItems.some((s) => pathname === s.href) || pathname === item.href
-                                    : item.href === "/dashboard"
-                                      ? pathname === item.href
-                                      : pathname.startsWith(item.href);
+                                const isActive = item.subItems ? pathname.startsWith(item.href) : item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
 
                                 if (item.subItems) {
                                     return (
@@ -117,10 +154,12 @@ export function DashboardSidebar() {
                                                         <ChevronRight className="ml-auto h-3.5 w-3.5 text-slate-400 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                                     </SidebarMenuButton>
                                                 </CollapsibleTrigger>
+
                                                 <CollapsibleContent>
                                                     <SidebarMenuSub className="ml-2 mt-0.5 space-y-0.5 border-l border-slate-100 pl-3">
                                                         {item.subItems.map((sub) => {
-                                                            const isSubActive = pathname === sub.href;
+                                                            const isSubActive = pathname === sub.href || (sub.href !== item.href && pathname.startsWith(sub.href));
+
                                                             return (
                                                                 <SidebarMenuSubItem key={sub.title}>
                                                                     <SidebarMenuSubButton
@@ -162,7 +201,7 @@ export function DashboardSidebar() {
                                             <Link href={item.href}>
                                                 <item.icon className="h-[15px] w-[15px] shrink-0" />
                                                 <span>{item.title}</span>
-                                                {/* live dot on Dashboard */}
+
                                                 {item.live && (
                                                     <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-emerald-500">
                                                         <span className="h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
@@ -181,14 +220,13 @@ export function DashboardSidebar() {
             {/* ── Footer / user ─────────────────────────── */}
             <SidebarFooter className="border-t border-slate-100 p-3">
                 <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5 hover:bg-slate-50 transition-colors">
-                    {/* avatar */}
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">A</div>
-                    {/* info */}
+
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-semibold text-slate-800">Admin User</p>
                         <p className="truncate text-[10px] text-slate-400">admin@eventify.com</p>
                     </div>
-                    {/* sign out */}
+
                     <button
                         type="button"
                         onClick={() => signOut({ callbackUrl: "/login" })}

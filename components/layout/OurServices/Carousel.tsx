@@ -197,8 +197,19 @@ export function EmblaCarousel() {
                                 />
 
                                 <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
-                                    <h3 className="mb-2 text-2xl leading-5 tracking-tight font-product-sans-black font-bold text-white">{item.title}</h3>
-                                    <p className="font-helvetica tracking-[1px] text-sm leading-4.5">{item.description}</p>
+                                    <h3 className="mb-2 text-2xl leading-6.5 tracking-tight font-helvetica-medium text-white">{item.title}</h3>
+
+                                    <div
+                                        className="
+                                            grid grid-rows-[0fr] opacity-0
+                                            group-hover:grid-rows-[1fr] group-hover:opacity-100
+                                            transition-[grid-template-rows,opacity]
+                                            duration-500 ease-out
+                                            will-change-[grid-template-rows,opacity]
+                                        "
+                                    >
+                                        <p className="font-helvetica tracking-[1px] text-sm leading-4.5 overflow-hidden min-h-0">{item.description}</p>
+                                    </div>
                                 </div>
 
                                 <Link
@@ -229,19 +240,19 @@ export function EmblaCarousel() {
                 <button
                     onClick={scrollPrev}
                     disabled={prevBtnDisabled}
-                    className="w-12 h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
+                    className="w-12 h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,box-shadow,opacity] duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
                     aria-label="Previous slide"
                 >
-                    <ChevronLeft className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
+                    <ChevronLeft className="w-6 h-6 text-primary group-hover:text-white transition-colors duration-200" />
                 </button>
 
                 <button
                     onClick={scrollNext}
                     disabled={nextBtnDisabled}
-                    className="w-12 h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
+                    className="w-12 h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,box-shadow,opacity] duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
                     aria-label="Next slide"
                 >
-                    <ChevronRight className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
+                    <ChevronRight className="w-6 h-6 text-primary group-hover:text-white transition-colors duration-200" />
                 </button>
             </div>
         </div>

@@ -1,3 +1,4 @@
+// components/animate-ui/demo/components/community/flip-card.tsx
 "use client";
 
 import { FlipCard } from "@/components/animate-ui/components/community/flip-card";

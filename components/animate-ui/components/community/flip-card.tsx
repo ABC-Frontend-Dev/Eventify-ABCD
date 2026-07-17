@@ -29,7 +29,6 @@ export function FlipCard({ data, className }: FlipCardProps) {
 
     const handleMouseEnter = () => {
         if (!isTouchDevice) {
-            // Clear any pending flip-back animation
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
                 timeoutRef.current = null;
@@ -40,14 +39,12 @@ export function FlipCard({ data, className }: FlipCardProps) {
 
     const handleMouseLeave = () => {
         if (!isTouchDevice) {
-            // Delay the flip-back by 300ms
             timeoutRef.current = setTimeout(() => {
                 setIsFlipped(false);
             }, 100);
         }
     };
 
-    // Cleanup timeout on unmount
     React.useEffect(() => {
         return () => {
             if (timeoutRef.current) {
@@ -74,10 +71,10 @@ export function FlipCard({ data, className }: FlipCardProps) {
     };
 
     return (
-        <div className={`relative w-full h-80 md:h-31.5 perspective-1000 cursor-pointer ${className || ""}`} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div className={`relative w-full h-full perspective-1000 cursor-pointer ${className || ""}`} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {/* FRONT: Default Image */}
             <motion.div className="absolute inset-0 backface-hidden overflow-hidden" animate={isFlipped ? "back" : "front"} variants={cardVariants} style={{ transformStyle: "preserve-3d" }}>
-                <Image src={data.defaultImage} alt={data.imageAlt} fill className="object-cover" />
+                <Image src={data.defaultImage} alt={data.imageAlt} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
             </motion.div>
 
             {/* BACK: Hover Image + Title + Description */}
@@ -89,13 +86,13 @@ export function FlipCard({ data, className }: FlipCardProps) {
                 style={{ transformStyle: "preserve-3d", rotateY: 180 }}
             >
                 {/* Background Image */}
-                <Image src={data.hoverImage} alt={data.imageAlt} fill className="object-cover" />
+                <Image src={data.hoverImage} alt={data.imageAlt} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
 
                 {/* Overlay with gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
                 {/* Content */}
-                <div className="absolute bg-primary inset-0 bottom-3.5 left-0 w-full h-31.5 px-3.5 py-2 flex flex-col justify-end text-white">
+                <div className="absolute inset-0 px-3.5 py-2 flex flex-col justify-end text-white bg-gradient-to-t from-black/80 to-transparent">
                     <h3 className="text-white font-product-sans-bold font-bold text-base uppercase">{data.title}</h3>
                     <p className="text-white font-product-sans-light text-sm uppercase">{data.description}</p>
                 </div>

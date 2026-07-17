@@ -163,7 +163,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
 
     return (
         <section className="mt-20 lg:mt-25 scroll-mt-14">
-            <div className="absolute top-12 lg:top-16 left-0 w-full h-140 after:absolute after:top-0 after:left-0 after:w-full after:h-full after:black/90 after:z-10 after:backdrop-blur-sm">
+            <div className="absolute top-12 lg:top-16 left-0 w-full h-140 after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black/20 after:z-10 after:backdrop-blur-sm">
                 <figure>
                     <Image src={blog.banner_image || blog.thumbnail} alt={blog.title} fill priority className="object-cover" />
                 </figure>

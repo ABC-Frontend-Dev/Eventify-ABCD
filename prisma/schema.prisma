@@ -146,3 +146,66 @@ model Service {
 
   @@index([order])
 }
+
+// Add this to your existing schema.prisma
+
+model Award {
+  id          Int            @id @default(autoincrement())
+  year        Int
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  categories  AwardCategory[]
+
+  @@unique([year]) // One award per year
+  @@index([year])
+}
+
+model AwardCategory {
+  id                Int           @id @default(autoincrement())
+  name              String        // e.g., "WOW Awards Middle East"
+  icon              String        // Icon URL
+  iconAlt           String        // Alt text for icon
+  order             Int           @default(0)
+  gradientWidthClass String       @default("w-4/5") // CSS class for gradient width
+  awardId           Int
+  award             Award         @relation(fields: [awardId], references: [id], onDelete: Cascade)
+  carouselImages    AwardCarouselImage[]
+  items             AwardItem[]
+
+  @@index([awardId])
+}
+
+model AwardCarouselImage {
+  id          Int            @id @default(autoincrement())
+  url         String
+  order       Int            @default(0)
+  categoryId  Int
+  category    AwardCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+}
+
+model AwardItem {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String
+  order       Int            @default(0)
+  categoryId  Int
+  category    AwardCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+}
+
+model Comparison {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?
+  beforeImage String
+  afterImage  String
+  order       Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+}
