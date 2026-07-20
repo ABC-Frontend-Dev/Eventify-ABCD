@@ -209,3 +209,15 @@ model Comparison {
 
   @@index([order])
 }
+
+model TeamMember {
+  id        Int      @id @default(autoincrement())
+  position  Int      @unique // 1-35, matches the fixed grid slot on the Teams page
+  name      String
+  role      String
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
+}

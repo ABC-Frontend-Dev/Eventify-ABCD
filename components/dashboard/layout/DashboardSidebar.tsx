@@ -51,6 +51,15 @@ const menuItems: MenuItem[] = [
         ],
     },
     {
+        title: "Team",
+        icon: Users,
+        href: "/dashboard/team",
+        subItems: [
+            { title: "All Team Members", icon: List, href: "/dashboard/team" },
+            { title: "Add Team Member", icon: Plus, href: "/dashboard/team/new" },
+        ],
+    },
+    {
         title: "Projects",
         icon: FolderKanban,
         href: "/dashboard/projects",

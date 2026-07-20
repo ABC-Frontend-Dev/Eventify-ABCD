@@ -74,7 +74,7 @@ export function FlipCard({ data, className }: FlipCardProps) {
         <div className={`relative w-full h-full perspective-1000 cursor-pointer ${className || ""}`} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {/* FRONT: Default Image */}
             <motion.div className="absolute inset-0 backface-hidden overflow-hidden" animate={isFlipped ? "back" : "front"} variants={cardVariants} style={{ transformStyle: "preserve-3d" }}>
-                <Image src={data.defaultImage} alt={data.imageAlt} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                <Image src={data.defaultImage} alt={data.imageAlt} fill className="object-cover object-top" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
             </motion.div>
 
             {/* BACK: Hover Image + Title + Description */}
@@ -86,7 +86,7 @@ export function FlipCard({ data, className }: FlipCardProps) {
                 style={{ transformStyle: "preserve-3d", rotateY: 180 }}
             >
                 {/* Background Image */}
-                <Image src={data.hoverImage} alt={data.imageAlt} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                <Image src={data.hoverImage} alt={data.imageAlt} fill className="object-cover object-top" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
 
                 {/* Overlay with gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

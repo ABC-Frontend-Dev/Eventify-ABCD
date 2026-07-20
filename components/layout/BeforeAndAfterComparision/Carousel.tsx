@@ -2,8 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ReactCompareSlider, ReactCompareSliderImage } from "react-compare-slider";
+import { ReactCompareSlider, ReactCompareSliderHandle, ReactCompareSliderImage, useReactCompareSliderContext } from "react-compare-slider";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -16,6 +15,59 @@ interface ComparisonItem {
     title: string;
     beforeImage: string;
     afterImage: string;
+}
+
+/**
+ * Custom handle that runs the GSAP "drag me" nudge animation.
+ * It must be a child of `<ReactCompareSlider>` so it can read the slider's context —
+ * passing it via the `handle` prop is the supported way to do that.
+ */
+function ComparisonNudgeHandle({ nudgeKey }: { nudgeKey: number }) {
+    const { setPosition, isDragging, position } = useReactCompareSliderContext();
+
+    const tlRef = useRef<gsap.core.Timeline | null>(null);
+    const proxyRef = useRef<{ value: number }>({ value: 50 });
+    const userTookOverRef = useRef(false);
+
+    // (Re-)create the nudge timeline whenever the parent bumps `nudgeKey`
+    useEffect(() => {
+        // Begin from wherever the slider was left — feels less jarring than always snapping to 50
+        proxyRef.current.value = position.current ?? 50;
+        userTookOverRef.current = false;
+
+        const tl = gsap
+            .timeline({
+                onUpdate: () => {
+                    if (userTookOverRef.current) return;
+                    setPosition(proxyRef.current.value);
+                },
+            })
+            // Two full left→right cycles from center, 25% amplitude (within 20–30% spec)
+            .to(proxyRef.current, { value: 45, duration: 0.45, ease: "sine.inOut" })
+            .to(proxyRef.current, { value: 55, duration: 0.45, ease: "sine.inOut" })
+            .to(proxyRef.current, { value: 50, duration: 0.4, ease: "sine.out" });
+        // .to(proxyRef.current, { value: 25, duration: 0.45, ease: "sine.inOut" })
+        // .to(proxyRef.current, { value: 75, duration: 0.45, ease: "sine.inOut" })
+        // .to(proxyRef.current, { value: 50, duration: 0.4, ease: "sine.out" });
+
+        tlRef.current = tl;
+
+        return () => {
+            tl.kill();
+            tlRef.current = null;
+        };
+    }, [nudgeKey, setPosition, position]);
+
+    // If the user grabs the handle mid-tween, kill the animation so they drive cleanly
+    useEffect(() => {
+        if (isDragging && tlRef.current) {
+            userTookOverRef.current = true;
+            tlRef.current.kill();
+            tlRef.current = null;
+        }
+    }, [isDragging]);
+
+    return <ReactCompareSliderHandle />;
 }
 
 export function ComparisonCarousel() {
@@ -31,6 +83,7 @@ export function ComparisonCarousel() {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [items, setItems] = useState<ComparisonItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [nudgeKeys, setNudgeKeys] = useState<Record<number, number>>({});
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -87,18 +140,18 @@ export function ComparisonCarousel() {
         };
     }, [emblaApi, onSelect]);
 
-    // Scroll-in reveal animation
+    // Scroll-in reveal + nudge replay on re-entry
     useEffect(() => {
         if (!containerRef.current || items.length === 0) return;
 
+        slidesRef.current = new Array(items.length).fill(null) as (HTMLDivElement | null)[];
+
         const ctx = gsap.context(() => {
             const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
-
-            const durations = [1.6, 1.4, 1.8];
+            const revealDurations = [1.6, 1.4, 1.8];
 
             validSlides.forEach((slide, index) => {
                 const inner = slide.querySelector(".slide-reveal-inner");
-
                 if (!inner) return;
 
                 gsap.set(inner, {
@@ -108,7 +161,7 @@ export function ComparisonCarousel() {
 
                 gsap.to(inner, {
                     clipPath: "inset(0 0 0% 0)",
-                    duration: durations[index] ?? 1.6,
+                    duration: revealDurations[index] ?? 1.6,
                     ease: "power3.out",
                     scrollTrigger: {
                         trigger: containerRef.current,
@@ -116,6 +169,30 @@ export function ComparisonCarousel() {
                         toggleActions: "play none none reverse",
                     },
                 });
+            });
+
+            ScrollTrigger.create({
+                trigger: containerRef.current,
+                start: "top 85%",
+                end: "bottom 15%",
+                onEnter: () => {
+                    setNudgeKeys((prev) => {
+                        const next = { ...prev };
+                        items.forEach((_, i) => {
+                            next[i] = (next[i] ?? 0) + 1;
+                        });
+                        return next;
+                    });
+                },
+                onEnterBack: () => {
+                    setNudgeKeys((prev) => {
+                        const next = { ...prev };
+                        items.forEach((_, i) => {
+                            next[i] = (next[i] ?? 0) + 1;
+                        });
+                        return next;
+                    });
+                },
             });
         }, containerRef);
 
@@ -136,15 +213,6 @@ export function ComparisonCarousel() {
 
     return (
         <div className="relative w-full" ref={containerRef}>
-            {/* Title Pagination - Above Carousel */}
-            {/* <div className="mb-6">
-                <h3 className="text-2xl font-bold text-slate-900">{items[selectedIndex]?.title}</h3>
-                <p className="text-sm text-slate-500 mt-1">
-                    {selectedIndex + 1} / {items.length}
-                </p>
-            </div> */}
-
-            {/* Carousel Container */}
             <div className="overflow-hidden border border-slate-200" ref={emblaRef}>
                 <div className="flex">
                     {items.map((item, index) => (
@@ -156,11 +224,40 @@ export function ComparisonCarousel() {
                             className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 group sm:flex-[0_0_50%] lg:flex-[0_0_100%]"
                         >
                             <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
-                                {/* React Compare Slider */}
-                                <div className="h-96 sm:h-[500px] lg:h-[600px]">
+                                <div className="h-96 sm:h-[500px] lg:h-[600px] relative">
+                                    <span
+                                        className="
+                                            absolute top-4 left-4 z-20
+                                            px-3.5 py-1.5
+                                            bg-black/60 backdrop-blur-sm
+                                            text-white
+                                            text-xs font-helvetica-medium
+                                            tracking-[1.5px] uppercase
+                                            rounded-full
+                                            pointer-events-none select-none
+                                        "
+                                    >
+                                        Before
+                                    </span>
+                                    <span
+                                        className="
+                                            absolute top-4 right-4 z-20
+                                            px-3.5 py-1.5
+                                            bg-black/60 backdrop-blur-sm
+                                            text-white
+                                            text-xs font-helvetica-medium
+                                            tracking-[1.5px] uppercase
+                                            rounded-full
+                                            pointer-events-none select-none
+                                        "
+                                    >
+                                        After
+                                    </span>
+
                                     <ReactCompareSlider
                                         itemOne={<ReactCompareSliderImage src={item.beforeImage} alt={`${item.title} - Before`} />}
                                         itemTwo={<ReactCompareSliderImage src={item.afterImage} alt={`${item.title} - After`} />}
+                                        handle={<ComparisonNudgeHandle nudgeKey={nudgeKeys[index] ?? 0} />}
                                     />
                                 </div>
                             </div>
@@ -169,21 +266,24 @@ export function ComparisonCarousel() {
                 </div>
             </div>
 
-            {/* Dots Pagination - Below Carousel */}
             {items.length > 1 && (
-                <div className="mt-3 flex justify-center gap-2">
-                    {items.map((item, index) => (
-                        <button
-                            key={`dot-${index}`}
-                            onClick={() => scrollTo(index)}
-                            className={`pointer-events-auto transition-all duration-300 rounded-full ${
-                                index === selectedIndex ? "bg-primary text-white font-helvetica w-full h-12 px-3.5" : "bg-slate-300 text-footer-bg font-helvetica w-full h-12 px-3.5 hover:bg-slate-400"
-                            }`}
-                            aria-label={`Go to slide ${index + 1}`}
-                        >
-                            {item.title}
-                        </button>
-                    ))}
+                <div className="mt-3  relative z-0 flex items-end backdrop-blur-sm">
+                    <div className="flex justify-center gap-2 p-1.25 rounded-none bg-slate-100 w-1/3">
+                        {items.map((item, index) => (
+                            <button
+                                key={`dot-${index}`}
+                                onClick={() => scrollTo(index)}
+                                className={`pointer-events-auto transition-all duration-300 ${
+                                    index === selectedIndex
+                                        ? "bg-primary text-white font-helvetica w-full h-12 px-3.5"
+                                        : "bg-slate-300 text-footer-bg font-helvetica w-full h-12 px-3.5 hover:bg-slate-400"
+                                }`}
+                                aria-label={`Go to slide ${index + 1}`}
+                            >
+                                {item.title}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

@@ -156,7 +156,7 @@ export default function AboutUs() {
                     <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-158.75 overflow-hidden">
                         <Image
                             ref={revealImageRef}
-                            src="/images/about-bg.png"
+                            src="https://res.cloudinary.com/afdhm38k/image/upload/v1784529009/about-us-bg_mfyiiy.png"
                             alt="about us"
                             loading="eager"
                             width={1000}
