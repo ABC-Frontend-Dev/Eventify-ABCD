@@ -311,7 +311,7 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                             </div>
                         )}
 
-                        {formData.image && !uploading && (
+                        {/* {formData.image && !uploading && (
                             <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100 bg-slate-50 p-4 flex items-center justify-center">
                                 <img src={formData.image} alt="Photo preview" className="h-32 w-32 object-cover rounded-md" />
                                 <button
@@ -325,7 +325,7 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                                     <X className="h-3.5 w-3.5" />
                                 </button>
                             </div>
-                        )}
+                        )} */}
 
                         {/* Readonly path */}
                         <div className="mt-4">

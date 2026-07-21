@@ -28,6 +28,7 @@ import {
     Subscript as SubscriptIcon,
     Superscript as SuperscriptIcon,
     ListChecks,
+    Trash2,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
     const [linkNewTab, setLinkNewTab] = useState(false);
     const [imageUrl, setImageUrl] = useState("");
     const [imageAlt, setImageAlt] = useState("");
+
     if (!editor) return null;
 
     const setLink = useCallback(() => {
@@ -103,6 +105,10 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         setLinkDialogOpen(true);
     };
 
+    const removeLink = useCallback(() => {
+        editor.chain().focus().unsetLink().run();
+    }, [editor]);
+
     return (
         <>
             <div className="border-b bg-gray-50 p-2 flex flex-wrap gap-1">
@@ -146,27 +152,62 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Separator orientation="vertical" className="h-8" />
 
                 {/* Text Formatting */}
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive("bold") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    className={editor.isActive("bold") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Bold (Ctrl+B)"
+                >
                     <Bold className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive("italic") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    className={editor.isActive("italic") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Italic (Ctrl+I)"
+                >
                     <Italic className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleUnderline().run()} className={editor.isActive("underline") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    className={editor.isActive("underline") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Underline (Ctrl+U)"
+                >
                     <UnderlineIcon className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleStrike().run()} className={editor.isActive("strike") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    className={editor.isActive("strike") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Strikethrough"
+                >
                     <Strikethrough className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleHighlight().run()} className={editor.isActive("highlight") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleHighlight().run()}
+                    className={editor.isActive("highlight") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Highlight"
+                >
                     <Highlighter className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleCode().run()} className={editor.isActive("code") ? "bg-gray-200" : ""} type="button">
+                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleCode().run()} className={editor.isActive("code") ? "bg-gray-200" : ""} type="button" title="Code">
                     <Code className="h-4 w-4" />
                 </Button>
 
@@ -198,11 +239,25 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Separator orientation="vertical" className="h-8" />
 
                 {/* Lists */}
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive("bulletList") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    className={editor.isActive("bulletList") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Bullet List"
+                >
                     <List className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive("orderedList") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    className={editor.isActive("orderedList") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Ordered List"
+                >
                     <ListOrdered className="h-4 w-4" />
                 </Button>
 
@@ -217,7 +272,14 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                     <ListChecks className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={editor.isActive("blockquote") ? "bg-gray-200" : ""} type="button">
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    className={editor.isActive("blockquote") ? "bg-gray-200" : ""}
+                    type="button"
+                    title="Blockquote"
+                >
                     <Quote className="h-4 w-4" />
                 </Button>
 
@@ -230,6 +292,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                     onClick={() => editor.chain().focus().setTextAlign("left").run()}
                     className={editor.isActive({ textAlign: "left" }) ? "bg-gray-200" : ""}
                     type="button"
+                    title="Align Left"
                 >
                     <AlignLeft className="h-4 w-4" />
                 </Button>
@@ -240,6 +303,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                     onClick={() => editor.chain().focus().setTextAlign("center").run()}
                     className={editor.isActive({ textAlign: "center" }) ? "bg-gray-200" : ""}
                     type="button"
+                    title="Align Center"
                 >
                     <AlignCenter className="h-4 w-4" />
                 </Button>
@@ -250,6 +314,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                     onClick={() => editor.chain().focus().setTextAlign("right").run()}
                     className={editor.isActive({ textAlign: "right" }) ? "bg-gray-200" : ""}
                     type="button"
+                    title="Align Right"
                 >
                     <AlignRight className="h-4 w-4" />
                 </Button>
@@ -257,22 +322,28 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Separator orientation="vertical" className="h-8" />
 
                 {/* Link & Image */}
-                <Button variant="ghost" size="icon-sm" onClick={openLinkDialog} className={editor.isActive("link") ? "bg-gray-200" : ""} type="button">
+                <Button variant="ghost" size="icon-sm" onClick={openLinkDialog} className={editor.isActive("link") ? "bg-gray-200" : ""} type="button" title="Add Link">
                     <LinkIcon className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => setImageDialogOpen(true)} type="button">
+                {editor.isActive("link") && (
+                    <Button variant="ghost" size="icon-sm" onClick={removeLink} className="bg-gray-200" type="button" title="Remove Link">
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                )}
+
+                <Button variant="ghost" size="icon-sm" onClick={() => setImageDialogOpen(true)} type="button" title="Add Image">
                     <ImageIcon className="h-4 w-4" />
                 </Button>
 
                 <Separator orientation="vertical" className="h-8" />
 
                 {/* Undo/Redo */}
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} type="button">
+                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} type="button" title="Undo">
                     <Undo className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} type="button">
+                <Button variant="ghost" size="icon-sm" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} type="button" title="Redo">
                     <Redo className="h-4 w-4" />
                 </Button>
             </div>

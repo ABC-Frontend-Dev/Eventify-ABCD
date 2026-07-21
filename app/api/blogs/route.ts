@@ -1,6 +1,6 @@
-// app/api/blogs/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
 enum BlogStatus {
     DRAFT = "DRAFT",
     PUBLISHED = "PUBLISHED",
@@ -26,19 +26,53 @@ type BlogBody = {
     categoryId: number;
 };
 
+// ── Slug validation helper ──────────────────────────────────
+function isValidSlug(slug: string): boolean {
+    // Only allow lowercase alphanumeric, hyphens, and underscores
+    return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
+
+// ── Format slug helper ──────────────────────────────────────
+function formatSlug(slug: string): string {
+    return slug
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9-_]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
 
         // Get query parameters
         const search = searchParams.get("search");
+        const slug = searchParams.get("slug");
         const status = searchParams.get("status");
         const categoryId = searchParams.get("categoryId");
         const authorId = searchParams.get("authorId");
         const sortBy = searchParams.get("sortBy") || "latest";
+        const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
 
         // Build where clause
         const where: any = {};
+
+        // Slug filter
+        if (slug) {
+            // Validate slug format
+            if (!isValidSlug(slug)) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Invalid slug format",
+                        data: null,
+                    },
+                    { status: 400 },
+                );
+            }
+            where.slug = slug;
+        }
 
         // Search filter
         if (search) {
@@ -82,11 +116,24 @@ export async function GET(request: NextRequest) {
         const blogs = await prisma.blog.findMany({
             where,
             orderBy,
+            take: limit,
             include: {
                 author: true,
                 category: true,
             },
         });
+
+        // If searching by slug and no results found, return 404
+        if (slug && blogs.length === 0) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "Blog not found",
+                    data: null,
+                },
+                { status: 404 },
+            );
+        }
 
         return NextResponse.json(
             {
@@ -130,6 +177,17 @@ export async function POST(request: NextRequest) {
                 {
                     success: false,
                     error: "Author and category are required.",
+                },
+                { status: 400 },
+            );
+        }
+
+        // Validate and format slug
+        if (!isValidSlug(body.slug)) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "Invalid slug format. Use only lowercase letters, numbers, and hyphens.",
                 },
                 { status: 400 },
             );

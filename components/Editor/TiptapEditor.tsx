@@ -43,7 +43,8 @@ export interface HeadingItem {
 
 export default function TiptapEditor({ content, onChange, onHeadingsChange, placeholder = "Start writing your blog post...", editable = true, className }: TiptapEditorProps) {
     const [isCodeView, setIsCodeView] = useState(false);
-    const [htmlCode, setHtmlCode] = useState("");
+    const [htmlCode, setHtmlCode] = useState(content || "");
+    const [editorReady, setEditorReady] = useState(false);
 
     // 👇 Stable ref so extractHeadings never changes identity
     const onHeadingsChangeRef = useRef(onHeadingsChange);
@@ -71,15 +72,14 @@ export default function TiptapEditor({ content, onChange, onHeadingsChange, plac
 
         traverse(json);
         onHeadingsChangeRef.current(headings);
-    }, []); // 👈 stable — no deps needed since we use a ref
+    }, []);
 
     const editor = useEditor({
-        immediatelyRender: false, // 👈 fixes Next.js hydration warning
+        immediatelyRender: false,
         extensions: [
             StarterKit.configure({
                 heading: { levels: [1, 2, 3, 4, 5, 6] },
                 codeBlock: false,
-                // 👇 disable built-in ones before adding configured versions
                 link: false,
                 underline: false,
             }),
@@ -117,7 +117,7 @@ export default function TiptapEditor({ content, onChange, onHeadingsChange, plac
                 },
             }),
         ],
-        content,
+        content: content || "",
         editable,
         editorProps: {
             attributes: {
@@ -138,20 +138,41 @@ export default function TiptapEditor({ content, onChange, onHeadingsChange, plac
         },
     });
 
-    // 👇 Only runs once when editor first mounts — no infinite loop
+    // 👇 Load content when editor is ready (for edit mode)
     useEffect(() => {
-        if (!editor) return;
-        const html = editor.getHTML();
-        setHtmlCode(html);
-        extractHeadings(editor);
-    }, [editor]); // 👈 extractHeadings is stable so this is safe
+        if (!editor || editorReady) return;
+
+        // Set content and extract headings
+        if (content && content.trim()) {
+            // pass an empty options object to satisfy SetContentOptions type
+            editor.commands.setContent(content, {});
+            setHtmlCode(content);
+            extractHeadings(editor);
+        }
+
+        setEditorReady(true);
+    }, [editor, content, editorReady, extractHeadings]);
+
+    // 👇 Update htmlCode when content prop changes
+    useEffect(() => {
+        if (content && !isCodeView) {
+            setHtmlCode(content);
+        }
+    }, [content, isCodeView]);
 
     const toggleCodeView = () => {
         if (!editor) return;
+
         if (!isCodeView) {
-            setHtmlCode(editor.getHTML());
+            // Switching TO code view - get current editor content
+            const currentContent = editor.getHTML();
+            setHtmlCode(currentContent);
         } else {
-            editor.commands.setContent(htmlCode);
+            // Switching FROM code view - update editor with code
+            if (htmlCode.trim()) {
+                // pass an empty options object to satisfy SetContentOptions type
+                editor.commands.setContent(htmlCode, {});
+            }
         }
         setIsCodeView(!isCodeView);
     };
@@ -161,7 +182,13 @@ export default function TiptapEditor({ content, onChange, onHeadingsChange, plac
         onChange(value);
     };
 
-    if (!editor) return null;
+    if (!editor) {
+        return (
+            <div className="border rounded-lg overflow-hidden bg-white p-4 min-h-[400px] flex items-center justify-center">
+                <p className="text-gray-400">Loading editor...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="border rounded-lg overflow-hidden bg-white">

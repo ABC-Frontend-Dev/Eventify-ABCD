@@ -4,9 +4,12 @@ import prisma from "@/lib/prisma";
 type ServiceBody = {
     title: string;
     description: string;
+    content: string;
     image: string;
+    bannerImage?: string;
     url: string;
     order?: number;
+    images?: Array<{ image: string; title?: string }>;
 };
 
 export async function GET(request: NextRequest) {
@@ -14,6 +17,13 @@ export async function GET(request: NextRequest) {
         const services = await prisma.service.findMany({
             orderBy: {
                 order: "asc",
+            },
+            include: {
+                images: {
+                    orderBy: {
+                        order: "asc",
+                    },
+                },
             },
         });
 
@@ -35,11 +45,11 @@ export async function POST(request: NextRequest) {
     try {
         const body: ServiceBody = await request.json();
 
-        if (!body.title || !body.description || !body.image || !body.url) {
+        if (!body.title || !body.description || !body.content || !body.image || !body.url) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: "Title, description, image, and URL are required.",
+                    error: "Title, description, content, image, and URL are required.",
                 },
                 { status: 400 },
             );
@@ -51,7 +61,13 @@ export async function POST(request: NextRequest) {
         });
 
         if (existingService) {
-            return NextResponse.json({ success: false, error: "Service with this URL already exists." }, { status: 400 });
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "Service with this URL already exists.",
+                },
+                { status: 400 },
+            );
         }
 
         // Get max order and increment
@@ -66,9 +82,29 @@ export async function POST(request: NextRequest) {
             data: {
                 title: body.title,
                 description: body.description,
+                content: body.content,
                 image: body.image,
+                bannerImage: body.bannerImage || null,
                 url: body.url,
                 order: body.order ?? newOrder,
+                images: body.images
+                    ? {
+                          createMany: {
+                              data: body.images.map((img, idx) => ({
+                                  image: img.image,
+                                  title: img.title || `Image ${idx + 1}`,
+                                  order: idx,
+                              })),
+                          },
+                      }
+                    : undefined,
+            },
+            include: {
+                images: {
+                    orderBy: {
+                        order: "asc",
+                    },
+                },
             },
         });
 

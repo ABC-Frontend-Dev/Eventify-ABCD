@@ -1,4 +1,3 @@
-// app/(frontend)/layout.tsx
 "use client";
 import { useEffect } from "react";
 import { ReactLenis, useLenis } from "lenis/react";
@@ -34,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ReactLenis className="cursor-none" root options={{ smoothWheel: true, lerp: 0.1 }}>
             <LenisScrollTriggerSync />
             <Navbar />
-            {children}
+            <main>{children}</main>
             {/* <SmoothCursor /> */}
             <Footer />
         </ReactLenis>

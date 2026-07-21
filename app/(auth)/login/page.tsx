@@ -1,10 +1,12 @@
 // app/(auth)/login/page.tsx
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useRef, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Lock, Mail } from "lucide-react";
+import { Loader2, Lock, Mail, Eye, EyeOff } from "lucide-react";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function LoginForm() {
     const router = useRouter();
@@ -13,22 +15,48 @@ function LoginForm() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
+    // Guards against double-submit from a fast double click / double Enter
+    // while the previous request is still in flight.
+    const submittingRef = useRef(false);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (submittingRef.current) return;
+
+        const trimmedEmail = email.trim();
+
+        // Client-side validation — this is a UX nicety, not the security boundary.
+        // The real check still has to happen server-side in your credentials
+        // provider / API route, since anyone can bypass this by calling the
+        // endpoint directly.
+        if (!trimmedEmail || !password) {
+            setError("Please enter both email and password.");
+            return;
+        }
+        if (!EMAIL_REGEX.test(trimmedEmail)) {
+            setError("Please enter a valid email address.");
+            return;
+        }
+
+        submittingRef.current = true;
         setError("");
         setIsLoading(true);
 
         try {
             const result = await signIn("credentials", {
-                email,
+                email: trimmedEmail,
                 password,
                 redirect: false,
             });
 
             if (result?.error) {
+                // Deliberately generic — don't reveal whether the email exists,
+                // that avoids leaking valid accounts to anyone probing the form.
                 setError("Invalid email or password. Please try again.");
             } else if (result?.ok) {
                 router.push(callbackUrl);
@@ -38,6 +66,7 @@ function LoginForm() {
             setError("An unexpected error occurred. Please try again.");
         } finally {
             setIsLoading(false);
+            submittingRef.current = false;
         }
     };
 
@@ -61,24 +90,33 @@ function LoginForm() {
                     </div>
 
                     {error && (
-                        <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+                        <div role="alert" aria-live="polite" className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
                             <span className="shrink-0 text-red-500 text-xs mt-0.5">⚠</span>
                             <p className="text-xs text-red-700">{error}</p>
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                         {/* email */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5">Email address</label>
+                            <label htmlFor="email" className="block text-xs font-medium text-slate-600 mb-1.5">
+                                Email address
+                            </label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                                 <input
+                                    id="email"
+                                    name="email"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="admin@eventify.com"
                                     required
+                                    autoComplete="username"
+                                    autoCapitalize="none"
+                                    autoCorrect="off"
+                                    spellCheck={false}
+                                    maxLength={254}
                                     disabled={isLoading}
                                     className="w-full h-9 pl-9 pr-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 placeholder:text-slate-300 disabled:opacity-50"
                                 />
@@ -87,18 +125,35 @@ function LoginForm() {
 
                         {/* password */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5">Password</label>
+                            <label htmlFor="password" className="block text-xs font-medium text-slate-600 mb-1.5">
+                                Password
+                            </label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                                 <input
-                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
+                                    autoComplete="current-password"
+                                    maxLength={128}
                                     disabled={isLoading}
-                                    className="w-full h-9 pl-9 pr-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 placeholder:text-slate-300 disabled:opacity-50"
+                                    className="w-full h-9 pl-9 pr-9 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 placeholder:text-slate-300 disabled:opacity-50"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    disabled={isLoading}
+                                    tabIndex={-1}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    aria-pressed={showPassword}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
+                                >
+                                    {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                </button>
                             </div>
                         </div>
 
@@ -125,7 +180,6 @@ function LoginForm() {
     );
 }
 
-// useSearchParams requires Suspense boundary
 export default function LoginPage() {
     return (
         <Suspense>

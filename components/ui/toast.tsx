@@ -183,7 +183,7 @@ const ToastContainer = () => {
                             key={toast.id}
                             ref={measureRef(toast)}
                             className={clsx(
-                                "absolute right-0 bottom-0 shadow-menu rounded-xl leading-[21px] p-4 h-fit",
+                                "absolute right-0 bottom-0 shadow-menu rounded-[2px] leading-[21px] p-4 h-fit",
                                 {
                                     message: "bg-geist-background text-gray-1000",
                                     success: "bg-blue-700 text-contrast-fg",
@@ -201,7 +201,7 @@ const ToastContainer = () => {
                         >
                             <div className="flex flex-col items-center justify-between text-[.875rem]">
                                 <div className="w-full h-full flex items-center justify-between gap-4">
-                                    <span>{toast.text}</span>
+                                    <span className="text-base font-helvetica-neue-roman">{toast.text}</span>
                                     {!toast.action && (
                                         <div className="flex gap-1">
                                             {toast.onUndoAction && (

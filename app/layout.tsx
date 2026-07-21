@@ -35,6 +35,7 @@ import {
     fontHelveticaMedium,
     fontHelveticaBold,
     fontProductSansRegular,
+    fontHelveticaNeueRoman,
 } from "../public/fonts/fonts";
 import { Providers } from "./providers";
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ${fontProductSansBold.variable}
         ${fontProductSansBlack.variable}
         ${fontProductSansMedium.variable}
+        ${fontHelveticaNeueRoman.variable}
       `}
         >
             <body className="max-w-full">

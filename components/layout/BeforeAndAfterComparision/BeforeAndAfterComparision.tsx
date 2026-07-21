@@ -20,7 +20,7 @@ export default function BeforeAndAfterComparision() {
         <section id="our-services" className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <header>
                 <HeadingWithoutLogo title="Transformation" />
-                <SubHeading title="See the Remarkable Difference" />
+                <SubHeading title="From Render to Reality" />
                 <HeaderDescription
                     description="Compare the before and after results to witness the quality, precision, and attention to detail behind every transformation."
                     scrollContainerRef={undefined}

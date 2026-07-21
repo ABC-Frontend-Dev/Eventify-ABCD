@@ -1,6 +1,6 @@
-// app/api/blogs/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
 enum BlogStatus {
     DRAFT = "DRAFT",
     PUBLISHED = "PUBLISHED",
@@ -25,6 +25,11 @@ type UpdateBlogBody = {
     authorId?: number;
     categoryId?: number;
 };
+
+// ── Slug validation helper ──────────────────────────────────
+function isValidSlug(slug: string): boolean {
+    return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
 
 // GET SINGLE BLOG
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -127,6 +132,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
         // Check if new slug conflicts with existing blog
         if (body.slug && body.slug !== existingBlog.slug) {
+            // Validate slug format
+            if (!isValidSlug(body.slug)) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Invalid slug format. Use only lowercase letters, numbers, and hyphens.",
+                    },
+                    { status: 400 },
+                );
+            }
+
             const slugConflict = await prisma.blog.findUnique({
                 where: { slug: body.slug },
             });

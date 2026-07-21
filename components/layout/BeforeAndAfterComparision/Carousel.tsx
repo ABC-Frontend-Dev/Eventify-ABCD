@@ -87,6 +87,10 @@ export function ComparisonCarousel() {
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
+    // Tracks whether the section is currently considered "entered" for nudge purposes.
+    // Paired with the hysteresis gap in the ScrollTrigger below so a few px of scroll
+    // jitter right at the boundary can't flip this back and forth.
+    const hasEnteredRef = useRef(false);
 
     // Fetch comparisons from API
     useEffect(() => {
@@ -171,27 +175,43 @@ export function ComparisonCarousel() {
                 });
             });
 
+            const fireNudge = () => {
+                setNudgeKeys((prev) => {
+                    const next = { ...prev };
+                    items.forEach((_, i) => {
+                        next[i] = (next[i] ?? 0) + 1;
+                    });
+                    return next;
+                });
+            };
+
+            // Progress-based trigger with hysteresis: the "enter" zone (0.15–0.85)
+            // and the "reset" zone (<0.05 or >0.95) are kept well apart so a small
+            // 10–20px wheel jitter near one boundary can never also cross the other.
+            // Without this gap, onEnter/onLeaveBack would ping-pong on tiny scrolls
+            // and replay the nudge every time the user nudged the wheel at all —
+            // now it only fires once when genuinely entering from top or bottom,
+            // and re-arms only once the section has scrolled well clear of the viewport.
             ScrollTrigger.create({
                 trigger: containerRef.current,
-                start: "top 85%",
-                end: "bottom 15%",
-                onEnter: () => {
-                    setNudgeKeys((prev) => {
-                        const next = { ...prev };
-                        items.forEach((_, i) => {
-                            next[i] = (next[i] ?? 0) + 1;
-                        });
-                        return next;
-                    });
-                },
-                onEnterBack: () => {
-                    setNudgeKeys((prev) => {
-                        const next = { ...prev };
-                        items.forEach((_, i) => {
-                            next[i] = (next[i] ?? 0) + 1;
-                        });
-                        return next;
-                    });
+                start: "top bottom", // progress 0 → container top hits viewport bottom
+                end: "bottom top", // progress 1 → container bottom hits viewport top
+                onUpdate: (self) => {
+                    const progress = self.progress;
+                    const ENTER_LOW = 0.15; // roughly matches old "top 85%"
+                    const ENTER_HIGH = 0.85; // roughly matches old "bottom 15%"
+                    const RESET_LOW = 0.05; // must scroll well clear before re-arming
+                    const RESET_HIGH = 0.95;
+
+                    const inEnterZone = progress >= ENTER_LOW && progress <= ENTER_HIGH;
+                    const wellOutside = progress < RESET_LOW || progress > RESET_HIGH;
+
+                    if (!hasEnteredRef.current && inEnterZone) {
+                        hasEnteredRef.current = true;
+                        fireNudge();
+                    } else if (hasEnteredRef.current && wellOutside) {
+                        hasEnteredRef.current = false;
+                    }
                 },
             });
         }, containerRef);
@@ -267,7 +287,7 @@ export function ComparisonCarousel() {
             </div>
 
             {items.length > 1 && (
-                <div className="mt-3  relative z-0 flex items-end backdrop-blur-sm">
+                <div className="mt-3  relative z-0 flex justify-end backdrop-blur-sm">
                     <div className="flex justify-center gap-2 p-1.25 rounded-none bg-slate-100 w-1/3">
                         {items.map((item, index) => (
                             <button

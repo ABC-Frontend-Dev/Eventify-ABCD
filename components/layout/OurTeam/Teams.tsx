@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
 import { FlipCard } from "@/components/animate-ui/components/community/flip-card";
+import TeamsSkeleton from "./TeamsSkeleton";
 
 interface TeamMember {
     id: number;
@@ -17,6 +18,7 @@ interface SlotConfig {
     position: number;
     className: string;
     showCaption?: boolean;
+    disableFlip?: boolean;
 }
 
 // Fixed layout — extracted from the original hardcoded grid. Do not reorder;
@@ -34,7 +36,7 @@ const SLOT_LAYOUT: SlotConfig[] = [
     { position: 10, className: "col-start-3 row-start-4" },
     { position: 11, className: "col-start-3 row-start-5" },
     { position: 12, className: "col-start-4 row-start-1" },
-    { position: 13, className: "col-start-4 row-start-2" },
+    { position: 13, className: "col-start-4 row-start-2", disableFlip: true },
     { position: 14, className: "col-span-3 row-span-3 col-start-4 row-start-3 translate-y-9", showCaption: true },
     { position: 15, className: "col-start-4 row-start-7" },
     { position: 16, className: "col-start-5 row-start-1" },
@@ -56,19 +58,21 @@ const SLOT_LAYOUT: SlotConfig[] = [
     { position: 32, className: "col-start-10 row-start-1" },
     { position: 33, className: "col-start-10 row-start-3" },
     { position: 34, className: "col-start-10 row-start-6" },
-    { position: 35, className: "col-start-10 row-start-7" },
+    { position: 35, className: "col-start-10 row-start-7", disableFlip: true },
 ];
 
 interface GridItemProps {
     member: TeamMember;
     className?: string;
     showCaption?: boolean;
+    disableFlip?: boolean;
 }
 
-function GridItem({ member, className = "", showCaption = false }: GridItemProps) {
+function GridItem({ member, className = "", showCaption = false, disableFlip = false }: GridItemProps) {
     return (
         <div className={`${className} aspect-square overflow-hidden`}>
             <FlipCard
+                disableFlip={disableFlip}
                 data={{
                     title: member.name,
                     description: member.role,
@@ -102,7 +106,7 @@ export default function Teams() {
         }
     };
 
-    if (loading) return null; // swap for a loader component if you have one
+    if (loading) return <TeamsSkeleton />; // swap for a loader component if you have one
 
     const memberByPosition = new Map(members.map((m) => [m.position, m]));
 
@@ -112,7 +116,7 @@ export default function Teams() {
                 const member = memberByPosition.get(slot.position);
                 if (!member) return null; // empty slot until someone is assigned to it
 
-                return <GridItem key={slot.position} member={member} className={slot.className} showCaption={slot.showCaption} />;
+                return <GridItem key={slot.position} member={member} className={slot.className} showCaption={slot.showCaption} disableFlip={slot.disableFlip} />;
             })}
 
             <div className="absolute bottom-14.5 left-5">

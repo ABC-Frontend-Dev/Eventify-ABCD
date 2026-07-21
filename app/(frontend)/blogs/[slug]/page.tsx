@@ -1,4 +1,3 @@
-// app/(frontend)/blog/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Breadcrumb from "@/components/common/Breadcrumb";
@@ -122,7 +121,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const blog = await getBlogBySlug(slug);
 
-    if (!blog) return { title: "Blog Not Found" };
+    if (!blog) {
+        return {
+            title: "Blog Not Found",
+            description: "The blog post you're looking for doesn't exist.",
+        };
+    }
 
     return {
         title: blog.metaTitle || blog.title,
@@ -178,7 +182,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                     {/* Banner Image */}
                     <div className="relative rounded-[8px] overflow-hidden">
                         <BlogBannerReveal desktopSrc={blog.banner_image} mobileSrc={blog.thumbnail} alt={blog.title} />
-                        <div className="absolute top-3.5 right-3.5  border border-primary/80 bg-primary/80 rounded-[6px] py-1 px-3 capitalize text-lg font-product-sans-medium font-light w-fit text-white">
+                        <div className="absolute top-3.5 right-3.5 border border-primary/80 bg-primary/80 rounded-[6px] py-1 px-3 capitalize text-lg font-product-sans-medium font-light w-fit text-white">
                             {blog.category.name}
                         </div>
 
@@ -192,7 +196,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                                     <figure className="h-10 w-10 rounded-full border overflow-hidden">
                                         <Image src={blog.author.avatar || "/default-avatar.png"} alt={blog.author.name} width={40} height={40} className="h-full w-full object-cover" />
                                     </figure>
-                                    <div className="">
+                                    <div>
                                         <ul className="flex items-center gap-1.5">
                                             <li>
                                                 <p className="font-product-sans-medium font-normal text-white text-sm leading-3.5">{blog.author.name}</p>
@@ -215,6 +219,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                             </div>
                         </div>
                     </div>
+
                     {/* Blog Content and Sidebar */}
                     <div className="flex items-start justify-between flex-col lg:flex-row gap-x-10 mt-5">
                         {/* Blog Content */}
@@ -228,12 +233,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                             <BlogToc />
                             <div className="mt-10">
                                 <p className="text-2xl font-helvetica leading-8 font-extrabold text-slate-950">Related Blogs</p>
-                                <RelatedBlogList blogs={relatedBlogs} />
-                                {/* Type 'RelatedBlog[]' is not assignable to type 'Blog[]'.
-  Type 'RelatedBlog' is not assignable to type 'Blog'.
-    Types of property 'createdAt' are incompatible.
-      Type 'string' is not assignable to type 'Date'.ts(2322)
-RelatedBlog.tsx(16, 5): The expected type comes from property 'blogs' which is declared here on type 'IntrinsicAttributes & RelatedBlogListProps' */}
+                                <RelatedBlogList blogs={relatedBlogs as any} />
                             </div>
                         </aside>
                     </div>

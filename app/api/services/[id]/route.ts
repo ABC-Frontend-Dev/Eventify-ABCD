@@ -12,6 +12,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
         const service = await prisma.service.findUnique({
             where: { id: serviceId },
+            include: {
+                images: {
+                    orderBy: {
+                        order: "asc",
+                    },
+                },
+            },
         });
 
         if (!service) {
@@ -44,6 +51,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
         const existingService = await prisma.service.findUnique({
             where: { id: serviceId },
+            include: { images: true },
         });
 
         if (!existingService) {
@@ -56,8 +64,34 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 where: { url: body.url },
             });
             if (urlExists) {
-                return NextResponse.json({ success: false, error: "Service with this URL already exists." }, { status: 400 });
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Service with this URL already exists.",
+                    },
+                    { status: 400 },
+                );
             }
+        }
+
+        // Handle images update
+        let imageOperations = undefined;
+        if (body.images && Array.isArray(body.images)) {
+            // Delete old images
+            await prisma.serviceImage.deleteMany({
+                where: { serviceId },
+            });
+
+            // Create new images
+            imageOperations = {
+                createMany: {
+                    data: body.images.map((img: { image: string; title?: string }, idx: number) => ({
+                        image: img.image,
+                        title: img.title || `Image ${idx + 1}`,
+                        order: idx,
+                    })),
+                },
+            };
         }
 
         const updatedService = await prisma.service.update({
@@ -65,9 +99,19 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             data: {
                 title: body.title ?? existingService.title,
                 description: body.description ?? existingService.description,
+                content: body.content ?? existingService.content,
                 image: body.image ?? existingService.image,
+                bannerImage: body.bannerImage ?? existingService.bannerImage,
                 url: body.url ?? existingService.url,
                 order: body.order ?? existingService.order,
+                ...(imageOperations && { images: imageOperations }),
+            },
+            include: {
+                images: {
+                    orderBy: {
+                        order: "asc",
+                    },
+                },
             },
         });
 
@@ -102,6 +146,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             return NextResponse.json({ success: false, error: "Service not found." }, { status: 404 });
         }
 
+        // Delete service (cascade will delete images)
         await prisma.service.delete({
             where: { id: serviceId },
         });
@@ -113,7 +158,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     }
 }
 
-// Reorder services
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
