@@ -19,8 +19,6 @@ function LoginForm() {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Guards against double-submit from a fast double click / double Enter
-    // while the previous request is still in flight.
     const submittingRef = useRef(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -30,10 +28,6 @@ function LoginForm() {
 
         const trimmedEmail = email.trim();
 
-        // Client-side validation — this is a UX nicety, not the security boundary.
-        // The real check still has to happen server-side in your credentials
-        // provider / API route, since anyone can bypass this by calling the
-        // endpoint directly.
         if (!trimmedEmail || !password) {
             setError("Please enter both email and password.");
             return;
@@ -55,8 +49,6 @@ function LoginForm() {
             });
 
             if (result?.error) {
-                // Deliberately generic — don't reveal whether the email exists,
-                // that avoids leaking valid accounts to anyone probing the form.
                 setError("Invalid email or password. Please try again.");
             } else if (result?.ok) {
                 router.push(callbackUrl);
@@ -180,10 +172,18 @@ function LoginForm() {
     );
 }
 
-export default function LoginPage() {
+function LoginPageSuspense() {
     return (
-        <Suspense>
+        <Suspense
+            fallback={
+                <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+            }
+        >
             <LoginForm />
         </Suspense>
     );
 }
+
+export default LoginPageSuspense;

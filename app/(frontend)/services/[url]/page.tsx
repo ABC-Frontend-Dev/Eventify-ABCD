@@ -94,7 +94,7 @@ export default async function ServicePage({ params }: { params: Promise<{ url: s
                                     {service.images?.map((item, idx) => (
                                         <li key={idx} className="w-full h-33 px-4 py-2.5 bg-white">
                                             <figure>
-                                                <Image src={item.image} alt={item.title || `Image ${idx + 1}`} width={1000} height={1000} className="w-full h-fit object-cover" />
+                                                <Image src={item.image} alt={item.title || `Image ${idx + 1}`} width={1000} height={1000} className="w-full h-fit object-contain" />
                                             </figure>
                                         </li>
                                     ))}

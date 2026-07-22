@@ -220,8 +220,8 @@ export default function DashboardPage() {
             {/* ── Page Header ─────────────────────────────── */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-slate-900">Overview</h2>
-                    <p className="text-sm text-slate-500 mt-0.5">Welcome back! Here's a quick summary.</p>
+                    <h2 className="text-2xl font-helvetica-medium font-bold tracking-wide text-slate-900">Overview</h2>
+                    <p className="text-sm font-helvetica tracking-wide text-slate-500 mt-0.5">Welcome back! Here's a quick summary.</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing} className="h-9 gap-2">
                     <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />

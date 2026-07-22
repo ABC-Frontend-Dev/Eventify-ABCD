@@ -197,7 +197,7 @@ export function EmblaCarousel() {
                                 />
 
                                 <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
-                                    <h3 className="mb-2 text-2xl leading-6.5 tracking-tight font-helvetica-medium text-white">{item.title}</h3>
+                                    <h3 className="mb-2 text-2xl leading-6.5 tracking-wide font-helvetica-medium text-white">{item.title}</h3>
 
                                     <div
                                         className="
