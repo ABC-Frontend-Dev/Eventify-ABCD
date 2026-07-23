@@ -67,17 +67,17 @@ export default async function ServicePage({ params }: { params: Promise<{ url: s
         <div className="relative bg-[linear-gradient(90deg,_rgba(255,255,255,1)_45%,_rgba(16,132,179,0)_100%)] py-15">
             <div className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-0">
                 <div>
-                    <div className="text-[40px] leading-10 font-helvetica font-bold tracking-wide">Our services</div>
+                    <div className="text-xl lg:text-[40px] leading-10 font-helvetica font-bold tracking-wide">Our services</div>
                     <Breadcrumb props={{ className: "mt-3.5" }} />
                 </div>
 
-                <article className="mt-7.5">
+                <article className="mt-5 lg:mt-7.5">
                     <header>
-                        <h1 className="text-4xl font-helvetica-medium leading-8 text-primary uppercase">{service.title}</h1>
+                        <h1 className="text-xl lg:text-4xl leading-6 lg:leading-8 font-helvetica-medium text-primary uppercase">{service.title}</h1>
                     </header>
 
-                    <div className="mt-3.5 flex flex-row gap-0">
-                        <div className="w-[70%] pr-10">
+                    <div className="mt-3.5 flex flex-col lg:flex-row gap-0">
+                        <div className="w-full lg:w-[70%] pr-0 lg:pr-10">
                             {/* Rich text content */}
                             <div
                                 className="prose prose-sm max-w-none font-helvetica text-base text-footer-bg leading-5.5 tracking-wide services-content"
@@ -89,7 +89,7 @@ export default async function ServicePage({ params }: { params: Promise<{ url: s
 
                         {/* Gallery */}
                         {imageCount > 0 && (
-                            <div className="w-[40%]">
+                            <div className="w-full lg:w-[40%]">
                                 <ul className={`grid ${getGridLayout(imageCount)} mt-3.5 gap-2.5`}>
                                     {service.images?.map((item, idx) => (
                                         <li key={idx} className="w-full h-33 px-4 py-2.5 bg-white">

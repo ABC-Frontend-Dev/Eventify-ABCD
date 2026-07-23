@@ -44,10 +44,10 @@ export default function AnimatedFavicon() {
     }, []);
 
     return (
-        <ul ref={containerRef} className="flex flex-col items-center justify-between w-6.25 h-6.5 -translate-y-px">
-            <li className="block w-full h-1.25 bg-primary"></li>
-            <li className="block w-full h-1.25 bg-primary"></li>
-            <li className="block w-full h-1.25 bg-primary"></li>
+        <ul ref={containerRef} className="flex flex-col items-center justify-between w-4.25 lg:w-6.25 h-4.5 lg:h-6.5 -translate-y-px">
+            <li className="block w-full h-0.75 lg:h-1.25 bg-primary"></li>
+            <li className="block w-full h-0.75 lg:h-1.25 bg-primary"></li>
+            <li className="block w-full h-0.75 lg:h-1.25 bg-primary"></li>
         </ul>
     );
 }

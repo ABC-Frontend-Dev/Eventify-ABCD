@@ -145,13 +145,13 @@ export default function InspirationInFrames() {
     }, []);
 
     return (
-        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9 lg:py-9 scroll-mt-14">
+        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9 scroll-mt-14">
             <header>
                 <SubHeading title="Inspiration in Frames" />
                 <HeaderDescription description="A curated glimpse into our visual world" scrollContainerRef={undefined} />
             </header>
 
-            <div className="mt-7.5">
+            <div className="mt-5 sm:mt-7.5">
                 <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative">
                     {/* <div ref={overlayRef} className="absolute top-0 left-0 z-20 pointer-events-none overflow-hidden opacity-0" style={{ willChange: "transform, width, height" }}>
                         <div className="absolute inset-0 bg-black/30 z-30" />
@@ -230,7 +230,7 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
                     transition: hovered ? "transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.3s, opacity 0.35s ease 0.3s" : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
                 }}
             >
-                <Image src="/images/icons/instagram.png" alt="Instagram" width={1000} height={1000} className="w-10 h-10 object-contain drop-shadow-lg" />
+                <Image src="/images/icons/instagram.png" alt="Instagram" width={1000} height={1000} className="w-6 sm:w-7 md:w-8 lg:w-10 h-6 sm:h-7 md:h-8 lg:h-10 object-contain drop-shadow-lg" />
             </div>
 
             {/* Lines with stagger */}

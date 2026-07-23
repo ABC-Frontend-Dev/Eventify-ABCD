@@ -64,7 +64,7 @@ export default function ServicesContent() {
                 {/* <ServicesBannerReveal desktopSrc={""} mobileSrc={""} alt={""} /> */}
                 <article className="mt-7.5">
                     <header>
-                        <h1 className="text-4xl font-helvetica-medium leading-8 text-primary uppercase">Design Concept & Strategic Direction</h1>
+                        <h1 className="text-xl lg:text-4xl font-helvetica-medium leading-8 text-primary uppercase">Design Concept & Strategic Direction</h1>
                     </header>
 
                     <div className="mt-3.5 flex flex-row gap-0">
@@ -113,7 +113,7 @@ export default function ServicesContent() {
                         <div className="w-[40%]">
                             <ul className="grid grid-cols-2 mt-3.5 gap-2.5">
                                 {Services_Images_Data.map((item) => (
-                                    <li className="w-full h-33 px-4 py-2.5 bg-white">
+                                    <li className="w-full h-20 md:h-33 px-4 py-2.5 bg-white">
                                         <figure>
                                             <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-fit object-cover" />
                                         </figure>

@@ -97,11 +97,11 @@ export default function Footer() {
                             ntif<span className="pl1">y</span>!
                         </span>
                     </div>
-                    <div className="text-5xl leading-14 font-helvetica-heavy font-extrabold uppercase flex lg:hidden items-start flex-wrap">
+                    <div className="w-full text-4xl text-white leading-14 font-helvetica-heavy font-extrabold uppercase flex lg:hidden items-start flex-wrap">
                         <div>lets</div>
                         <div className="flex items-center gap-2">
                             <span>ev </span>
-                            <span className="block w-[124.154px] h-12">
+                            <span className="block w-10 h-12 -translate-y-2">
                                 <Image src="/images/favicon.png" alt="Eventify light logo" width={1000} height={1000} className="w-full h-full object-contain" />
                             </span>
                             <span>ntify!</span>

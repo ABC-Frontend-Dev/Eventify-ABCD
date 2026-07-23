@@ -92,7 +92,7 @@ export default function Projects() {
 
     if (loading) {
         return (
-            <section className="max-w-360 w-full mx-auto px-20 py-9 scroll-mt-14">
+            <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
                 <div className="flex items-center justify-center py-20">
                     <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900" />
                 </div>
@@ -101,9 +101,9 @@ export default function Projects() {
     }
 
     return (
-        <section className="max-w-360 w-full mx-auto px-20 py-9 scroll-mt-14">
+        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <MainTabs value={activeTab} onValueChange={setActiveTab}>
-                <header className="flex items-end justify-between">
+                <header className="flex items-end justify-between flex-col lg:flex-row gap-y-5">
                     <div>
                         <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
                         <SubHeading title="Explore projects" />
@@ -111,12 +111,12 @@ export default function Projects() {
                     </div>
 
                     <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1">
-                        <TabsTab value="tab-all" className="rounded-none text-sm py-4 px-6.75">
+                        <TabsTab value="tab-all" className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                             All Projects
                         </TabsTab>
 
                         {categories.map((category) => (
-                            <TabsTab key={`tab-${category.id}`} value={`tab-${category.id}`} className="rounded-none text-sm py-4 px-6.75">
+                            <TabsTab key={`tab-${category.id}`} value={`tab-${category.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                                 {category.name}
                             </TabsTab>
                         ))}
@@ -124,7 +124,7 @@ export default function Projects() {
                 </header>
 
                 <div className="mt-9">
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {filteredProjects.map((project) => (
                                 <motion.div
@@ -150,7 +150,7 @@ export default function Projects() {
                 </div>
             </MainTabs>
 
-            <Modal isOpen={isModalOpen} onClose={closeModal} className="h-165.25 w-full max-w-166 bg-white p-0" allowEasyClose={true}>
+            <Modal isOpen={isModalOpen} onClose={closeModal} className="h-165.25 w-full max-w-80 lg:max-w-166 bg-white p-0" allowEasyClose={true}>
                 {selectedProject && (
                     <div className="p-2.5 h-full flex flex-col bg-white">
                         {/* Modal Content */}
@@ -161,7 +161,7 @@ export default function Projects() {
                                 <div className="mb-2.5">
                                     <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
                                         {selectedProject.tabs.map((tab) => (
-                                            <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-4 px-6.75">
+                                            <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                                                 {tab.name}
                                             </TabsTab>
                                         ))}
@@ -188,7 +188,7 @@ export default function Projects() {
 
                         {/* Project Info Section */}
                         <div className="p-5 mt-auto">
-                            <p className="font-product-sans-bold text-[34px] font-semibold leading-10 tracking-wide text-footer-bg">{selectedProject.title}</p>
+                            <p className="font-product-sans-bold text-2xl lg:text-[34px] font-semibold leading-10 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
                             <p className="mt-2 font-product-sans-medium text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>
 
@@ -214,7 +214,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
     const isBannerVideo = isVideoFile(project.bannerImage);
 
     return (
-        <div className="relative group h-105.5">
+        <div className="relative group h-70 sm:h-105.5">
             <button type="button" onClick={onClick} className="w-full h-full">
                 {isBannerVideo ? (
                     <video

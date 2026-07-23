@@ -244,14 +244,14 @@ export function ComparisonCarousel() {
                             className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 group sm:flex-[0_0_50%] lg:flex-[0_0_100%]"
                         >
                             <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
-                                <div className="h-96 sm:h-[500px] lg:h-[600px] relative">
+                                <div className="h-full sm:h-[500px] lg:h-[600px] relative">
                                     <span
                                         className="
-                                            absolute top-4 left-4 z-20
-                                            px-3.5 py-1.5
+                                           absolute top-2 sm:top-4 left-2 sm:left-4 z-20
+                                            px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
                                             bg-black/60 backdrop-blur-sm
                                             text-white
-                                            text-xs font-helvetica-medium
+                                            text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
                                             tracking-[1.5px] uppercase
                                             rounded-full
                                             pointer-events-none select-none
@@ -261,11 +261,11 @@ export function ComparisonCarousel() {
                                     </span>
                                     <span
                                         className="
-                                            absolute top-4 right-4 z-20
-                                            px-3.5 py-1.5
+                                            absolute top-2 sm:top-4 right-2 sm:right-4 z-20
+                                            px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
                                             bg-black/60 backdrop-blur-sm
                                             text-white
-                                            text-xs font-helvetica-medium
+                                            text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
                                             tracking-[1.5px] uppercase
                                             rounded-full
                                             pointer-events-none select-none
@@ -287,8 +287,8 @@ export function ComparisonCarousel() {
             </div>
 
             {items.length > 1 && (
-                <div className="mt-3  relative z-0 flex justify-end backdrop-blur-sm">
-                    <div className="flex justify-center gap-2 p-1.25 rounded-none bg-slate-100 w-1/3">
+                <div className="mt-3  relative z-0 flex  lg:justify-end backdrop-blur-sm">
+                    <div className="flex justify-center gap-2 p-1.25 rounded-none bg-slate-100 w-full lg:w-1/3">
                         {items.map((item, index) => (
                             <button
                                 key={`dot-${index}`}

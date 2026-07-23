@@ -33,7 +33,7 @@ export default function FeaturedBlogsCard() {
     }, []);
 
     return (
-        <div ref={cardRef} className="max-w-3xl max-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative mb-20 lg:mb-0" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+        <div ref={cardRef} className="max-w-3xl max-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative mb-16 lg:mb-0" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             <Link href="blog/the-right-event-management-compnay-in-dubai" className="block">
                 <figure className="w-full h-full">
                     <Image src="/images/blogs/Blog image.png" width={1000} height={1000} alt="Blogs Card" className="w-full h-full object-cover object-center" />

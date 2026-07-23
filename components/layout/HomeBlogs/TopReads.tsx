@@ -97,8 +97,8 @@ export default function TopReads() {
 
     return (
         <div className="max-w-122.5 w-full relative">
-            <div className="absolute -top-16 w-full flex items-end justify-between">
-                <h2 className="shrink-0 text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg">Top reads</h2>
+            <div className="absolute -top-12 w-full flex items-end justify-between">
+                <h2 className="shrink-0 text-xl lg:text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg">Top reads</h2>
                 <Link href="/blogs" className="shrink-0 text-base font-helvetica text-primary text-center overflow-hidden max-w-max w-fit block">
                     <GoesOutComesInUnderline label="View All" direction="right" className="" />
                 </Link>

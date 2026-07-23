@@ -1,4 +1,4 @@
-// components/ui/MenuSidebar.tsx
+// components/ui/MobileSidebar.tsx
 "use client";
 
 import { useState } from "react";
@@ -84,7 +84,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                         <Link
                                             href={menu.url}
                                             onClick={toggleMenu}
-                                            className={`relative block py-0 px-0 text-lg text-left tracking-wide font-helvetica font-semibold rounded-lg after:absolute after:left-0  after:bottom-0 after:w-1/2 after:rounded-full after:bg-black transition-all duration-200 ${
+                                            className={`relative block py-0 px-0 text-base sm:text-lg text-left tracking-wide font-helvetica font-semibold rounded-lg after:absolute after:left-0  after:bottom-0 after:w-1/2 after:rounded-full after:bg-black transition-all duration-200 ${
                                                 pathname === menu.url ? "text-primary scale-110 after:h-0.75 mb-1" : "text-gray-700 hover:text-primary hover:scale-105 after:h-0 mb-0"
                                             }`}
                                         >

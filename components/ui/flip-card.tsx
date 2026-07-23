@@ -51,7 +51,7 @@ export default function CardFlip({ title: title, description: description, bgCol
                     {/* Background gradient effect */}
                     <div className="w-full h-full flex items-center justify-center">
                         {/* Bottom content */}
-                        <h2 className="w-56.75 text-lg text-center leading-6 font-bold font-product-sans-bold uppercase text-zinc-900 dark:text-white">{title}</h2>
+                        <h2 className="w-56.75 text-base md:text-lg text-center leading-5 md:leading-6 font-bold font-product-sans-bold uppercase text-zinc-900 dark:text-white">{title}</h2>
                     </div>
                 </div>
 

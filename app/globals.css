@@ -285,6 +285,14 @@
   html {
     @apply font-sans;
   }
+
+  /* Safety net: prevents any long unbreakable string (emails, URLs, etc.)
+     from forcing the page wider than the viewport. This doesn't replace
+     fixing the specific footer email span — it just stops the *next*
+     long string somewhere else from causing the same overflow bug. */
+  body {
+    overflow-wrap: anywhere;
+  }
 }
 
 /* Remove the old embla styles and add these updated ones */
@@ -351,34 +359,6 @@ body.custom-cursor-active * {
   background: #000000;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
 }
-
-/* @keyframes modalFadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes modalFadeOut {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
-
-.modal-open {
-  animation: modalFadeIn 0.5s ease-in-out;
-}
-
-.modal-close {
-  animation: modalFadeOut 0.5s ease-in-out;
-} */
 
 .blog-page-wrapper h1 {
   @apply text-[40px] leading-11 font-helvetica-heavy font-bold text-slate-950 mt-6;
@@ -528,4 +508,99 @@ body.custom-cursor-active * {
 .services-content ul li {
   list-style: disc;
   margin-left: 18px;
+}
+
+.__rcs-handle-button {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+.__rcs-handle-button {
+  gap: 0.25rem !important;
+}
+
+.__rcs-handle-arrow {
+  width: 0.5rem !important;
+  height: 0.5rem !important;
+}
+
+.services-content p {
+  font-size: 14px;
+}
+
+.services-content p:not(:first-child) {
+  margin-top: 10px;
+}
+
+.services-content h2 {
+  font-size: 18px;
+  font-family: var(--font-helvetica-medium);
+}
+
+.services-content h3 {
+  font-size: 18px;
+  font-family: var(--font-helvetica-medium);
+}
+
+.services-content h4 {
+  font-size: 17px;
+  font-family: var(--font-helvetica-medium);
+}
+
+.services-content ul {
+  margin-top: 10px;
+}
+
+.services-content ul li {
+  list-style: disc;
+  margin-left: 18px;
+}
+
+@media (min-width: 580px) {
+
+  .__rcs-handle-button {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+  }
+
+  .__rcs-handle-button {
+    gap: 0.5rem !important;
+  }
+
+  .__rcs-handle-arrow {
+    width: 0.85rem !important;
+    height: 0.85rem !important;
+  }
+
+  .services-content p:not(:first-child) {
+    margin-top: 20px;
+  }
+
+  .services-content h2 {
+    font-size: 20px;
+    font-family: var(--font-helvetica-medium);
+  }
+
+  .services-content h3 {
+    font-size: 18px;
+    font-family: var(--font-helvetica-medium);
+  }
+
+  .services-content h4 {
+    font-size: 17px;
+    font-family: var(--font-helvetica-medium);
+  }
+
+  .services-content ul {
+    margin-top: 10px;
+  }
+
+  .services-content ul {
+    margin-top: 14px;
+  }
+
+  .services-content ul li {
+    list-style: disc;
+    margin-left: 18px;
+  }
 }
