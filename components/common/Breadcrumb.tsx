@@ -15,8 +15,8 @@ export default function Breadcrumb({ props }: { props?: any }) {
     const separatorColor = isBlogDetailPage ? "text-white" : "text-footer-bg";
 
     return (
-        <ul className={`flex items-start lg:items-center flex-wrap gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>
-            <li>
+        <ul className={`flex items-center flex-nowrap overflow-hidden w-full max-w-full gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>
+            <li className="shrink-0">
                 <Link href="/" className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200`}>
                     Home
                 </Link>
@@ -34,19 +34,20 @@ export default function Breadcrumb({ props }: { props?: any }) {
                 }
 
                 return (
-                    <div key={href} className="flex items-center gap-2">
-                        <li className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${separatorColor}`}>/</li>
+                    <li key={href} className="flex items-center gap-2 min-w-0 shrink">
+                        <span className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${separatorColor} shrink-0`}>/</span>
 
-                        <li>
-                            {isLast ? (
-                                <span className="text-xs lg:text-lg leading-4.5 lg:leading-4 text-primary capitalize">{segment.replace(/-/g, " ")}</span>
-                            ) : (
-                                <Link href={href} className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200 capitalize`}>
-                                    {segment.replace(/-/g, " ")}
-                                </Link>
-                            )}
-                        </li>
-                    </div>
+                        {isLast ? (
+                            <span className="text-xs lg:text-lg leading-4.5 lg:leading-4 text-primary capitalize truncate block">{segment.replace(/-/g, " ")}</span>
+                        ) : (
+                            <Link
+                                href={href}
+                                className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200 capitalize truncate block shrink-0`}
+                            >
+                                {segment.replace(/-/g, " ")}
+                            </Link>
+                        )}
+                    </li>
                 );
             })}
         </ul>

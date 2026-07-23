@@ -88,7 +88,7 @@ export default function BlogBannerReveal({ desktopSrc, mobileSrc, alt }: BlogBan
         <div className="max-w-max w-full h-68.5 lg:h-143.75">
             <figure ref={containerRef} className="invisible h-68.5 lg:h-142.25 w-full overflow-hidden relative">
                 {/* Desktop — uses resolvedDesktopSrc (falls back to thumbnail if banner_image is null) */}
-                <div ref={desktopWrapRef} className="hidden lg:block w-full h-full overflow-hidden">
+                <div ref={desktopWrapRef} className="block w-full h-full overflow-hidden">
                     <Image
                         src={resolvedDesktopSrc}
                         alt={alt}
@@ -101,9 +101,9 @@ export default function BlogBannerReveal({ desktopSrc, mobileSrc, alt }: BlogBan
                 </div>
 
                 {/* Mobile — always uses thumbnail */}
-                <div ref={mobileWrapRef} className="block lg:hidden w-full h-full overflow-hidden">
+                {/* <div ref={mobileWrapRef} className="block lg:hidden w-full h-full overflow-hidden">
                     <Image src={mobileSrc} alt={alt} width={1000} height={1000} priority className="h-full w-full object-cover will-change-transform" style={{ transformOrigin: "left center" }} />
-                </div>
+                </div> */}
             </figure>
         </div>
     );

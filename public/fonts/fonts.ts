@@ -59,3 +59,9 @@ export const fontHelveticaNeueRoman = localFont({
     variable: "--font-helvetica-neue-roman",
     display: "swap",
 });
+
+export const fontHelveticaThin = localFont({
+    src: "./HelveticaNeueThin.otf",
+    variable: "--font-helvetica-thin",
+    display: "swap",
+});

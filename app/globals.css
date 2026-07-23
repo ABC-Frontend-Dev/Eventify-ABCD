@@ -58,6 +58,7 @@
   --font-product-sans-bold: var(--font-product-sans-bold);
   --font-product-sans-black: var(--font-product-sans-black);
   --font-helvetica-neue-roman: var(--font-helvetica-neue-roman);
+  --font-helvetica-thin: var(--font-helvetica-thin);
   --color-primary: #7E0ACB;
   /* --color-primary: #570689; */
   --color-slate-50: #F8FAFC;
@@ -369,23 +370,23 @@ body.custom-cursor-active * {
 }
 
 .blog-page-wrapper h2 {
-  @apply text-2xl leading-7.5 font-helvetica-neue-roman font-medium tracking-wide text-slate-950 mt-4;
+  @apply text-base lg:text-2xl leading-5 lg:leading-7.5 font-helvetica-neue-roman font-medium tracking-wide text-slate-950 mt-4;
 }
 
 .blog-page-wrapper h3 {
-  @apply text-2xl leading-8 font-helvetica-neue-roman text-slate-950 mt-4;
+  @apply text-base lg:text-xl leading-5 lg:leading-6 font-helvetica-neue-roman text-slate-950 mt-4;
 }
 
 .blog-page-wrapper p {
-  @apply text-lg leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
+  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
 }
 
 .blog-page-wrapper li {
-  @apply text-lg leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
+  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
 }
 
 .blog-page-wrapper .text-reveal-word {
-  @apply text-lg leading-5.5 font-helvetica font-medium tracking-wide;
+  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 font-helvetica font-medium tracking-wide;
 }
 
 .blog-page-wrapper a {

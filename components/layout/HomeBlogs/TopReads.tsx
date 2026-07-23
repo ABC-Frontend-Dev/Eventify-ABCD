@@ -109,7 +109,7 @@ export default function TopReads() {
 
                 {/* Cards (no individual hover overlays) */}
                 {BLOGS.map((blog, index) => (
-                    <div key={blog.id} className="blog-card group relative w-full h-41 overflow-hidden cursor-pointer">
+                    <div key={blog.id} className="blog-card group relative w-full h-32.5 lg:h-41 overflow-hidden cursor-pointer">
                         <Link href={blog.href}>
                             <figure className="w-full h-full">
                                 <Image

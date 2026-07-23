@@ -199,7 +199,10 @@ export default function BlogToc() {
                         >
                             <a
                                 href={`#${heading.id}`}
-                                className={clsx("transition-all duration-200 block text-footer-bg", activeId === heading.id ? "text-xl font-helvetica-neue-roman" : "text-lg font-helvetica")}
+                                className={clsx(
+                                    "transition-all duration-200 block text-footer-bg",
+                                    activeId === heading.id ? "text-sm lg:text-xl leading-4 lg:leading-5.5 font-helvetica-neue-roman" : "text-xs leading-4 lg:text-lg lg:leading-5.5 font-helvetica",
+                                )}
                             >
                                 {heading.text}
                             </a>

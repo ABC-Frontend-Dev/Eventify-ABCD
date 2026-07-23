@@ -39,12 +39,9 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
 
     return (
         <>
+            {/* fixed top-6 right-6 */}
             {/* Hamburger Button */}
-            <button
-                onClick={toggleMenu}
-                className="fixed top-6 right-6 z-50 flex flex-col justify-center items-center w-8 h-8 bg-transparent rounded-full transition-colors duration-300"
-                aria-label="Toggle menu"
-            >
+            <button onClick={toggleMenu} className=" z-50 flex flex-col justify-center items-center w-5.5 h-5.5 bg-transparent rounded-full transition-colors duration-300" aria-label="Toggle menu">
                 <motion.span animate={isOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }} transition={{ duration: 0.3 }} className="block w-5 h-0.5 bg-gray-800 mb-1" />
                 <motion.span animate={isOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }} className="block w-5 h-0.5 bg-gray-800 mb-1" />
                 <motion.span animate={isOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }} transition={{ duration: 0.3 }} className="block w-5 h-0.5 bg-gray-800" />

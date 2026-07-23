@@ -118,7 +118,7 @@ export default function AboutUs() {
     }, []);
 
     return (
-        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
+        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <header className="grid lg:grid-cols-[460px_1fr] gap-10 items-start">
                 <SubHeading title="The team behind every celebration" />
                 <HeaderDescription
@@ -133,17 +133,17 @@ export default function AboutUs() {
                 <div className="w-full">
                     <div className="space-y-2.5">
                         <CardFlip
-                            className="w-full lg:w-[288px] h-51.25 "
+                            className="w-full lg:w-[288px] h-48 lg:h-51.25"
                             title="What makes Eventify different is simple, people come back."
                             description="Over the years, Eventify has built lasting relationships with clients who return not just for execution, but for trust, creativity, and a team that genuinely cares about bringing ideas to life. Every project is approached as a partnership, not just an event."
                         />
                         <CardFlip
-                            className="w-full lg:w-[288px] h-51.25 "
+                            className="w-full lg:w-[288px] h-48 lg:h-51.25"
                             title="Eventify doesn’t believe in one type of experience."
                             description="Whether it’s a high-energy festival, a cultural moment, a corporate experience, or a brand activation, Eventify thrives on variety, constantly evolving and shaping each event around its audience and purpose."
                         />
                         <CardFlip
-                            className="w-full lg:w-[288px] h-51.25 "
+                            className="w-full lg:w-[288px] h-48 lg:h-51.25"
                             title="Being award-winning is part of the story, but not the goal."
                             description="The real achievement lies in creating moments people remember, conversations that continue long after the lights go down, and experiences that leave a mark on the UAE’s evolving cultural scene."
                         />

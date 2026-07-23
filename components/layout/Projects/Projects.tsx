@@ -92,7 +92,7 @@ export default function Projects() {
 
     if (loading) {
         return (
-            <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
+            <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
                 <div className="flex items-center justify-center py-20">
                     <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900" />
                 </div>
@@ -101,7 +101,7 @@ export default function Projects() {
     }
 
     return (
-        <section className="max-w-360 w-full mx-auto px-5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
+        <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <MainTabs value={activeTab} onValueChange={setActiveTab}>
                 <header className="flex items-end justify-between flex-col lg:flex-row gap-y-5">
                     <div>
