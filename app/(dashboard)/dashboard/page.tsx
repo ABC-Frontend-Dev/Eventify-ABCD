@@ -12,7 +12,7 @@ interface Blog {
     id: number;
     title: string;
     slug: string;
-    description: string;
+    description: string | null;
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     createdAt: string;
     updatedAt: string;
@@ -66,10 +66,10 @@ function formatDate(dateStr: string) {
     }).format(new Date(dateStr));
 }
 
-function truncate(text: string, max: number) {
+function truncate(text: string | null | undefined, max: number): string {
+    if (!text || typeof text !== "string") return "";
     return text.length <= max ? text : text.slice(0, max) + "…";
 }
-
 const STATUS_STYLES = {
     PUBLISHED: "bg-emerald-100 text-emerald-700 border border-emerald-200",
     DRAFT: "bg-amber-100 text-amber-700 border border-amber-200",

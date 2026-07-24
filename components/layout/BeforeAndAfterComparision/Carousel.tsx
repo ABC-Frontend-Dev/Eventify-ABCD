@@ -293,10 +293,10 @@ export function ComparisonCarousel() {
                             <button
                                 key={`dot-${index}`}
                                 onClick={() => scrollTo(index)}
-                                className={`pointer-events-auto transition-all duration-300 ${
+                                className={`pointer-events-auto transition-all duration-300  leading-0 h-8.5 ${
                                     index === selectedIndex
-                                        ? "bg-primary text-white font-helvetica w-full h-12 px-3.5"
-                                        : "bg-slate-300 text-footer-bg font-helvetica w-full h-12 px-3.5 hover:bg-slate-400"
+                                        ? "bg-white text-footer-bg font-helvetica-neue-roman w-full px-3.5 border border-slate-200 shadow"
+                                        : "bg-slate-100 text-footer-bg font-helvetica w-full h-12 px-3.5 hover:bg-slate-400"
                                 }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             >
