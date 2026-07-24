@@ -32,7 +32,7 @@ interface Blog {
     createdAt: string;
     metaTitle: string | null;
     metaDescription: string | null;
-    keywords: string[];
+    keywords: string[] | null;
     thumbnail: string;
     banner_image: string | null;
     canonical: string | null;
@@ -105,7 +105,21 @@ async function getAllPublishedSlugs(): Promise<string[]> {
 
         if (!result.success) return [];
 
-        return (result.data as { slug: string }[]).map((b) => b.slug);
+        const rawSlugs = (result.data as { slug: string | null | undefined; id?: number; title?: string }[]) ?? [];
+
+        // At least one published blog is missing a slug — filter it out instead
+        // of letting it crash generateStaticParams with "received undefined".
+        const validEntries = rawSlugs.filter((b) => typeof b.slug === "string" && b.slug.trim().length > 0);
+
+        const skipped = rawSlugs.length - validEntries.length;
+        if (skipped > 0) {
+            console.warn(
+                `⚠️ getAllPublishedSlugs: skipped ${skipped} published blog(s) with a missing/empty slug.`,
+                rawSlugs.filter((b) => !b.slug).map((b) => ({ id: b.id, title: b.title })),
+            );
+        }
+
+        return validEntries.map((b) => b.slug as string);
     } catch (error) {
         console.error("getAllPublishedSlugs error:", error);
         return [];
@@ -133,7 +147,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return {
         title: blog.metaTitle || blog.title,
         description: blog.metaDescription || blog.description,
-        keywords: blog.keywords.join(", "),
+        // `keywords` can be null/undefined for posts where it was never set —
+        // this was crashing the build (TypeError: Cannot read properties of
+        // undefined, reading 'join') for at least one existing blog post.
+        keywords: (blog.keywords ?? []).join(", "),
         openGraph: {
             title: blog.metaTitle || blog.title,
             description: blog.metaDescription || blog.description,

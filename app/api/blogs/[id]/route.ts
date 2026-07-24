@@ -1,4 +1,3 @@
-// app/api/blogs/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -19,9 +18,7 @@ type UpdateBlogBody = {
     metaDescription?: string;
     keywords?: string[];
     thumbnail?: string;
-    thumbnailAlt?: string; // NEW
     banner_image?: string;
-    bannerImageAlt?: string; // NEW
     canonical?: string;
     schemaScript?: string;
     timeToRead?: string;
@@ -29,10 +26,12 @@ type UpdateBlogBody = {
     categoryId?: number;
 };
 
+// ── Slug validation helper ──────────────────────────────────
 function isValidSlug(slug: string): boolean {
     return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }
 
+// GET SINGLE BLOG
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
@@ -93,6 +92,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 }
 
+// UPDATE BLOG
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
@@ -130,7 +130,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             );
         }
 
+        // Check if new slug conflicts with existing blog
         if (body.slug && body.slug !== existingBlog.slug) {
+            // Validate slug format
             if (!isValidSlug(body.slug)) {
                 return NextResponse.json(
                     {
@@ -156,6 +158,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             }
         }
 
+        // Verify author if changed
         if (body.authorId && body.authorId !== existingBlog.authorId) {
             const authorExists = await prisma.author.findUnique({
                 where: { id: body.authorId },
@@ -172,6 +175,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             }
         }
 
+        // Verify category if changed
         if (body.categoryId && body.categoryId !== existingBlog.categoryId) {
             const categoryExists = await prisma.blogCategory.findUnique({
                 where: { id: body.categoryId },
@@ -188,6 +192,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             }
         }
 
+        // Handle publish date
         let publishedAt = existingBlog.publishedAt;
         if (body.status === BlogStatus.PUBLISHED && existingBlog.status !== BlogStatus.PUBLISHED) {
             publishedAt = new Date();
@@ -210,9 +215,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 metaDescription: body.metaDescription ?? existingBlog.metaDescription,
                 keywords: body.keywords ?? existingBlog.keywords,
                 thumbnail: body.thumbnail ?? existingBlog.thumbnail,
-                thumbnailAlt: body.thumbnailAlt ?? existingBlog.thumbnailAlt, // NEW
                 banner_image: body.banner_image ?? existingBlog.banner_image,
-                bannerImageAlt: body.bannerImageAlt ?? existingBlog.bannerImageAlt, // NEW
                 canonical: body.canonical ?? existingBlog.canonical,
                 schemaScript: body.schemaScript ?? existingBlog.schemaScript,
                 timeToRead: body.timeToRead ?? existingBlog.timeToRead,
@@ -249,6 +252,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 }
 
+// DELETE BLOG
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
