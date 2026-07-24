@@ -26,7 +26,7 @@ export default function ScrollToTopButton({
     nearBottomThreshold = 0.92,
     size = 56,
     strokeWidth = 3,
-    position = "bottom-6 right-6",
+    position = "bottom-3 lg:bottom-6 right-3 lg:right-6",
     className = "",
     iconClassName = "",
 }: ScrollToTopButtonProps) {

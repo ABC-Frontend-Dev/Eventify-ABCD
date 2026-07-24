@@ -1,3 +1,4 @@
+// components/Editor/TiptapToolbar.tsx
 "use client";
 
 import { Editor } from "@tiptap/react";
@@ -402,20 +403,31 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                                 value={imageUrl}
                                 onChange={(e) => setImageUrl(e.target.value)}
                                 onKeyDown={(e) => {
-                                    if (e.key === "Enter") addImage();
+                                    if (e.key === "Enter" && imageUrl) addImage();
                                 }}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="image-alt">Alt Text (optional)</Label>
-                            <Input id="image-alt" placeholder="Description of the image" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} />
+                            <Input
+                                id="image-alt"
+                                placeholder="Description of the image for accessibility"
+                                value={imageAlt}
+                                onChange={(e) => setImageAlt(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && imageUrl) addImage();
+                                }}
+                            />
+                            <p className="text-[11px] text-slate-400">Leave empty - will fallback to meta title</p>
                         </div>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setImageDialogOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={addImage}>Add Image</Button>
+                        <Button onClick={addImage} disabled={!imageUrl}>
+                            Add Image
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -1,6 +1,7 @@
 // components/layout/Blog/RelatedBlog.tsx
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 interface Blog {
@@ -9,7 +10,8 @@ interface Blog {
     slug: string;
     description: string;
     thumbnail: string;
-    createdAt: string; // ← was Date, now string
+    thumbnailAlt?: string | null;
+    createdAt: string;
 }
 
 interface RelatedBlogListProps {
@@ -46,7 +48,13 @@ export function RelatedBlogList({ blogs }: RelatedBlogListProps) {
                     <Link href={`/blogs/${item.slug}`} className="group relative block">
                         <div className="flex flex-row items-center">
                             <div className="shrink-0 h-32.5 w-32.5 overflow-hidden">
-                                <img src={item.thumbnail} alt={item.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                                <Image
+                                    src={item.thumbnail}
+                                    alt={item.thumbnailAlt || item.title}
+                                    width={1000}
+                                    height={1000}
+                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
                             </div>
                             <div className="ml-3.75">
                                 <p className="font-helvetica font-semibold text-base leading-5 tracking-wider text-shadow-slate-600">{formatDate(item.createdAt)}</p>

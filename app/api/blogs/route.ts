@@ -1,3 +1,4 @@
+// app/api/blogs/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -18,7 +19,9 @@ type BlogBody = {
     metaDescription: string;
     keywords: string[];
     thumbnail: string;
+    thumbnailAlt?: string; // NEW
     banner_image: string;
+    bannerImageAlt?: string; // NEW
     canonical: string;
     schemaScript: string;
     timeToRead?: string;
@@ -26,13 +29,10 @@ type BlogBody = {
     categoryId: number;
 };
 
-// ── Slug validation helper ──────────────────────────────────
 function isValidSlug(slug: string): boolean {
-    // Only allow lowercase alphanumeric, hyphens, and underscores
     return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }
 
-// ── Format slug helper ──────────────────────────────────────
 function formatSlug(slug: string): string {
     return slug
         .toLowerCase()
@@ -46,7 +46,6 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
 
-        // Get query parameters
         const search = searchParams.get("search");
         const slug = searchParams.get("slug");
         const status = searchParams.get("status");
@@ -55,12 +54,9 @@ export async function GET(request: NextRequest) {
         const sortBy = searchParams.get("sortBy") || "latest";
         const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
 
-        // Build where clause
         const where: any = {};
 
-        // Slug filter
         if (slug) {
-            // Validate slug format
             if (!isValidSlug(slug)) {
                 return NextResponse.json(
                     {
@@ -74,27 +70,22 @@ export async function GET(request: NextRequest) {
             where.slug = slug;
         }
 
-        // Search filter
         if (search) {
             where.OR = [{ title: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }, { content: { contains: search, mode: "insensitive" } }];
         }
 
-        // Status filter
         if (status && Object.values(BlogStatus).includes(status as BlogStatus)) {
             where.status = status;
         }
 
-        // Category filter
         if (categoryId) {
             where.categoryId = parseInt(categoryId);
         }
 
-        // Author filter
         if (authorId) {
             where.authorId = parseInt(authorId);
         }
 
-        // Build orderBy clause
         let orderBy: any = {};
         switch (sortBy) {
             case "latest":
@@ -123,7 +114,6 @@ export async function GET(request: NextRequest) {
             },
         });
 
-        // If searching by slug and no results found, return 404
         if (slug && blogs.length === 0) {
             return NextResponse.json(
                 {
@@ -161,7 +151,6 @@ export async function POST(request: NextRequest) {
     try {
         const body: BlogBody = await request.json();
 
-        // Validation
         if (!body.title || !body.slug || !body.description || !body.content) {
             return NextResponse.json(
                 {
@@ -182,7 +171,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate and format slug
         if (!isValidSlug(body.slug)) {
             return NextResponse.json(
                 {
@@ -193,7 +181,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check if slug already exists
         const existingBlog = await prisma.blog.findUnique({
             where: { slug: body.slug },
         });
@@ -208,7 +195,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify author exists
         const authorExists = await prisma.author.findUnique({
             where: { id: body.authorId },
         });
@@ -223,7 +209,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify category exists
         const categoryExists = await prisma.blogCategory.findUnique({
             where: { id: body.categoryId },
         });
@@ -250,7 +235,9 @@ export async function POST(request: NextRequest) {
                 metaDescription: body.metaDescription || body.description,
                 keywords: body.keywords || [],
                 thumbnail: body.thumbnail,
+                thumbnailAlt: body.thumbnailAlt || body.metaTitle || body.title, // NEW: Fallback to metaTitle
                 banner_image: body.banner_image,
+                bannerImageAlt: body.bannerImageAlt || body.metaTitle || body.title, // NEW: Fallback to metaTitle
                 canonical: body.canonical,
                 schemaScript: body.schemaScript || "",
                 timeToRead: body.timeToRead,

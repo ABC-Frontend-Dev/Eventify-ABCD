@@ -45,7 +45,9 @@ interface BlogFormProps {
         metaDescription: string;
         keywords: string[];
         thumbnail: string;
+        thumbnailAlt: string | null;
         banner_image: string;
+        bannerImageAlt: string | null;
         canonical: string;
         schemaScript: string;
         timeToRead: string | null;
@@ -111,7 +113,9 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         metaDescription: initialData?.metaDescription || "",
         keywords: initialData?.keywords || [],
         thumbnail: initialData?.thumbnail || "",
+        thumbnailAlt: initialData?.thumbnailAlt || "",
         banner_image: initialData?.banner_image || "",
+        bannerImageAlt: initialData?.bannerImageAlt || "",
         canonical: initialData?.canonical || "",
         schemaScript: initialData?.schemaScript || "",
         timeToRead: initialData?.timeToRead || "",
@@ -132,7 +136,6 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         ],
         [formData],
     );
-
     const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
     const isFormValid = completion.every((c) => c.ok);
 
@@ -172,7 +175,9 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     metaDescription: b.metaDescription,
                     keywords: b.keywords || [],
                     thumbnail: b.thumbnail,
+                    thumbnailAlt: b.thumbnailAlt || "",
                     banner_image: b.banner_image,
+                    bannerImageAlt: b.bannerImageAlt || "",
                     canonical: b.canonical,
                     schemaScript: b.schemaScript,
                     timeToRead: b.timeToRead || "",
@@ -261,6 +266,8 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     metaTitle: formData.metaTitle || formData.title,
                     metaDescription: formData.metaDescription || formData.description,
                     canonical: formData.canonical || `https://yoursite.com/blogs/${formData.slug}`,
+                    thumbnailAlt: formData.thumbnailAlt || formData.metaTitle || formData.title,
+                    bannerImageAlt: formData.bannerImageAlt || formData.metaTitle || formData.title,
                 }),
             });
             const result = await res.json();
@@ -471,6 +478,16 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                     maxSize={4}
                                     accept="image/*"
                                 />
+                                <div className="mt-3">
+                                    <FieldLabel>Alt text (optional)</FieldLabel>
+                                    <Input
+                                        value={formData.thumbnailAlt}
+                                        onChange={(e) => setFormData((p) => ({ ...p, thumbnailAlt: e.target.value }))}
+                                        placeholder={`${formData.metaTitle || formData.title || "Thumbnail image"}`}
+                                        className={inp}
+                                    />
+                                    <p className="mt-1 text-[11px] text-slate-400">Leave empty to use: "{formData.metaTitle || formData.title}"</p>
+                                </div>
                                 {uploadingThumbnail && (
                                     <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
                                         <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
@@ -478,7 +495,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 )}
                                 {formData.thumbnail && !uploadingThumbnail && (
                                     <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100">
-                                        <img src={formData.thumbnail} alt="" className="w-full h-28 object-cover" />
+                                        <img src={formData.thumbnail} alt={formData.thumbnailAlt || formData.metaTitle || formData.title} className="w-full h-28 object-cover" />
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -506,6 +523,18 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                     maxSize={4}
                                     accept="image/*"
                                 />
+                                {/* NEW: Alt text input */}
+                                <div className="mt-3">
+                                    <FieldLabel>Alt text (optional)</FieldLabel>
+                                    <Input
+                                        value={formData.bannerImageAlt}
+                                        onChange={(e) => setFormData((p) => ({ ...p, bannerImageAlt: e.target.value }))}
+                                        placeholder={`${formData.metaTitle || formData.title || "Banner image"}`}
+                                        className={inp}
+                                    />
+                                    <p className="mt-1 text-[11px] text-slate-400">Leave empty to use: "{formData.metaTitle || formData.title}"</p>
+                                </div>
+
                                 {uploadingBanner && (
                                     <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
                                         <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
@@ -513,7 +542,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 )}
                                 {formData.banner_image && !uploadingBanner && (
                                     <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100">
-                                        <img src={formData.banner_image} alt="" className="w-full h-28 object-cover" />
+                                        <img src={formData.banner_image} alt={formData.bannerImageAlt || formData.metaTitle || formData.title} className="w-full h-28 object-cover" />
                                         <button
                                             type="button"
                                             onClick={() => {

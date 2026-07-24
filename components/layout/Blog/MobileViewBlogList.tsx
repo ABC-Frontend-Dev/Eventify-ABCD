@@ -1,125 +1,129 @@
-// components/layout/Blog/BlogListCarouselCard.tsx
-
+// components/layout/Blog/MobileViewBlogList.tsx
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
-interface CarouselItem {
+interface BlogItem {
     id: number;
-    url: string;
-    category: React.ReactNode;
+    slug: string;
     title: string;
     description: string;
-    authorName: string;
-    authorImage: string;
-    image: string;
-    date: string;
-    readTime: string;
+    thumbnail: string;
+    thumbnailAlt: string | null;
+    author: {
+        name: string;
+    };
+    category: {
+        name: string;
+    };
+    createdAt: string;
+    timeToRead: string | null;
 }
 
-const CAROUSEL_DATA: CarouselItem[] = [
-    {
-        id: 1,
-        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
-        category: "Conferences",
-        title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
-        authorName: "Maximus Wooten",
-        authorImage: "/images/blogs/Ellipse 5.png",
-        image: "/images/blogs/Group 48531.png",
-        date: "Apr 12, 2026",
-        readTime: "5 min",
-    },
-    {
-        id: 2,
-        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
-        category: "Conferences",
-        title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
-        authorName: "Maximus Wooten",
-        authorImage: "/images/blogs/Ellipse 5.png",
-        image: "/images/blogs/Group 48531.png",
-        date: "Apr 12, 2026",
-        readTime: "5 min",
-    },
-    {
-        id: 3,
-        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
-        category: "Conferences",
-        title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
-        authorName: "Maximus Wooten",
-        authorImage: "/images/blogs/Ellipse 5.png",
-        image: "/images/blogs/Group 48531.png",
-        date: "Apr 12, 2026",
-        readTime: "5 min",
-    },
-    {
-        id: 4,
-        url: "/blogs/best-first-copy-watches-for-him-under-rs-3-000",
-        category: "Conferences",
-        title: "UAE In-Focus – Dubai wins bids for 99 events in H1; Al Khair Initiative continues to help defaulters",
-        description: "Managing large format conferences and seminars is our strength, the founders in their previous roles have individually and collectively delivered note-worthy corporate events.",
-        authorName: "Maximus Wooten",
-        authorImage: "/images/blogs/Ellipse 5.png",
-        image: "/images/blogs/Group 48531.png",
-        date: "Apr 12, 2026",
-        readTime: "5 min",
-    },
-];
-
 export function MobileViewBlogList() {
-    return (
-        <div className="block lg:hidden relative w-full">
-            {/* Carousel Viewport */}
-            <div className="overflow-hidden">
-                <div className="space-y-2.5">
-                    {CAROUSEL_DATA.map((item) => (
-                        <div key={item.id} className="flex flex-row gap-2.5 min-w-0 relative">
-                            <Link href={item.url}>
-                                <figure className="w-30 h-22 overflow-hidden shrink-0">
-                                    <Image src={item.image} alt={item.title} width={1000} height={1000} className="h-full w-full object-cover" />
-                                </figure>
-                                <div className="">
-                                    <p className="font-product-sans-medium font-normal text-slate-600 text-xs italic leading-3.5"> {item.category}</p>
-                                    <div
-                                        className="mt-1 text-sm leading-4.5 font-product-sans-bold font-medium text-footer-bg"
-                                        style={{
-                                            display: "-webkit-box",
-                                            WebkitLineClamp: 2,
-                                            WebkitBoxOrient: "vertical",
-                                            overflow: "hidden",
-                                        }}
-                                    >
-                                        {item.title}
-                                    </div>
-                                    {/* <div className="mt-2 text-sm leading-4 tracking-wide text-white font-helvetica font-light">The Emirates College for Advanced Education (ECAE) has</div> */}
-                                    <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
-                                        {/* <figure className="h-7.5 w-7.5 rounded-full overflow-hidden">
-                                                                        <Image src="/images/blogs/Ellipse 5.png" alt="blog1" width={1000} height={1000} className="h-full w-full object-cover" />
-                                                                    </figure> */}
-                                        <ul className="flex items-center flex-wrap gap-1.5">
-                                            <li className="">
-                                                <p className="font-product-sans-medium font-normal text-footer-bg text-xs leading-3.5">{item.authorName}</p>
-                                            </li>
-                                            <li className="w-1 h-1 rounded-full bg-footer-bg shrink-0"></li>
-                                            <li className="">
-                                                <p className="font-product-sans-medium font-normal text-footer-bg text-xs leading-3.5">{item.date}</p>
-                                            </li>
-                                            <li className="w-1 h-1 rounded-full bg-footer-bg shrink-0"></li>
-                                            <li className="">
-                                                <p className="font-product-sans-medium font-normal text-footer-bg text-xs leading-3.5">{item.readTime}</p>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-                    ))}
-                </div>
+    const searchParams = useSearchParams();
+    const [blogs, setBlogs] = useState<BlogItem[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const search = searchParams.get("search") || "";
+    const category = searchParams.get("category") || "";
+
+    useEffect(() => {
+        fetchBlogs();
+    }, [search, category]);
+
+    const fetchBlogs = async () => {
+        try {
+            setLoading(true);
+            const params = new URLSearchParams();
+            params.append("status", "PUBLISHED");
+
+            if (search) {
+                params.append("search", search);
+            }
+            if (category) {
+                params.append("categoryId", category);
+            }
+
+            const response = await fetch(`/api/blogs?${params.toString()}`);
+            const data = await response.json();
+
+            if (data.success) {
+                setBlogs(data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching blogs:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
+    };
+
+    if (loading) {
+        return (
+            <div className="lg:hidden flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
             </div>
+        );
+    }
+
+    if (blogs.length === 0) {
+        return (
+            <div className="lg:hidden flex items-center justify-center py-16">
+                <p className="text-slate-500">No blogs found</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="lg:hidden space-y-4 mt-7.5">
+            {blogs.map((blog) => (
+                <Link key={blog.id} href={`/blogs/${blog.slug}`}>
+                    <div className="relative group overflow-hidden rounded-lg">
+                        <figure className="h-48 w-full overflow-hidden">
+                            <Image
+                                src={blog.thumbnail}
+                                alt={blog.thumbnailAlt || blog.title}
+                                width={1000}
+                                height={1000}
+                                className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                        </figure>
+                        <div className="absolute w-full bottom-0 left-0 p-4 blog-page-gradient z-10">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="text-xs font-product-sans-medium font-light text-white bg-primary/80 px-2 py-1 rounded w-fit capitalize">{blog.category.name}</div>
+                            </div>
+                            <div className="text-sm leading-4 font-product-sans-bold font-medium text-white line-clamp-2 mb-2">{blog.title}</div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <ul className="flex items-center gap-1.5">
+                                    <li>
+                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.author.name}</p>
+                                    </li>
+                                    <li className="w-1 h-1 rounded-full bg-white"></li>
+                                    <li>
+                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(blog.createdAt)}</p>
+                                    </li>
+                                    <li className="w-1 h-1 rounded-full bg-white"></li>
+                                    <li>
+                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.timeToRead}</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </Link>
+            ))}
         </div>
     );
 }

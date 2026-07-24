@@ -79,7 +79,9 @@ model Blog {
   metaTitle       String       @db.VarChar(60)
   keywords        String[]
   thumbnail       String
+  thumbnailAlt    String?
   banner_image    String
+  bannerImageAlt  String?
   canonical       String
   timeToRead      String?
   createdAt       DateTime     @default(now())
@@ -90,12 +92,30 @@ model Blog {
   metaDescription String       @db.VarChar(160)
   publishedAt     DateTime?
   status          BlogStatus   @default(DRAFT)
+  viewCount       Int          @default(0)
+  lastViewedAt    DateTime?
+  
   author          Author       @relation(fields: [authorId], references: [id])
   category        BlogCategory @relation(fields: [categoryId], references: [id])
+  views           BlogView[]
 
   @@index([authorId])
   @@index([categoryId])
   @@index([status])
+  @@index([viewCount])
+}
+
+model BlogView {
+  id        Int      @id @default(autoincrement())
+  blogId    Int
+  userIp    String?
+  userAgent String?
+  viewedAt  DateTime @default(now())
+  
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  
+  @@index([blogId])
+  @@index([viewedAt])
 }
 
 enum BlogStatus {

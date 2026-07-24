@@ -13,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 interface BlogContentProps {
     content: string;
+    metaTitle?: string;
 }
 
 interface ParsedNode {
@@ -22,7 +23,7 @@ interface ParsedNode {
     html: string;
 }
 
-export default function BlogContent({ content }: BlogContentProps) {
+export default function BlogContent({ content, metaTitle }: BlogContentProps) {
     const articleRef = useRef<HTMLElement>(null);
     const [parsedNodes, setParsedNodes] = useState<ParsedNode[]>([]);
 
@@ -32,6 +33,14 @@ export default function BlogContent({ content }: BlogContentProps) {
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(content, "text/html");
+
+        const images = doc.querySelectorAll("img");
+        images.forEach((img) => {
+            if (!img.getAttribute("alt") || img.getAttribute("alt") === "") {
+                img.setAttribute("alt", metaTitle || "Blog content image");
+            }
+        });
+
         const nodes = Array.from(doc.body.childNodes);
 
         const parsed: ParsedNode[] = nodes.map((node, index) => {
@@ -45,7 +54,7 @@ export default function BlogContent({ content }: BlogContentProps) {
         });
 
         setParsedNodes(parsed);
-    }, [content]);
+    }, [content, metaTitle]);
 
     useEffect(() => {
         const article = articleRef.current;

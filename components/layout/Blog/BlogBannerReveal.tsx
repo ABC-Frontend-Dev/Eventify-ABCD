@@ -13,15 +13,17 @@ interface BlogBannerRevealProps {
     desktopSrc: string | null;
     mobileSrc: string;
     alt: string;
+    bannerImageAlt?: string | null;
 }
 
-export default function BlogBannerReveal({ desktopSrc, mobileSrc, alt }: BlogBannerRevealProps) {
+export default function BlogBannerReveal({ desktopSrc, mobileSrc, alt, bannerImageAlt }: BlogBannerRevealProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const desktopWrapRef = useRef<HTMLDivElement>(null);
     const mobileWrapRef = useRef<HTMLDivElement>(null);
 
     // Resolve: if desktopSrc is null fall back to mobileSrc
     const resolvedDesktopSrc = desktopSrc ?? mobileSrc;
+    const altText = bannerImageAlt || alt;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -91,7 +93,7 @@ export default function BlogBannerReveal({ desktopSrc, mobileSrc, alt }: BlogBan
                 <div ref={desktopWrapRef} className="block w-full h-full overflow-hidden">
                     <Image
                         src={resolvedDesktopSrc}
-                        alt={alt}
+                        alt={altText}
                         width={1000}
                         height={1000}
                         priority
