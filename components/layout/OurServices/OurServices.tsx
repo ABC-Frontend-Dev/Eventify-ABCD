@@ -24,7 +24,7 @@ export default function OurServices() {
                 <HeaderDescription description="Expertise-driven services designed to elevate your projects." scrollContainerRef={undefined} />
             </header>
 
-            <div className="mt-9">
+            <div className="mt-4 lg:mt-9">
                 <EmblaCarousel />
             </div>
         </section>

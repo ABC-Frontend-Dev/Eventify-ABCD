@@ -189,9 +189,9 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
     return (
         <section className="mt-0 lg:mt-25 scroll-mt-14">
             <ViewTracker slug={slug} />
-            <div className="absolute top-16 md:top-12 lg:top-16 left-0 w-full h-80 lg:h-140 after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black/20 after:z-10 after:backdrop-blur-sm">
+            <div className="absolute top-16 md:top-12 lg:top-16 left-0 w-full h-80 lg:h-140 overflow-hidden after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black/20 after:z-10 after:backdrop-blur-sm">
                 <figure>
-                    <Image src={blog.banner_image || blog.thumbnail} alt={blog.title} width={1000} height={1000} priority className="object-cover" />
+                    <Image src={blog.banner_image || blog.thumbnail} alt={blog.title} width={1000} height={1000} priority className="w-full h-full object-cover" />
                 </figure>
                 <div className="max-w-360 px-5 lg:px-20 absolute left-1/2 -translate-x-1/2 top-6 md:top-12 lg:top-16 w-full z-20 text-white">
                     <div className="text-xl lg:text-[40px] leading-6 lg:leading-10 font-helvetica font-bold tracking-wide">Blog</div>

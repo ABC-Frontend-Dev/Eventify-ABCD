@@ -27,7 +27,7 @@ export default function BeforeAndAfterComparision() {
                 />
             </header>
 
-            <div className="mt-9">
+            <div className="mt-4 lg:mt-9">
                 <ComparisonCarousel />
             </div>
         </section>

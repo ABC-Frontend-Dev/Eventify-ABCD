@@ -151,7 +151,7 @@ export default function InspirationInFrames() {
                 <HeaderDescription description="A curated glimpse into our visual world" scrollContainerRef={undefined} />
             </header>
 
-            <div className="mt-5 sm:mt-7.5">
+            <div className="mt-4 sm:mt-7.5">
                 <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative">
                     {/* <div ref={overlayRef} className="absolute top-0 left-0 z-20 pointer-events-none overflow-hidden opacity-0" style={{ willChange: "transform, width, height" }}>
                         <div className="absolute inset-0 bg-black/30 z-30" />

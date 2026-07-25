@@ -123,7 +123,7 @@ function BlogListContent() {
                     {/* Left: First large blog */}
                     <div className="max-w-full lg:max-w-157.5 w-full h-full relative">
                         <Link href={`/blog/${displayBlogs[0].slug}`}>
-                            <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                            <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                 {displayBlogs[0].category.name}
                             </div>
                             <figure className="h-68.5 lg:h-142.25 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">
@@ -158,7 +158,7 @@ function BlogListContent() {
                         {displayBlogs[1] && (
                             <div className="col-span-2 relative">
                                 <Link href={`/blog/${displayBlogs[1].slug}`}>
-                                    <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                    <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                         {displayBlogs[1].category.name}
                                     </div>
                                     <figure className="h-68.5 max-w-157.5 w-full overflow-hidden">
@@ -195,7 +195,7 @@ function BlogListContent() {
                         {displayBlogs[2] && (
                             <div className="row-start-2 col-start-1 relative">
                                 <Link href={`/blog/${displayBlogs[2].slug}`}>
-                                    <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                    <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                         {displayBlogs[2].category.name}
                                     </div>
                                     <figure className="h-68.5 w-full overflow-hidden">
@@ -232,7 +232,7 @@ function BlogListContent() {
                         {displayBlogs[3] && (
                             <div className="row-start-3 lg:row-start-2 col-start-1 lg:col-start-2 relative">
                                 <Link href={`/blog/${displayBlogs[3].slug}`}>
-                                    <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                    <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                         {displayBlogs[3].category.name}
                                     </div>
                                     <figure className="h-68.5 w-full overflow-hidden">
@@ -276,7 +276,7 @@ function BlogListContent() {
                 {displayBlogs.map((blog) => (
                     <div key={blog.id} className="relative">
                         <Link href={`/blog/${blog.slug}`}>
-                            <div className="absolute top-3 lg:top-5 right-3 lg:right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2 lg:p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                            <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                 {blog.category.name}
                             </div>
                             <figure className="h-68.5 lg:h-80 w-full overflow-hidden relative after:absolute after:w-full after:h-full after:inset-0 after:bg-black/20 after:pointer-events-none">

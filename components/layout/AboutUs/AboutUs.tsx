@@ -131,7 +131,7 @@ export default function AboutUs() {
             <div className="flex items-center justify-center flex-col-reverse lg:flex-row w-full mt-5 lg:mt-9 gap-2.5">
                 {/* Left – Cards */}
                 <div className="w-full">
-                    <div className="space-y-2.5 space-x-2.5 flex flex-row lg:flex-col">
+                    <div className="space-y-2.5 space-x-2.5 flex flex-col md:flex-row lg:flex-col">
                         <CardFlip
                             className="w-full lg:w-[288px] h-48 lg:h-51.25"
                             title="What makes Eventify different is simple, people come back."
@@ -151,9 +151,9 @@ export default function AboutUs() {
                 </div>
 
                 {/* Right – Image with wipe-reveal animation */}
-                <div className="w-full lg:w-245.5 md:h-100 shrink-0">
+                <div className="w-full lg:w-245.5 md:h-100 lg:h-149 shrink-0">
                     {/* Outer: clips the reveal. Invisible until GSAP activates it */}
-                    <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-158.75 overflow-hidden">
+                    <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-149 overflow-hidden">
                         <Image
                             ref={revealImageRef}
                             src="https://res.cloudinary.com/afdhm38k/image/upload/v1784529009/about-us-bg_mfyiiy.png"
@@ -212,7 +212,11 @@ export function SubHeading({ title }: SubHeadingProps) {
 
     return (
         /* 2. Added 'break-words' to safely handle container limits if needed */
-        <h3 ref={textRef} className="text-2xl lg:text-4xl leading-7 lg:leading-10 font-product-sans-bold font-bold uppercase text-primary break-words pr-16" style={{ willChange: "filter" }}>
+        <h3
+            ref={textRef}
+            className="text-2xl lg:text-4xl leading-7 lg:leading-10 font-helvetica-medium font-bold uppercase text-primary wrap-break-word pr-0 lg:pr-16"
+            style={{ willChange: "filter" }}
+        >
             {title}
         </h3>
     );

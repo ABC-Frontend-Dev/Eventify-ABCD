@@ -38,11 +38,11 @@ export default function Breadcrumb({ props }: { props?: any }) {
                         <span className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${separatorColor} shrink-0`}>/</span>
 
                         {isLast ? (
-                            <span className="text-xs lg:text-lg leading-4.5 lg:leading-4 text-primary capitalize truncate block">{segment.replace(/-/g, " ")}</span>
+                            <span className="text-xs lg:text-lg leading-4.5 lg:leading-5.5 text-primary capitalize truncate block">{segment.replace(/-/g, " ")}</span>
                         ) : (
                             <Link
                                 href={href}
-                                className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200 capitalize truncate block shrink-0`}
+                                className={`text-xs lg:text-lg leading-4.5 lg:leading-5.5 ${textColor} hover:text-primary transition-colors duration-200 capitalize truncate block shrink-0`}
                             >
                                 {segment.replace(/-/g, " ")}
                             </Link>

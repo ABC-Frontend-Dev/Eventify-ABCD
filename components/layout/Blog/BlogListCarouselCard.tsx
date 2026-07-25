@@ -100,7 +100,7 @@ export function EmblaCarousel({ blogs = [], loading = false }: EmblaCarouselProp
                     {blogs.map((blog) => (
                         <div key={blog.id} className="flex-[0_0_calc(100%/1)] lg:flex-[0_0_calc((100%-14px)/3)] min-w-0 relative">
                             <Link href={`/blogs/${blog.slug}`}>
-                                <div className="absolute top-5 right-5 z-40 border border-primary/80 bg-primary/80 rounded-[6px] p-2.5 capitalize text-xs lg:text-sm font-product-sans-medium font-light w-fit text-white">
+                                <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                     {blog.category.name}
                                 </div>
                                 <figure className="h-80 w-full overflow-hidden">

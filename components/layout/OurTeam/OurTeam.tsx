@@ -14,7 +14,7 @@ export default function OurTeam() {
                 <SubHeading title="our event experts" />
                 <HeaderDescription description="The talented individuals working together to create memorable events." scrollContainerRef={undefined} />
             </header>
-            <div className="mt-9">
+            <div className="mt-4 lg:mt-9">
                 <Teams />
                 <OurTeamMobileView />
             </div>

@@ -137,7 +137,7 @@ export default function Footer() {
                 </div>
 
                 <div className="mt-2.5 flex items-start gap-5.25">
-                    <div className="hidden text-8xl lg:text-[155px] leading-41.25 font-helvetica-heavy font-extrabold uppercase text-white lg:flex lg:items-start">
+                    <div className="hidden text-8xl lg:text-[153px] leading-41.25 font-helvetica-heavy font-extrabold uppercase text-white lg:flex lg:items-start">
                         <span className="shrink-0">lets ev</span>
                         <span className="w-31 shrink-0">
                             <Image src="/images/favicon.png" alt="Eventify light logo" width={1000} height={1000} className="w-full h-full object-contain" />

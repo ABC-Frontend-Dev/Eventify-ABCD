@@ -122,7 +122,7 @@ export default function Projects() {
                     </TabsList>
                 </header>
 
-                <div className="mt-9">
+                <div className="mt-4 lg:mt-9">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {filteredProjects.map((project) => (
