@@ -28,7 +28,7 @@ interface Category {
 interface Project {
     id: number;
     title: string;
-    description: string;
+    description: string | null;
     bannerImage: string;
     hasTabs: boolean;
     tabs: ProjectTab[];
@@ -37,7 +37,6 @@ interface Project {
     category: Category;
 }
 
-// Helper function to check if a file is a video
 const isVideoFile = (url: string): boolean => {
     const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
     const lowerUrl = url.toLowerCase();
@@ -103,7 +102,7 @@ export default function Projects() {
     return (
         <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <MainTabs value={activeTab} onValueChange={setActiveTab}>
-                <header className="flex items-end justify-between flex-col lg:flex-row gap-y-5">
+                <header className="flex items-end md:items-start lg:items-end justify-between flex-col lg:flex-row gap-y-5">
                     <div>
                         <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
                         <SubHeading title="Explore projects" />
@@ -124,7 +123,7 @@ export default function Projects() {
                 </header>
 
                 <div className="mt-9">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {filteredProjects.map((project) => (
                                 <motion.div
@@ -150,47 +149,45 @@ export default function Projects() {
                 </div>
             </MainTabs>
 
-            <Modal isOpen={isModalOpen} onClose={closeModal} className="h-165.25 w-full max-w-80 lg:max-w-166 bg-white p-0" allowEasyClose={true}>
+            <Modal isOpen={isModalOpen} onClose={closeModal} className="w-full max-w-80 xxs:max-w-92 md:max-w-2xl lg:max-w-166 bg-white p-0" allowEasyClose={true}>
                 {selectedProject && (
-                    <div className="p-2.5 h-full flex flex-col bg-white">
-                        {/* Modal Content */}
-                        {selectedProject.hasTabs && selectedProject.tabs.length > 0 ? (
-                            /* PROJECT WITH TABS */
-                            <MainTabs value={activeInnerTab} onValueChange={setActiveInnerTab} className="flex-1 flex flex-col">
-                                {/* Tabs Navigation */}
-                                <div className="mb-2.5">
-                                    <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
+                    <div className="p-2.5 flex flex-col bg-white">
+                        {/* Media Section - Fixed height */}
+                        <div className="h-103 w-full flex-shrink-0">
+                            {selectedProject.hasTabs && selectedProject.tabs.length > 0 ? (
+                                <MainTabs value={activeInnerTab} onValueChange={setActiveInnerTab} className="h-full flex flex-col">
+                                    <div className="flex-shrink-0 mb-2.5">
+                                        <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
+                                            {selectedProject.tabs.map((tab) => (
+                                                <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
+                                                    {tab.name}
+                                                </TabsTab>
+                                            ))}
+                                        </TabsList>
+                                    </div>
+
+                                    <div className="flex-1 overflow-hidden">
                                         {selectedProject.tabs.map((tab) => (
-                                            <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
-                                                {tab.name}
-                                            </TabsTab>
+                                            <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
+                                                <div className="h-full w-full overflow-hidden rounded-xl">
+                                                    <EmblaCarousel media={tab.images} />
+                                                </div>
+                                            </TabsPanel>
                                         ))}
-                                    </TabsList>
+                                    </div>
+                                </MainTabs>
+                            ) : (
+                                <div className="h-full w-full overflow-hidden rounded-xl">
+                                    <EmblaCarousel media={selectedProject.images} />
                                 </div>
+                            )}
+                        </div>
 
-                                {/* Tab Content */}
-                                <div className="flex-1 overflow-hidden">
-                                    {selectedProject.tabs.map((tab) => (
-                                        <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
-                                            <div className="h-103 w-full overflow-hidden rounded-xl">
-                                                <EmblaCarousel media={tab.images} />
-                                            </div>
-                                        </TabsPanel>
-                                    ))}
-                                </div>
-                            </MainTabs>
-                        ) : (
-                            /* PROJECT WITHOUT TABS */
-                            <div className="h-103 w-full overflow-hidden rounded-xl">
-                                <EmblaCarousel media={selectedProject.images} />
-                            </div>
-                        )}
-
-                        {/* Project Info Section */}
-                        <div className="p-5 mt-auto">
+                        {/* Content Section - Flexible height */}
+                        <div className="p-5 flex-shrink-0">
                             <p className="font-product-sans-bold text-2xl lg:text-[34px] font-semibold leading-10 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
-                            <p className="mt-2 font-product-sans-medium text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>
+                            {selectedProject.description && <p className="mt-2 font-product-sans-medium text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>}
 
                             <div className="mt-4 flex items-center gap-3">
                                 <div className="inline-block rounded-md bg-primary/10 px-4 py-2">
@@ -214,7 +211,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
     const isBannerVideo = isVideoFile(project.bannerImage);
 
     return (
-        <div className="relative group h-70 sm:h-105.5">
+        <div className="relative group h-70 md:h-80 lg:h-105.5">
             <button type="button" onClick={onClick} className="w-full h-full">
                 {isBannerVideo ? (
                     <video
@@ -236,7 +233,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
                 <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-10 bg-black/50 backdrop-blur-lg">
                     <div className="flex items-center justify-center flex-col w-full h-full text-white">
                         <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>
-                        <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>
+                        {project.description && <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>}
                     </div>
 
                     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-fit z-20 bg-white/30 rounded-full block px-4 py-0.5 font-helvetica font-medium text-[16px] text-center text-white cursor-pointer">

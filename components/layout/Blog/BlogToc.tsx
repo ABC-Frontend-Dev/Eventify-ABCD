@@ -182,7 +182,7 @@ export default function BlogToc() {
                     }}
                 />
 
-                <ul className="space-y-0">
+                <ul className="space-y-2.5">
                     {headings.map((heading) => (
                         <li
                             key={heading.id}

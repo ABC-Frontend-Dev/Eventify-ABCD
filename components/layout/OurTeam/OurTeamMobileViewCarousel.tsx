@@ -1,7 +1,7 @@
 // components/layout/blogs/BlogListCarouselCard.tsx
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
@@ -21,12 +21,13 @@ interface TeamMember {
 const EXCLUDED_POSITIONS = [13, 35];
 
 function CarouselCardSkeleton() {
-    return <div className="flex-[0_0_80%] max-w-91 w-full h-85 rounded-[10px] overflow-hidden relative bg-slate-200 animate-pulse" />;
+    return <div className="flex-[0_0_80%] md:flex-[0_0_calc(40%-10px)] w-full h-85 rounded-[10px] overflow-hidden relative bg-slate-200 animate-pulse" />;
 }
 
 export function EmblaCarousel() {
     const [members, setMembers] = useState<TeamMember[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isTablet, setIsTablet] = useState(false);
 
     useEffect(() => {
         const fetchTeam = async () => {
@@ -34,6 +35,7 @@ export function EmblaCarousel() {
                 const response = await axios.get("/api/team");
                 if (response.data.success) {
                     const filtered = (response.data.data as TeamMember[]).filter((m) => !EXCLUDED_POSITIONS.includes(m.position)).sort((a, b) => a.position - b.position);
+
                     setMembers(filtered);
                 }
             } catch (error) {
@@ -46,24 +48,39 @@ export function EmblaCarousel() {
         fetchTeam();
     }, []);
 
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(min-width: 768px) and (max-width: 1023.98px)");
+
+        const updateTablet = () => setIsTablet(mediaQuery.matches);
+
+        updateTablet();
+        mediaQuery.addEventListener("change", updateTablet);
+
+        return () => mediaQuery.removeEventListener("change", updateTablet);
+    }, []);
+
     const autoplay = useRef(
         Autoplay({
-            delay: 3000, // 3 seconds
+            delay: 3000,
             stopOnInteraction: false,
             stopOnMouseEnter: true,
             stopOnFocusIn: true,
         }),
     );
 
-    const [emblaRef, emblaApi] = useEmblaCarousel(
-        {
+    const emblaOptions = useMemo(
+        () => ({
             loop: true,
-            align: "center", // centers the active slide so the 20% remainder splits evenly, giving a ~10% peek on each side
-            containScroll: "trimSnaps",
+            align: "center" as const,
+            containScroll: "trimSnaps" as const,
             dragFree: false,
-        },
-        [autoplay.current],
+            slidesToScroll: isTablet ? 2 : 1,
+            startIndex: isTablet ? 1 : 0,
+        }),
+        [isTablet],
     );
+
+    const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions, [autoplay.current]);
 
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
     const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
@@ -86,6 +103,7 @@ export function EmblaCarousel() {
 
     useEffect(() => {
         if (!emblaApi) return;
+
         onSelect();
         emblaApi.on("select", onSelect);
         emblaApi.on("reInit", onSelect);
@@ -98,16 +116,28 @@ export function EmblaCarousel() {
 
     return (
         <div className="relative w-full lg:hidden">
-            {/* Carousel Viewport */}
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex gap-5">
                     {loading
-                        ? Array.from({ length: 3 }).map((_, i) => <CarouselCardSkeleton key={i} />)
+                        ? Array.from({ length: 4 }).map((_, i) => <CarouselCardSkeleton key={i} />)
                         : members.map((item) => (
-                              <div key={item.id} className="flex-[0_0_80%] max-w-91 w-full h-72 sm:h-85 rounded-[10px] overflow-hidden relative">
+                              <div
+                                  key={item.id}
+                                  className="
+                                      flex-[0_0_80%]
+                                      md:flex-[0_0_calc(40%-10px)]
+                                      w-full
+                                      max-w-91 md:max-w-none
+                                      h-72 sm:h-85
+                                      rounded-[10px]
+                                      overflow-hidden
+                                      relative
+                                  "
+                              >
                                   <figure className="h-full w-full overflow-hidden">
-                                      <Image src={item.image} alt={item.name} width={1000} height={1000} className="h-full w-full object-cover object-top" />
+                                      <Image src={item.image} alt={`${item.name} - ${item.role} at Eventify`} width={1000} height={1000} className="h-full w-full object-cover object-top" />
                                   </figure>
+
                                   <div className="absolute bottom-2.5 max-w-[92%] w-full left-1/2 -translate-x-1/2 p-2.5 bg-white rounded-[4px] overflow-hidden z-10">
                                       <p className="text-base sm:text-[26px] leading-5 sm:leading-7.8 text-center font-helvetica-medium font-medium text-slate-950">{item.name}</p>
                                       <p className="mt-1 text-xs sm:text-base leading-4 sm:leading-5 text-center font-helvetica font-medium text-slate-500">{item.role}</p>

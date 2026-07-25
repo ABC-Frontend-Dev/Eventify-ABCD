@@ -117,6 +117,10 @@
   --color-ds-blue-900: var(----ds-blue-900);
   --color-ds-blue-100: var(----ds-blue-100);
 
+  /* breakpoint */
+  --breakpoint-xxs: 425px;
+  --breakpoint-xs: 480px;
+
   @keyframes fade-spin {
     0% {
       opacity: 0.15;

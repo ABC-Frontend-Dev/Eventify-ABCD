@@ -1,10 +1,9 @@
-// app/api/projects/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 type UpdateProjectBody = {
     title?: string;
-    description?: string;
+    description?: string | null;
     bannerImage?: string;
     images?: string[];
     categoryId?: number;
@@ -16,7 +15,6 @@ type UpdateProjectBody = {
     }>;
 };
 
-// GET SINGLE PROJECT
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
@@ -47,7 +45,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 }
 
-// UPDATE PROJECT
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
@@ -68,7 +65,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ success: false, message: "Project not found." }, { status: 404 });
         }
 
-        // If category is being updated, check if it exists
         if (body.categoryId) {
             const existingCategory = await prisma.projectCategory.findUnique({
                 where: { id: body.categoryId },
@@ -79,15 +75,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             }
         }
 
-        // Handle tabs update
         if (body.hasTabs !== undefined) {
             if (body.hasTabs) {
-                // Delete old tabs
                 await prisma.projectTab.deleteMany({
                     where: { projectId },
                 });
 
-                // Create new tabs
                 if (body.tabs && body.tabs.length > 0) {
                     await prisma.projectTab.createMany({
                         data: body.tabs.map((tab, index) => ({
@@ -99,7 +92,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                     });
                 }
             } else {
-                // If disabling tabs, delete all tabs
                 await prisma.projectTab.deleteMany({
                     where: { projectId },
                 });
@@ -110,7 +102,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             where: { id: projectId },
             data: {
                 title: body.title ?? existingProject.title,
-                description: body.description ?? existingProject.description,
+                description: body.description !== undefined ? body.description?.trim() || null : existingProject.description,
                 bannerImage: body.bannerImage ?? existingProject.bannerImage,
                 images: body.hasTabs ? [] : (body.images ?? existingProject.images),
                 categoryId: body.categoryId ?? existingProject.categoryId,
@@ -138,7 +130,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 }
 
-// DELETE PROJECT
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
@@ -156,7 +147,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             return NextResponse.json({ success: false, message: "Project not found." }, { status: 404 });
         }
 
-        // Tabs will be deleted automatically due to onDelete: Cascade
         await prisma.project.delete({
             where: { id: projectId },
         });

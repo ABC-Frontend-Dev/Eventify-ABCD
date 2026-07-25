@@ -1,10 +1,9 @@
-// app/api/projects/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 type ProjectBody = {
     title: string;
-    description: string;
+    description?: string;
     bannerImage: string;
     images: string[];
     categoryId: number;
@@ -51,8 +50,8 @@ export async function POST(request: NextRequest) {
     try {
         const body: ProjectBody = await request.json();
 
-        if (!body.title || !body.description || !body.bannerImage || !body.categoryId) {
-            return NextResponse.json({ success: false, error: "Title, description, banner image, and category are required." }, { status: 400 });
+        if (!body.title || !body.bannerImage || !body.categoryId) {
+            return NextResponse.json({ success: false, error: "Title, banner image, and category are required." }, { status: 400 });
         }
 
         // Validate tabs or images
@@ -69,7 +68,7 @@ export async function POST(request: NextRequest) {
         const newProject = await prisma.project.create({
             data: {
                 title: body.title,
-                description: body.description,
+                description: body.description?.trim() || null,
                 bannerImage: body.bannerImage,
                 categoryId: body.categoryId,
                 hasTabs: body.hasTabs || false,

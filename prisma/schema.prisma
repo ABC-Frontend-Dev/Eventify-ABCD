@@ -22,6 +22,7 @@ model Clients {
   description String?
   image       String
 }
+
 model ProjectCategory {
   id          Int       @id @default(autoincrement())
   name        String
@@ -32,7 +33,7 @@ model ProjectCategory {
 model Project {
   id          Int             @id @default(autoincrement())
   title       String
-  description String
+  description String?
   bannerImage String
   categoryId  Int
   hasTabs     Boolean         @default(false)  // Toggle for tabs

@@ -87,7 +87,13 @@ export function FlipCard({ data, className, disableFlip = false }: FlipCardProps
         >
             {/* FRONT: Default Image */}
             <motion.div className="absolute inset-0 backface-hidden overflow-hidden" animate={effectiveFlipped ? "back" : "front"} variants={cardVariants} style={{ transformStyle: "preserve-3d" }}>
-                <Image src={data.defaultImage} alt={data.imageAlt} fill className="object-cover object-top" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                <Image
+                    src={data.defaultImage}
+                    alt={`${data.title} - ${data.description} at Eventify`}
+                    fill
+                    className="object-cover object-top"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
             </motion.div>
 
             {/* BACK: Hover Image + Title + Description — never shown when disableFlip is true */}
@@ -100,7 +106,13 @@ export function FlipCard({ data, className, disableFlip = false }: FlipCardProps
                     style={{ transformStyle: "preserve-3d", rotateY: 180 }}
                 >
                     {/* Background Image */}
-                    <Image src={data.hoverImage} alt={data.imageAlt} fill className="object-cover object-top" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                    <Image
+                        src={data.hoverImage}
+                        alt={`${data.title} - ${data.description} at Eventify`}
+                        fill
+                        className="object-cover object-top"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
 
                     {/* Overlay with gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

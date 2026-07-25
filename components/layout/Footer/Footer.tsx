@@ -129,7 +129,7 @@ export default function Footer() {
                         </div>
                         <span className="font-product-sans-regular text-sm lg:text-xl leading-7 tracking-wider">
                             <span className="capitalize">Email ID: </span>
-                            <Link href="#" className="lowercase text-xs">
+                            <Link href="#" className="lowercase text-xs sm:text-sm md:text-md">
                                 <GoesOutComesInUnderline label="connect@eventifyentertainment.com" direction="right" />
                             </Link>
                         </span>
@@ -146,7 +146,7 @@ export default function Footer() {
                             ntif<span className="pl1">y</span>!
                         </span>
                     </div>
-                    <div className="w-full text-4xl text-white leading-14 font-helvetica-heavy font-extrabold uppercase flex lg:hidden items-start flex-wrap">
+                    <div className="w-full text-4xl text-white leading-14 font-helvetica-heavy font-extrabold uppercase flex gap-x-1 xs:gap-x-1.5 lg:hidden items-start flex-wrap">
                         <div>lets</div>
                         <div className="flex items-center gap-2">
                             <span>ev </span>

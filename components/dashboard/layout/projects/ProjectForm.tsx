@@ -12,7 +12,6 @@ import { useToasts } from "@/components/ui/toast";
 import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, AlertCircle, CheckCircle2, Plus, Edit, Trash2, Layers, ChevronRight, Eye } from "lucide-react";
 import Link from "next/link";
 
-// ── Types ─────────────────────────────────────────────────
 interface ProjectCategory {
     id: number;
     name: string;
@@ -29,7 +28,7 @@ interface ProjectTab {
 interface ProjectFormProps {
     initialData?: {
         title: string;
-        description: string;
+        description: string | null;
         bannerImage: string;
         images: string[];
         categoryId: number;
@@ -40,7 +39,6 @@ interface ProjectFormProps {
     mode: "create" | "edit";
 }
 
-// ── Shared micro-components ───────────────────────────────
 function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
     return (
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
@@ -60,7 +58,6 @@ function SectionHeading({ label }: { label: string }) {
     );
 }
 
-// ── Main component ────────────────────────────────────────
 export default function ProjectForm({ initialData, projectId, mode }: ProjectFormProps) {
     const router = useRouter();
     const toast = useToasts();
@@ -88,11 +85,9 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
 
     const [tabs, setTabs] = useState<ProjectTab[]>(initialData?.tabs?.map((t) => ({ id: t.id, tempId: `tab-${t.id}`, name: t.name, images: t.images })) || []);
 
-    // ── completion ────────────────────────────────────────
     const completion = useMemo(
         () => [
             { label: "Title", ok: !!formData.title.trim() },
-            { label: "Description", ok: !!formData.description.trim() },
             { label: "Banner", ok: !!formData.bannerImage },
             { label: "Category", ok: formData.categoryId !== 0 },
             {
@@ -106,7 +101,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
     const isFormValid = completion.every((c) => c.ok);
 
-    // ── fetch categories ──────────────────────────────────
     useEffect(() => {
         fetch("/api/project-categories")
             .then((r) => r.json())
@@ -119,7 +113,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // ── edit mode load ────────────────────────────────────
     useEffect(() => {
         if (mode !== "edit" || !projectId) return;
         fetch(`/api/projects/${projectId}`)
@@ -129,7 +122,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 const d = data.data;
                 setFormData({
                     title: d.title,
-                    description: d.description,
+                    description: d.description || "",
                     bannerImage: d.bannerImage,
                     images: d.images || [],
                     categoryId: d.categoryId,
@@ -148,7 +141,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         setFormData((p) => ({ ...p, [name]: name === "categoryId" ? parseInt(value) : value }));
     };
 
-    // ── upload helpers ────────────────────────────────────
     const uploadFile = async (file: File): Promise<string | null> => {
         const fd = new FormData();
         fd.append("file", file);
@@ -193,15 +185,16 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         }
     };
 
-    // ── tab management ────────────────────────────────────
     const openAddTab = () => {
         setCurrentTab({ tempId: `temp-${Date.now()}`, name: "", images: [] });
         setIsTabModalOpen(true);
     };
+
     const openEditTab = (t: ProjectTab) => {
         setCurrentTab({ ...t });
         setIsTabModalOpen(true);
     };
+
     const closeModal = () => {
         setIsTabModalOpen(false);
         setCurrentTab(null);
@@ -235,7 +228,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         closeModal();
     };
 
-    // ── submit ────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isFormValid) {
@@ -249,6 +241,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...formData,
+                    description: formData.description.trim() || null,
                     tabs: formData.hasTabs ? tabs.map(({ name, images }) => ({ name, images })) : undefined,
                 }),
             });
@@ -267,13 +260,11 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         }
     };
 
-    // ── shared styles ─────────────────────────────────────
     const inp = "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
     const sel = "w-full h-9 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 text-slate-700 disabled:opacity-50";
 
     return (
         <div className="min-h-screen bg-slate-50/60">
-            {/* ── sticky topbar ─────────────────────────── */}
             <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
                     <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
@@ -288,7 +279,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     <ChevronRight className="h-3 w-3 text-slate-300" />
                     <span className="text-xs font-medium text-slate-700 truncate max-w-[200px]">{mode === "create" ? "New project" : formData.title || "Edit project"}</span>
 
-                    {/* progress */}
                     <div className="hidden md:flex items-center gap-2 ml-3">
                         <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
                             <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
@@ -311,15 +301,11 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 </div>
             </div>
 
-            {/* ── body ──────────────────────────────────── */}
             <form id="project-form" onSubmit={handleSubmit} className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 flex flex-col xl:flex-row gap-5">
-                {/* ── main column ───────────────────────── */}
                 <div className="flex-1 min-w-0 space-y-5">
-                    {/* BASIC INFO */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Basic Info" />
                         <div className="space-y-4">
-                            {/* title */}
                             <div>
                                 <FieldLabel required ok={!!formData.title}>
                                     Project Title
@@ -327,7 +313,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 <Input name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Annual Tech Conference 2024" className={inp} />
                             </div>
 
-                            {/* category */}
                             <div>
                                 <FieldLabel required ok={formData.categoryId !== 0}>
                                     Category
@@ -342,16 +327,15 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 </select>
                             </div>
 
-                            {/* description */}
                             <div>
-                                <FieldLabel required ok={!!formData.description}>
-                                    Description
+                                <FieldLabel ok={!!formData.description.trim()}>
+                                    Description <span className="text-slate-400 text-[10px]">(Optional)</span>
                                 </FieldLabel>
                                 <Textarea
                                     name="description"
                                     value={formData.description}
                                     onChange={handleChange}
-                                    placeholder="Provide a detailed description of the project…"
+                                    placeholder="Provide a detailed description of the project (optional)…"
                                     rows={5}
                                     className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
                                 />
@@ -360,7 +344,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </div>
                     </section>
 
-                    {/* BANNER */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Banner Image" />
 
@@ -398,7 +381,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         )}
                     </section>
 
-                    {/* TABS TOGGLE */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <div className="flex items-center justify-between">
                             <div>
@@ -415,7 +397,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </div>
                     </section>
 
-                    {/* TABS or GALLERY */}
                     {formData.hasTabs ? (
                         <section className="bg-white border border-slate-200 rounded-xl p-5">
                             <div className="flex items-center justify-between mb-4">
@@ -524,7 +505,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </section>
                     )}
 
-                    {/* mobile footer */}
                     <div className="flex sm:hidden gap-2">
                         <Button
                             type="submit"
@@ -539,10 +519,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     </div>
                 </div>
 
-                {/* ── sidebar ───────────────────────────── */}
                 <aside className="w-full xl:w-64 shrink-0">
                     <div className="xl:sticky xl:top-[108px] space-y-4">
-                        {/* completion */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xs font-medium text-slate-600">Completion</span>
@@ -556,32 +534,29 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                             <div className="space-y-1.5">
                                 {completion.map((item) => (
                                     <div key={item.label} className="flex items-center gap-2">
-                                        {item.ok ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> : <AlertCircle className="h-3.5 w-3.5 text-slate-200  shrink-0" />}
+                                        {item.ok ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> : <AlertCircle className="h-3.5 w-3.5 text-slate-200 shrink-0" />}
                                         <span className={`text-[11px] ${item.ok ? "text-slate-600" : "text-slate-400"}`}>{item.label}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* tips */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
                             <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                 <li>Banner: 1200×630 works great for all viewports.</li>
                                 <li>Use tabs to split images by room, area, or phase.</li>
                                 <li>Keep gallery images under 1 MB each for fast load.</li>
-                                <li>Short, clear descriptions improve SEO.</li>
+                                <li>Description is optional but improves SEO.</li>
                             </ul>
                         </div>
                     </div>
                 </aside>
             </form>
 
-            {/* ── Tab Modal ─────────────────────────────── */}
             {isTabModalOpen && currentTab && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
-                        {/* modal header */}
                         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
                             <div>
                                 <p className="text-sm font-semibold text-slate-800">{tabs.find((t) => t.tempId === currentTab.tempId) ? "Edit Tab" : "Add Tab"}</p>
@@ -592,9 +567,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                             </button>
                         </div>
 
-                        {/* modal body */}
                         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-                            {/* tab name */}
                             <div>
                                 <FieldLabel required ok={!!currentTab.name.trim()}>
                                     Tab Name
@@ -607,7 +580,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 />
                             </div>
 
-                            {/* tab images */}
                             <div>
                                 <FieldLabel required ok={currentTab.images.length > 0}>
                                     Images ({currentTab.images.length})
@@ -652,7 +624,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                             </div>
                         </div>
 
-                        {/* modal footer */}
                         <div className="flex items-center gap-2 px-5 py-4 border-t border-slate-100 shrink-0">
                             <Button
                                 type="button"

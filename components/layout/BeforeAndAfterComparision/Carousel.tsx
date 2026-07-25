@@ -1,3 +1,4 @@
+// components/layout/BeforeAndAfterComparision/Carousel.tsx
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -71,11 +72,29 @@ function ComparisonNudgeHandle({ nudgeKey }: { nudgeKey: number }) {
 }
 
 export function ComparisonCarousel() {
+    const isMobileOrTabletViewport = () => {
+        if (typeof window === "undefined") return false;
+        return window.matchMedia("(max-width: 1023.98px)").matches;
+    };
+
+    const isCompareSliderTarget = (target: EventTarget | null) => {
+        return target instanceof HTMLElement && !!target.closest("[data-compare-slider]");
+    };
+
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: false,
         align: "start",
         containScroll: "trimSnaps",
         dragFree: false,
+        watchDrag: (_, evt) => {
+            // On mobile/tablet, if the drag starts inside the compare slider,
+            // don't let Embla treat it as a carousel swipe.
+            if (isMobileOrTabletViewport() && isCompareSliderTarget(evt.target)) {
+                return false;
+            }
+
+            return true;
+        },
     });
 
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
@@ -241,44 +260,75 @@ export function ComparisonCarousel() {
                             ref={(el) => {
                                 slidesRef.current[index] = el;
                             }}
-                            className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 group sm:flex-[0_0_50%] lg:flex-[0_0_100%]"
+                            className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 group lg:flex-[0_0_100%]"
                         >
                             <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
                                 <div className="h-full sm:h-[500px] lg:h-[600px] relative">
                                     <span
                                         className="
-                                           absolute top-2 sm:top-4 left-2 sm:left-4 z-20
-                                            px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
-                                            bg-black/60 backdrop-blur-sm
-                                            text-white
-                                            text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
-                                            tracking-[1.5px] uppercase
-                                            rounded-full
-                                            pointer-events-none select-none
-                                        "
+                        absolute top-2 sm:top-4 left-2 sm:left-4 z-20
+                        px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
+                        bg-black/60 backdrop-blur-sm
+                        text-white
+                        text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
+                        tracking-[1.5px] uppercase
+                        rounded-full
+                        pointer-events-none select-none
+                    "
                                     >
                                         Before
                                     </span>
+
                                     <span
                                         className="
-                                            absolute top-2 sm:top-4 right-2 sm:right-4 z-20
-                                            px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
-                                            bg-black/60 backdrop-blur-sm
-                                            text-white
-                                            text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
-                                            tracking-[1.5px] uppercase
-                                            rounded-full
-                                            pointer-events-none select-none
-                                        "
+                        absolute top-2 sm:top-4 right-2 sm:right-4 z-20
+                        px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
+                        bg-black/60 backdrop-blur-sm
+                        text-white
+                        text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
+                        tracking-[1.5px] uppercase
+                        rounded-full
+                        pointer-events-none select-none
+                    "
                                     >
                                         After
                                     </span>
 
-                                    <ReactCompareSlider
-                                        itemOne={<ReactCompareSliderImage src={item.beforeImage} alt={`${item.title} - Before`} />}
-                                        itemTwo={<ReactCompareSliderImage src={item.afterImage} alt={`${item.title} - After`} />}
-                                        handle={<ComparisonNudgeHandle nudgeKey={nudgeKeys[index] ?? 0} />}
-                                    />
+                                    <div
+                                        data-compare-slider
+                                        className="h-full"
+                                        style={{ touchAction: "pan-y" }}
+                                        onPointerDownCapture={(e) => {
+                                            if (isMobileOrTabletViewport()) e.stopPropagation();
+                                        }}
+                                        onTouchStartCapture={(e) => {
+                                            if (isMobileOrTabletViewport()) e.stopPropagation();
+                                        }}
+                                        onMouseDownCapture={(e) => {
+                                            if (isMobileOrTabletViewport()) e.stopPropagation();
+                                        }}
+                                    >
+                                        <div
+                                            data-compare-slider
+                                            className="h-full"
+                                            style={{ touchAction: "pan-y" }}
+                                            onPointerDownCapture={(e) => {
+                                                if (isMobileOrTabletViewport()) e.stopPropagation();
+                                            }}
+                                            onTouchStartCapture={(e) => {
+                                                if (isMobileOrTabletViewport()) e.stopPropagation();
+                                            }}
+                                            onMouseDownCapture={(e) => {
+                                                if (isMobileOrTabletViewport()) e.stopPropagation();
+                                            }}
+                                        >
+                                            <ReactCompareSlider
+                                                itemOne={<ReactCompareSliderImage src={item.beforeImage} alt={`${item.title} - Before`} />}
+                                                itemTwo={<ReactCompareSliderImage src={item.afterImage} alt={`${item.title} - After`} />}
+                                                handle={<ComparisonNudgeHandle nudgeKey={nudgeKeys[index] ?? 0} />}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -293,10 +343,10 @@ export function ComparisonCarousel() {
                             <button
                                 key={`dot-${index}`}
                                 onClick={() => scrollTo(index)}
-                                className={`pointer-events-auto transition-all duration-300  leading-0 h-8.5 ${
+                                className={`pointer-events-auto transition-all duration-300 leading-0 h-8.5 ${
                                     index === selectedIndex
                                         ? "bg-white text-footer-bg font-helvetica-neue-roman w-full px-3.5 border border-slate-200 shadow"
-                                        : "bg-slate-100 text-footer-bg font-helvetica w-full h-12 px-3.5 hover:bg-slate-400"
+                                        : "bg-slate-100 text-footer-bg font-helvetica w-full px-3.5 hover:bg-slate-400"
                                 }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             >

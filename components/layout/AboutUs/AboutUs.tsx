@@ -119,7 +119,7 @@ export default function AboutUs() {
 
     return (
         <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
-            <header className="grid lg:grid-cols-[460px_1fr] gap-10 items-start">
+            <header className="grid lg:grid-cols-[460px_1fr] gap-y-1 gap-x-10 items-start">
                 <SubHeading title="The team behind every celebration" />
                 <HeaderDescription
                     description="Eventify is a Dubai-born events company redefining how people experience culture, entertainment, and live moments. Built by industry leaders and creatives who have helped shape the region’s event scene for over two decades, Eventify thrives at the intersection of ideas, energy, and execution."
@@ -131,7 +131,7 @@ export default function AboutUs() {
             <div className="flex items-center justify-center flex-col-reverse lg:flex-row w-full mt-5 lg:mt-9 gap-2.5">
                 {/* Left – Cards */}
                 <div className="w-full">
-                    <div className="space-y-2.5">
+                    <div className="space-y-2.5 space-x-2.5 flex flex-row lg:flex-col">
                         <CardFlip
                             className="w-full lg:w-[288px] h-48 lg:h-51.25"
                             title="What makes Eventify different is simple, people come back."
@@ -151,7 +151,7 @@ export default function AboutUs() {
                 </div>
 
                 {/* Right – Image with wipe-reveal animation */}
-                <div className="w-full lg:w-245.5 shrink-0">
+                <div className="w-full lg:w-245.5 md:h-100 shrink-0">
                     {/* Outer: clips the reveal. Invisible until GSAP activates it */}
                     <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-158.75 overflow-hidden">
                         <Image

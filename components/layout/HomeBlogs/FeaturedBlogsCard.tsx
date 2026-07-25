@@ -99,7 +99,7 @@ export default function FeaturedBlogsCard() {
 
     return (
         <div ref={cardRef} className="max-w-3xl max-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative mb-16 lg:mb-0" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            <Link href={`/blogs/${blog.slug}`} className="block">
+            <Link href={`/blogs/${blog.slug}`} className="block w-full h-full">
                 <figure className="w-full h-full">
                     <Image src={featuredImage} width={1000} height={1000} alt={altText} className="w-full h-full object-cover object-center" priority />
                 </figure>
@@ -110,10 +110,6 @@ export default function FeaturedBlogsCard() {
                 <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
                 <div className="relative w-full h-full flex flex-col items-center justify-center px-5 lg:px-7.5 py-5 lg:py-7.5">
                     <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
-
-                    <p className="mt-2 text-center text-xs text-white/90">
-                        By {blog.author.name} • {blog.category.name} • {blog.viewCount.toLocaleString()} views
-                    </p>
 
                     <p className="absolute px-7.5 w-full bottom-5 left-1/2 -translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
                         {truncatedDescription}

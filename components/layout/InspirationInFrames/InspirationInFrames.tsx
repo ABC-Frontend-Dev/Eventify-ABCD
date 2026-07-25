@@ -203,7 +203,9 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
 
     return (
         <li
-            className={["frame-item group w-full flex items-center justify-center relative overflow-hidden cursor-pointer", "lg:h-87.5", tall ? "h-48 sm:h-56" : "h-32 sm:h-40"].join(" ")}
+            className={["frame-item group w-full flex items-center justify-center relative overflow-hidden cursor-pointer", "lg:h-87.5", tall ? "h-48 sm:h-56 md:h-66" : "h-32 sm:h-40 md:h-52"].join(
+                " ",
+            )}
             onMouseEnter={(e) => {
                 setHovered(true);
                 onMouseEnter?.(index, e);

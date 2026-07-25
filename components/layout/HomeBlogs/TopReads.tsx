@@ -80,7 +80,7 @@ export default function TopReads() {
     }
 
     return (
-        <div className="max-w-122.5 w-full relative">
+        <div className="max-w-122.5 md:max-w-75 w-full relative">
             <div className="absolute -top-12 w-full flex items-end justify-between">
                 <h2 className="shrink-0 text-xl lg:text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg">Top reads</h2>
                 <Link href="/blogs" className="shrink-0 text-base font-helvetica text-primary text-center overflow-hidden max-w-max w-fit block">
@@ -113,15 +113,6 @@ export default function TopReads() {
                                 >
                                     <div className="relative flex h-full w-full flex-col items-center justify-center bg-black/60 px-5 py-5 lg:px-12.75 lg:py-7.5">
                                         <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
-
-                                        <p className="mt-2 text-center text-xs lg:text-sm leading-4 lg:leading-4.5 tracking-wider font-helvetica text-white/90">
-                                            {blog.author.name} • {blog.category.name}
-                                        </p>
-
-                                        <p className="mt-3 text-center text-xs text-white/80 flex items-center justify-center gap-1">
-                                            <TrendingUp className="h-3 w-3" />
-                                            {blog.viewCount.toLocaleString()} views
-                                        </p>
 
                                         <p className="mt-3 text-center text-xs lg:text-sm leading-4 lg:leading-4.5 tracking-wider font-helvetica text-white">{truncatedDescription}</p>
                                     </div>

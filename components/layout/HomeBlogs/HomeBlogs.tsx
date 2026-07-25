@@ -15,7 +15,7 @@ export default function HomeBlogs() {
             </header>
 
             <div className="">
-                <div className="flex items-center justify-center flex-col lg:flex-row w-full mt-9 gap-y-1.5 lg:gap-5.5">
+                <div className="flex items-center justify-center flex-col md:flex-row lg:flex-row w-full mt-9 gap-y-1.5 lg:gap-5.5">
                     <BlogsCard />
                 </div>
                 {/* <div className="mt-5">
