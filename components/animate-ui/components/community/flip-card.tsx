@@ -119,8 +119,8 @@ export function FlipCard({ data, className, disableFlip = false }: FlipCardProps
 
                     {/* Content */}
                     <div className="absolute inset-0 px-3.5 py-2 flex flex-col justify-end text-white bg-gradient-to-t from-black/80 to-transparent">
-                        <h3 className="text-white font-helvetica-medium font-bold text-base capitalize">{data.title}</h3>
-                        <p className="text-white font-helvetica text-sm uppercase">{data.description}</p>
+                        <h3 className="text-white font-helvetica-medium font-bold text-sm capitalize">{data.title}</h3>
+                        <p className="text-white font-helvetica text-xs uppercase">{data.description}</p>
                     </div>
                 </motion.div>
             )}

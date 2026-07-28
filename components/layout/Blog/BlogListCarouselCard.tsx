@@ -107,19 +107,19 @@ export function EmblaCarousel({ blogs = [], loading = false }: EmblaCarouselProp
                                     <Image src={blog.thumbnail} alt={blog.thumbnailAlt || blog.title} width={1000} height={1000} className="h-full w-full object-cover" />
                                 </figure>
                                 <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
-                                    <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-product-sans-bold font-medium text-white line-clamp-2">{blog.title}</div>
+                                    <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-helvetica-medium font-medium text-white line-clamp-2">{blog.title}</div>
                                     <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
                                         <ul className="flex items-center gap-1.5">
                                             <li>
-                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.author.name}</p>
+                                                <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{blog.author.name}</p>
                                             </li>
                                             <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                             <li>
-                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(blog.createdAt)}</p>
+                                                <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{formatDate(blog.createdAt)}</p>
                                             </li>
                                             <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                             <li>
-                                                <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.timeToRead}</p>
+                                                <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{blog.timeToRead}</p>
                                             </li>
                                         </ul>
                                     </div>

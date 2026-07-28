@@ -1,4 +1,4 @@
-// app/(frontend)/blog/page.tsx
+// app/(frontend)/blogs/page.tsx
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
@@ -122,7 +122,7 @@ function BlogListContent() {
                 <div className="flex items-start justify-center flex-col lg:flex-row gap-5">
                     {/* Left: First large blog */}
                     <div className="max-w-full lg:max-w-157.5 w-full h-full relative">
-                        <Link href={`/blog/${displayBlogs[0].slug}`}>
+                        <Link href={`/blogs/${displayBlogs[0].slug}`}>
                             <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                 {displayBlogs[0].category.name}
                             </div>
@@ -130,22 +130,22 @@ function BlogListContent() {
                                 <Image src={displayBlogs[0].thumbnail} alt={displayBlogs[0].thumbnailAlt || displayBlogs[0].title} width={1000} height={1000} className="h-full w-full object-cover" />
                             </figure>
                             <div className="absolute w-full bottom-0 left-0 p-5 blog-page-gradient z-10">
-                                <div className="text-sm lg:text-[20px] leading-4.5 lg:leading-6.5 tracking-wide font-product-sans-bold font-extralight text-white line-clamp-2">
+                                <div className="text-sm lg:text-[20px] leading-4.5 lg:leading-6.5 tracking-wide font-helvetica-medium font-extralight text-white line-clamp-2">
                                     {displayBlogs[0].title}
                                 </div>
                                 <div className="hidden lg:block mt-2 text-sm leading-4 tracking-wide text-white font-helvetica font-light">{displayBlogs[0].description}</div>
                                 <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
                                     <ul className="flex items-center gap-1.5">
                                         <li>
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[0].author.name}</p>
+                                            <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[0].author.name}</p>
                                         </li>
                                         <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                         <li>
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[0].createdAt)}</p>
+                                            <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[0].createdAt)}</p>
                                         </li>
                                         <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                         <li>
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[0].timeToRead}</p>
+                                            <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[0].timeToRead}</p>
                                         </li>
                                     </ul>
                                 </div>
@@ -157,7 +157,7 @@ function BlogListContent() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-3 lg:grid-rows-2 gap-y-5 lg:gap-5">
                         {displayBlogs[1] && (
                             <div className="col-span-2 relative">
-                                <Link href={`/blog/${displayBlogs[1].slug}`}>
+                                <Link href={`/blogs/${displayBlogs[1].slug}`}>
                                     <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                         {displayBlogs[1].category.name}
                                     </div>
@@ -171,19 +171,19 @@ function BlogListContent() {
                                         />
                                     </figure>
                                     <div className="absolute w-full bottom-0 left-0 px-5 py-[14.67px] blog-page-gradient z-10">
-                                        <div className="text-sm lg:text-[18px] leading-4.5 lg:leading-6.5 font-product-sans-bold font-medium text-white line-clamp-2">{displayBlogs[1].title}</div>
+                                        <div className="text-sm lg:text-[18px] leading-4.5 lg:leading-6.5 font-helvetica-medium font-medium text-white line-clamp-2">{displayBlogs[1].title}</div>
                                         <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
                                             <ul className="flex items-center gap-1.5">
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[1].author.name}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[1].author.name}</p>
                                                 </li>
                                                 <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[1].createdAt)}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[1].createdAt)}</p>
                                                 </li>
                                                 <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[1].timeToRead}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[1].timeToRead}</p>
                                                 </li>
                                             </ul>
                                         </div>
@@ -194,7 +194,7 @@ function BlogListContent() {
 
                         {displayBlogs[2] && (
                             <div className="row-start-2 col-start-1 relative">
-                                <Link href={`/blog/${displayBlogs[2].slug}`}>
+                                <Link href={`/blogs/${displayBlogs[2].slug}`}>
                                     <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                         {displayBlogs[2].category.name}
                                     </div>
@@ -208,19 +208,19 @@ function BlogListContent() {
                                         />
                                     </figure>
                                     <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
-                                        <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-product-sans-bold font-medium text-white line-clamp-2">{displayBlogs[2].title}</div>
+                                        <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-helvetica-medium font-medium text-white line-clamp-2">{displayBlogs[2].title}</div>
                                         <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
                                             <ul className="flex items-center gap-1.5">
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[2].author.name}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[2].author.name}</p>
                                                 </li>
                                                 <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[2].createdAt)}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[2].createdAt)}</p>
                                                 </li>
                                                 <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[2].timeToRead}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[2].timeToRead}</p>
                                                 </li>
                                             </ul>
                                         </div>
@@ -231,7 +231,7 @@ function BlogListContent() {
 
                         {displayBlogs[3] && (
                             <div className="row-start-3 lg:row-start-2 col-start-1 lg:col-start-2 relative">
-                                <Link href={`/blog/${displayBlogs[3].slug}`}>
+                                <Link href={`/blogs/${displayBlogs[3].slug}`}>
                                     <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                         {displayBlogs[3].category.name}
                                     </div>
@@ -245,19 +245,19 @@ function BlogListContent() {
                                         />
                                     </figure>
                                     <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
-                                        <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-product-sans-bold font-medium text-white line-clamp-2">{displayBlogs[3].title}</div>
+                                        <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-helvetica-medium font-medium text-white line-clamp-2">{displayBlogs[3].title}</div>
                                         <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
                                             <ul className="flex items-center gap-1.5">
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[3].author.name}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[3].author.name}</p>
                                                 </li>
                                                 <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[3].createdAt)}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{formatDate(displayBlogs[3].createdAt)}</p>
                                                 </li>
                                                 <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                                 <li>
-                                                    <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{displayBlogs[3].timeToRead}</p>
+                                                    <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{displayBlogs[3].timeToRead}</p>
                                                 </li>
                                             </ul>
                                         </div>
@@ -275,7 +275,7 @@ function BlogListContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {displayBlogs.map((blog) => (
                     <div key={blog.id} className="relative">
-                        <Link href={`/blog/${blog.slug}`}>
+                        <Link href={`/blogs/${blog.slug}`}>
                             <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                 {blog.category.name}
                             </div>
@@ -283,19 +283,19 @@ function BlogListContent() {
                                 <Image src={blog.thumbnail} alt={blog.thumbnailAlt || blog.title} width={1000} height={1000} className="h-full w-full object-cover" />
                             </figure>
                             <div className="absolute w-full bottom-0 left-0 p-5 blog-page-gradient z-10">
-                                <div className="text-sm lg:text-[18px] leading-4.5 lg:leading-6.5 tracking-wide font-product-sans-bold font-extralight text-white line-clamp-2">{blog.title}</div>
+                                <div className="text-sm lg:text-[18px] leading-4.5 lg:leading-6.5 tracking-wide font-helvetica-medium font-extralight text-white line-clamp-2">{blog.title}</div>
                                 <div className="mt-2 lg:mt-2.75 flex items-center gap-3">
                                     <ul className="flex items-center gap-1.5">
                                         <li>
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.author.name}</p>
+                                            <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{blog.author.name}</p>
                                         </li>
                                         <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                         <li>
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(blog.createdAt)}</p>
+                                            <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{formatDate(blog.createdAt)}</p>
                                         </li>
                                         <li className="w-1.5 h-1.5 rounded-full bg-white"></li>
                                         <li>
-                                            <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.timeToRead}</p>
+                                            <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{blog.timeToRead}</p>
                                         </li>
                                     </ul>
                                 </div>

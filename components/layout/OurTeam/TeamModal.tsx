@@ -153,8 +153,8 @@ export default function TeamModal({ member, isOpen, onClose, originRect }: TeamM
                                 transition: "opacity 250ms ease 150ms",
                             }}
                         >
-                            <h3 className="text-white font-product-sans-bold font-bold text-xl uppercase">{member.name}</h3>
-                            <p className="text-white font-product-sans-light text-[16px] uppercase">{member.role}</p>
+                            <h3 className="text-white font-helvetica-medium font-bold text-xl uppercase">{member.name}</h3>
+                            <p className="text-white font-helvetica-thin text-[16px] uppercase">{member.role}</p>
                         </div>
                     </div>
                 </div>

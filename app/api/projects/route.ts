@@ -7,6 +7,8 @@ type ProjectBody = {
     bannerImage: string;
     images: string[];
     categoryId: number;
+    clientId?: number | null; // ✅ NEW
+    projectClientLogo?: string | null; // ✅ NEW
     hasTabs?: boolean;
     tabs?: Array<{
         name: string;
@@ -22,6 +24,7 @@ export async function GET() {
             },
             include: {
                 category: true,
+                client: true, // ✅ NEW
                 tabs: {
                     orderBy: {
                         order: "asc",
@@ -65,12 +68,24 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        // ✅ NEW: Validate client if provided
+        if (body.clientId) {
+            const clientExists = await prisma.clients.findUnique({
+                where: { id: body.clientId },
+            });
+            if (!clientExists) {
+                return NextResponse.json({ success: false, error: "Client not found." }, { status: 404 });
+            }
+        }
+
         const newProject = await prisma.project.create({
             data: {
                 title: body.title,
                 description: body.description?.trim() || null,
                 bannerImage: body.bannerImage,
                 categoryId: body.categoryId,
+                clientId: body.clientId || null, // ✅ NEW
+                projectClientLogo: body.projectClientLogo || null, // ✅ NEW
                 hasTabs: body.hasTabs || false,
                 images: body.hasTabs ? [] : body.images,
                 tabs: body.hasTabs
@@ -86,6 +101,7 @@ export async function POST(request: NextRequest) {
             },
             include: {
                 category: true,
+                client: true, // ✅ NEW
                 tabs: true,
             },
         });

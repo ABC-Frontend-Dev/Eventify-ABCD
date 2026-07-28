@@ -7,6 +7,8 @@ type UpdateProjectBody = {
     bannerImage?: string;
     images?: string[];
     categoryId?: number;
+    clientId?: number | null; // ✅ NEW
+    projectClientLogo?: string | null; // ✅ NEW
     hasTabs?: boolean;
     tabs?: Array<{
         id?: number;
@@ -28,6 +30,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             where: { id: projectId },
             include: {
                 category: true,
+                client: true, // ✅ NEW
                 tabs: {
                     orderBy: { order: "asc" },
                 },
@@ -35,7 +38,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         });
 
         if (!project) {
-            return NextResponse.json({ success: false, message: "Project not found." }, { status: 404 });
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: `Project with id: ${projectId} not found.`,
+                },
+                { status: 404 },
+            );
         }
 
         return NextResponse.json({ success: true, data: project }, { status: 200 });
@@ -75,6 +84,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             }
         }
 
+        // ✅ NEW: Validate client if provided
+        if (body.clientId) {
+            const clientExists = await prisma.clients.findUnique({
+                where: { id: body.clientId },
+            });
+            if (!clientExists) {
+                return NextResponse.json({ success: false, message: "Client not found." }, { status: 404 });
+            }
+        }
+
         if (body.hasTabs !== undefined) {
             if (body.hasTabs) {
                 await prisma.projectTab.deleteMany({
@@ -106,10 +125,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 bannerImage: body.bannerImage ?? existingProject.bannerImage,
                 images: body.hasTabs ? [] : (body.images ?? existingProject.images),
                 categoryId: body.categoryId ?? existingProject.categoryId,
+                clientId: body.clientId !== undefined ? body.clientId : existingProject.clientId, // ✅ NEW
+                projectClientLogo: body.projectClientLogo !== undefined ? body.projectClientLogo : existingProject.projectClientLogo, // ✅ NEW
                 hasTabs: body.hasTabs ?? existingProject.hasTabs,
             },
             include: {
                 category: true,
+                client: true, // ✅ NEW
                 tabs: {
                     orderBy: { order: "asc" },
                 },

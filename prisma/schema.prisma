@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -17,10 +16,48 @@ model Model {
 }
 
 model Clients {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   description String?
   image       String
+  projects    Project[]
+  createdAt   DateTime @default(now())
+  
+  // FIX: Add @default(now()) so existing 24 rows get filled with the current time
+  updatedAt   DateTime @default(now()) @updatedAt 
+}
+
+model Project {
+  id                Int             @id @default(autoincrement())
+  title             String
+  description       String?
+  bannerImage       String
+  images            String[]
+  categoryId        Int
+  hasTabs           Boolean         @default(false)
+  clientId          Int?            
+  projectClientLogo String?         
+  category          ProjectCategory @relation(fields: [categoryId], references: [id])
+  client            Clients?        @relation(fields: [clientId], references: [id])
+  tabs              ProjectTab[]
+  createdAt         DateTime        @default(now())
+  
+  // FIX: Add @default(now()) so existing 23 rows get filled with the current time
+  updatedAt         DateTime        @default(now()) @updatedAt
+
+  @@index([categoryId])
+  @@index([clientId])
+}
+
+model ProjectTab {
+  id        Int      @id @default(autoincrement())
+  name      String
+  images    String[]
+  order     Int      @default(0)
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
 
 model ProjectCategory {
@@ -28,31 +65,6 @@ model ProjectCategory {
   name        String
   description String?
   project     Project[]
-}
-
-model Project {
-  id          Int             @id @default(autoincrement())
-  title       String
-  description String?
-  bannerImage String
-  categoryId  Int
-  hasTabs     Boolean         @default(false)  // Toggle for tabs
-  tabs        ProjectTab[]    // Relation to tabs
-  images      String[]        // Images if no tabs
-  category    ProjectCategory @relation(fields: [categoryId], references: [id])
-
-  @@index([categoryId])
-}
-
-model ProjectTab {
-  id        Int      @id @default(autoincrement())
-  name      String   // Tab name (e.g., "Interior", "Exterior", "Gallery")
-  images    String[] // Array of image URLs for this tab
-  order     Int      @default(0) // Display order
-  projectId Int
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@index([projectId])
 }
 
 model Author {
@@ -80,9 +92,7 @@ model Blog {
   metaTitle       String       @db.VarChar(60)
   keywords        String[]
   thumbnail       String
-  thumbnailAlt    String?
   banner_image    String
-  bannerImageAlt  String?
   canonical       String
   timeToRead      String?
   createdAt       DateTime     @default(now())
@@ -93,9 +103,10 @@ model Blog {
   metaDescription String       @db.VarChar(160)
   publishedAt     DateTime?
   status          BlogStatus   @default(DRAFT)
-  viewCount       Int          @default(0)
+  bannerImageAlt  String?
+  thumbnailAlt    String?
   lastViewedAt    DateTime?
-  
+  viewCount       Int          @default(0)
   author          Author       @relation(fields: [authorId], references: [id])
   category        BlogCategory @relation(fields: [categoryId], references: [id])
   views           BlogView[]
@@ -112,17 +123,10 @@ model BlogView {
   userIp    String?
   userAgent String?
   viewedAt  DateTime @default(now())
-  
   blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  
+
   @@index([blogId])
   @@index([viewedAt])
-}
-
-enum BlogStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
 }
 
 model User {
@@ -136,37 +140,32 @@ model User {
 }
 
 model ContactSubmission {
-  id          Int                    @id @default(autoincrement())
+  id          Int                     @id @default(autoincrement())
   name        String
   email       String
   phone       String
-  message     String                 @db.Text
+  message     String
   status      ContactSubmissionStatus @default(NEW)
-  submittedAt DateTime               @default(now())
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
+  submittedAt DateTime                @default(now())
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
 
   @@index([status])
   @@index([submittedAt])
 }
 
-enum ContactSubmissionStatus {
-  NEW
-  READ
-}
-
 model Service {
-  id        Int     @id @default(autoincrement())
-  title     String
-  url       String  @unique
-  description String @db.Text
-  content String @db.Text
-  image     String  // Main banner image
-  bannerImage String? // Background image (like the 55% right side image)
-  order     Int     @default(0)
-  images    ServiceImage[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int            @id @default(autoincrement())
+  title       String
+  url         String         @unique
+  description String
+  content     String
+  image       String
+  bannerImage String?
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  images      ServiceImage[]
 
   @@map("services")
 }
@@ -181,63 +180,61 @@ model ServiceImage {
 
   @@map("service_images")
 }
-// Add this to your existing schema.prisma
 
 model Award {
-  id          Int            @id @default(autoincrement())
-  year        Int
-  order       Int            @default(0)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  categories  AwardCategory[]
+  id         Int             @id @default(autoincrement())
+  year       Int             @unique
+  order      Int             @default(0)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  categories AwardCategory[]
 
-  @@unique([year]) // One award per year
   @@index([year])
 }
 
 model AwardCategory {
-  id                Int           @id @default(autoincrement())
-  name              String        // e.g., "WOW Awards Middle East"
-  icon              String        // Icon URL
-  iconAlt           String        // Alt text for icon
-  order             Int           @default(0)
-  gradientWidthClass String       @default("w-4/5") // CSS class for gradient width
-  awardId           Int
-  award             Award         @relation(fields: [awardId], references: [id], onDelete: Cascade)
-  carouselImages    AwardCarouselImage[]
-  items             AwardItem[]
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  icon               String
+  iconAlt            String
+  order              Int                  @default(0)
+  gradientWidthClass String               @default("w-4/5")
+  awardId            Int
+  carouselImages     AwardCarouselImage[]
+  award              Award                @relation(fields: [awardId], references: [id], onDelete: Cascade)
+  items              AwardItem[]
 
   @@index([awardId])
 }
 
 model AwardCarouselImage {
-  id          Int            @id @default(autoincrement())
-  url         String
-  order       Int            @default(0)
-  categoryId  Int
-  category    AwardCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  id         Int           @id @default(autoincrement())
+  url        String
+  order      Int           @default(0)
+  categoryId Int
+  category   AwardCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@index([categoryId])
 }
 
 model AwardItem {
-  id          Int            @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   title       String
   description String
-  order       Int            @default(0)
+  order       Int           @default(0)
   categoryId  Int
-  category    AwardCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    AwardCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@index([categoryId])
 }
 
 model Comparison {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   description String?
   beforeImage String
   afterImage  String
-  order       Int     @default(0)
+  order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -246,7 +243,7 @@ model Comparison {
 
 model TeamMember {
   id        Int      @id @default(autoincrement())
-  position  Int      @unique // 1-35, matches the fixed grid slot on the Teams page
+  position  Int      @unique
   name      String
   role      String
   image     String
@@ -254,4 +251,15 @@ model TeamMember {
   updatedAt DateTime @updatedAt
 
   @@index([position])
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContactSubmissionStatus {
+  NEW
+  READ
 }

@@ -21,6 +21,8 @@ interface SlotConfig {
     disableFlip?: boolean;
 }
 
+const COLLAGE_MAX_POSITION = 35;
+
 // Fixed layout — extracted from the original hardcoded grid. Do not reorder;
 // each entry's `position` must match the value admins choose in the form.
 const SLOT_LAYOUT: SlotConfig[] = [
@@ -68,7 +70,7 @@ interface GridItemProps {
     disableFlip?: boolean;
 }
 
-function GridItem({ member, className = "", showCaption = false, disableFlip = false }: GridItemProps) {
+function GridItem({ member, className = "", disableFlip = false }: GridItemProps) {
     return (
         <div className={`${className} aspect-square overflow-hidden`}>
             <FlipCard
@@ -106,22 +108,36 @@ export default function Teams() {
         }
     };
 
-    if (loading) return <TeamsSkeleton />; // swap for a loader component if you have one
+    if (loading) return <TeamsSkeleton />;
 
-    const memberByPosition = new Map(members.map((m) => [m.position, m]));
+    const collageMembers = members.filter((m) => m.position <= COLLAGE_MAX_POSITION);
+    const overflowMembers = members.filter((m) => m.position > COLLAGE_MAX_POSITION).sort((a, b) => a.position - b.position);
+    const memberByPosition = new Map(collageMembers.map((m) => [m.position, m]));
 
     return (
-        <div className="relative hidden lg:grid grid-cols-10 grid-rows-7 gap-x-1.5 gap-y-1">
-            {SLOT_LAYOUT.map((slot) => {
-                const member = memberByPosition.get(slot.position);
-                if (!member) return null; // empty slot until someone is assigned to it
+        <div className="hidden lg:block">
+            {/* Fixed collage layout — positions 1-35 */}
+            <div className="relative grid grid-cols-10 grid-rows-7 gap-x-1.5 gap-y-1">
+                {SLOT_LAYOUT.map((slot) => {
+                    const member = memberByPosition.get(slot.position);
+                    if (!member) return null; // empty slot until someone is assigned to it
 
-                return <GridItem key={slot.position} member={member} className={slot.className} showCaption={slot.showCaption} disableFlip={slot.disableFlip} />;
-            })}
+                    return <GridItem key={slot.position} member={member} className={slot.className} showCaption={slot.showCaption} disableFlip={slot.disableFlip} />;
+                })}
 
-            <div className="absolute bottom-14.5 left-5">
-                <Image src={"/images/our-teams/People Who Make Moments Happen.png"} alt="People Who Make Moments Happen" width={1000} height={1000} className="w-[319.92] h-20.5 object-contain" />
+                <div className="absolute bottom-14.5 left-5">
+                    <Image src={"/images/our-teams/People Who Make Moments Happen.png"} alt="People Who Make Moments Happen" width={1000} height={1000} className="w-[319.92] h-20.5 object-contain" />
+                </div>
             </div>
+
+            {/* Overflow members — auto-added below, grows as the team grows */}
+            {overflowMembers.length > 0 && (
+                <div className="grid grid-cols-10 gap-x-1.5 gap-y-1 mt-1.5">
+                    {overflowMembers.map((member) => (
+                        <GridItem key={member.id} member={member} />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -211,7 +211,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                         {/* Blog Header */}
                         <div className="absolute left-0 bottom-0 w-full h-68.5 lg:h-113.75 max-w-360 text-white bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,#000000_83.83%)]">
                             <div className="absolute left-0 bottom-0 px-4.5 lg:px-7.5 pb-4.5 lg:pb-7.5 w-full h-fit">
-                                <h1 className="mt-2 text-lg lg:text-[30px] leading-5.5 lg:leading-9 tracking-wide font-product-sans-bold font-bold text-white">{blog.title}</h1>
+                                <h1 className="mt-2 text-lg lg:text-[30px] leading-5.5 lg:leading-9 tracking-wide font-helvetica-medium font-bold text-white">{blog.title}</h1>
                                 <p className="mt-2 text-sm leading-4 tracking-wide text-white font-helvetica font-extralight">{blog.description}</p>
 
                                 <div className="mt-2.75 flex items-center gap-3">
@@ -221,17 +221,17 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                                     <div>
                                         <ul className="flex items-center gap-1.5">
                                             <li>
-                                                <p className="font-product-sans-medium font-normal text-white text-sm leading-3.5">{blog.author.name}</p>
+                                                <p className="font-helvetica-neue-roman font-normal text-white text-sm leading-3.5">{blog.author.name}</p>
                                             </li>
                                             <li className="w-1.5 h-1.5 rounded-full bg-white" />
                                             <li>
-                                                <p className="font-product-sans-medium font-normal text-white text-sm leading-3.5">{formatDate(blog.publishedAt || blog.createdAt)}</p>
+                                                <p className="font-helvetica-neue-roman font-normal text-white text-sm leading-3.5">{formatDate(blog.publishedAt || blog.createdAt)}</p>
                                             </li>
                                             {blog.timeToRead && (
                                                 <>
                                                     <li className="w-1.5 h-1.5 rounded-full bg-white" />
                                                     <li>
-                                                        <p className="font-product-sans-medium font-normal text-white text-sm leading-3.5">{blog.timeToRead}</p>
+                                                        <p className="font-helvetica-neue-roman font-normal text-white text-sm leading-3.5">{blog.timeToRead}</p>
                                                     </li>
                                                 </>
                                             )}

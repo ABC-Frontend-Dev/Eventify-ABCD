@@ -58,7 +58,7 @@ export function RelatedBlogList({ blogs }: RelatedBlogListProps) {
                             </div>
                             <div className="ml-3.75">
                                 <p className="font-helvetica font-semibold text-base leading-5 tracking-wider text-shadow-slate-600">{formatDate(item.createdAt)}</p>
-                                <p className="mt-1 font-product-sans-light font-semibold text-lg leading-6 tracking-wider group-hover:text-primary transition-colors">{truncate(item.title, 45)}</p>
+                                <p className="mt-1 font-helvetica font-semibold text-lg leading-6 tracking-wider group-hover:text-primary transition-colors">{truncate(item.title, 45)}</p>
                             </div>
                         </div>
                     </Link>
@@ -98,7 +98,7 @@ export function RelatedBlog() {
                             </div>
                             <div className="ml-3.75">
                                 <p className="font-helvetica font-semibold text-base leading-5 tracking-wider text-shadow-slate-600">{item.date}</p>
-                                <p className="mt-1 font-product-sans-light font-semibold text-lg leading-6 tracking-wider">{item.name}</p>
+                                <p className="mt-1 font-helvetica font-semibold text-lg leading-6 tracking-wider">{item.name}</p>
                             </div>
                         </div>
                     </div>

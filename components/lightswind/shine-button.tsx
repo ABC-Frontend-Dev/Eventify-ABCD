@@ -42,7 +42,7 @@ export const ShineButton = React.forwardRef<HTMLButtonElement, ShineButtonProps>
             onMouseEnter={() => setBgPos("right top")}
             onMouseLeave={() => setBgPos("left top")}
             {...motionProps}
-            className={`relative overflow-hidden inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-[5px] px-3.5 py-2 text-sm text-white font-product-sans-regular will-change-transform hover:opacity-95 ${className}`}
+            className={`relative overflow-hidden inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-[5px] px-3.5 py-2 text-sm text-white font-helvetica-neue-roman will-change-transform hover:opacity-95 ${className}`}
             style={{
                 backgroundImage,
                 backgroundSize: "280% auto",

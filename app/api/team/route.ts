@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 type TeamMemberBody = {
-    position: number;
+    position?: number; // omit for auto-added overflow members (36+)
     name: string;
     role: string;
     image: string;
 };
+
+const COLLAGE_MAX_POSITION = 35;
 
 export async function GET() {
     try {
@@ -29,41 +31,37 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: "Name, role, and image are required." }, { status: 400 });
         }
 
-        if (!body.position || body.position < 1 || body.position > 35) {
-            return NextResponse.json({ success: false, error: "Position must be between 1 and 35." }, { status: 400 });
-        }
+        let position: number;
 
-        const existing = await prisma.teamMember.findUnique({
-            where: { position: body.position },
-        });
+        if (body.position) {
+            // Explicit collage slot — must be within the fixed 1-35 layout.
+            if (body.position < 1 || body.position > COLLAGE_MAX_POSITION) {
+                return NextResponse.json({ success: false, error: `Collage slot must be between 1 and ${COLLAGE_MAX_POSITION}.` }, { status: 400 });
+            }
 
-        if (existing) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: `Slot ${body.position} is already taken by "${existing.name}".`,
-                },
-                { status: 400 },
-            );
+            const existing = await prisma.teamMember.findUnique({ where: { position: body.position } });
+
+            if (existing) {
+                return NextResponse.json({ success: false, error: `Slot ${body.position} is already taken by "${existing.name}".` }, { status: 400 });
+            }
+
+            position = body.position;
+        } else {
+            // No position given -> overflow member, auto-append to the end of the list.
+            const maxPosition = await prisma.teamMember.aggregate({ _max: { position: true } });
+            position = Math.max(maxPosition._max.position ?? 0, COLLAGE_MAX_POSITION) + 1;
         }
 
         const newMember = await prisma.teamMember.create({
             data: {
-                position: body.position,
+                position,
                 name: body.name,
                 role: body.role,
                 image: body.image,
             },
         });
 
-        return NextResponse.json(
-            {
-                success: true,
-                data: newMember,
-                message: "Team member created successfully.",
-            },
-            { status: 201 },
-        );
+        return NextResponse.json({ success: true, data: newMember, message: "Team member created successfully." }, { status: 201 });
     } catch (error) {
         console.error("POST /api/team error:", error);
         return NextResponse.json({ success: false, error: "Failed to create team member." }, { status: 500 });

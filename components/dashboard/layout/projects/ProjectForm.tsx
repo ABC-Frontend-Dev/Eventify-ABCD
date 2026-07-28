@@ -18,6 +18,12 @@ interface ProjectCategory {
     description: string | null;
 }
 
+interface Client {
+    id: number;
+    name: string;
+    image: string;
+}
+
 interface ProjectTab {
     id?: number;
     tempId: string;
@@ -32,6 +38,8 @@ interface ProjectFormProps {
         bannerImage: string;
         images: string[];
         categoryId: number;
+        clientId: number | null; // ✅ NEW
+        projectClientLogo: string | null; // ✅ NEW
         hasTabs: boolean;
         tabs: Array<{ id: number; name: string; images: string[]; order: number }>;
     };
@@ -65,10 +73,14 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     const [loading, setLoading] = useState(false);
     const [uploadingBanner, setUploadingBanner] = useState(false);
     const [uploadingImages, setUploadingImages] = useState(false);
+    const [uploadingProjectLogo, setUploadingProjectLogo] = useState(false); // ✅ NEW
     const [categories, setCategories] = useState<ProjectCategory[]>([]);
+    const [clients, setClients] = useState<Client[]>([]); // ✅ NEW
     const [loadingCategories, setLoadingCategories] = useState(true);
+    const [loadingClients, setLoadingClients] = useState(true); // ✅ NEW
     const [bannerFiles, setBannerFiles] = useState<File[]>([]);
     const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+    const [projectLogoFiles, setProjectLogoFiles] = useState<File[]>([]); // ✅ NEW
     const [isTabModalOpen, setIsTabModalOpen] = useState(false);
     const [currentTab, setCurrentTab] = useState<ProjectTab | null>(null);
     const [tabImageFiles, setTabImageFiles] = useState<File[]>([]);
@@ -80,6 +92,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         bannerImage: initialData?.bannerImage || "",
         images: initialData?.images || [],
         categoryId: initialData?.categoryId || 0,
+        clientId: initialData?.clientId || null, // ✅ NEW
+        projectClientLogo: initialData?.projectClientLogo || null, // ✅ NEW
         hasTabs: initialData?.hasTabs || false,
     });
 
@@ -102,6 +116,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     const isFormValid = completion.every((c) => c.ok);
 
     useEffect(() => {
+        // Fetch categories
         fetch("/api/project-categories")
             .then((r) => r.json())
             .then((d) => {
@@ -110,7 +125,18 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
             })
             .catch(() => toast.error("Failed to load categories"))
             .finally(() => setLoadingCategories(false));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // ✅ NEW: Fetch clients
+    useEffect(() => {
+        fetch("/api/clients")
+            .then((r) => r.json())
+            .then((d) => {
+                if (d.success) setClients(d.data);
+                else toast.error("Failed to load clients");
+            })
+            .catch(() => toast.error("Failed to load clients"))
+            .finally(() => setLoadingClients(false));
     }, []);
 
     useEffect(() => {
@@ -126,6 +152,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     bannerImage: d.bannerImage,
                     images: d.images || [],
                     categoryId: d.categoryId,
+                    clientId: d.clientId || null, // ✅ NEW
+                    projectClientLogo: d.projectClientLogo || null, // ✅ NEW
                     hasTabs: d.hasTabs || false,
                 });
                 if (d.tabs?.length) {
@@ -133,12 +161,14 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 }
             })
             .catch(() => toast.error("Failed to load project data"));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mode, projectId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((p) => ({ ...p, [name]: name === "categoryId" ? parseInt(value) : value }));
+        setFormData((p) => ({
+            ...p,
+            [name]: name === "categoryId" || name === "clientId" ? (value ? parseInt(value) : null) : value,
+        }));
     };
 
     const uploadFile = async (file: File): Promise<string | null> => {
@@ -171,6 +201,19 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
             toast.success(`${paths.length} image(s) uploaded`);
         }
         if (paths.length < files.length) toast.warning("Some images failed to upload");
+    };
+
+    // ✅ NEW: Handle project client logo upload
+    const handleProjectLogoUpload = async (files: File[]) => {
+        if (!files.length) return;
+        setUploadingProjectLogo(true);
+        const path = await uploadFile(files[0]).catch(() => null);
+        setUploadingProjectLogo(false);
+        setProjectLogoFiles([]);
+        if (path) {
+            setFormData((p) => ({ ...p, projectClientLogo: path }));
+            toast.success("Client logo uploaded");
+        } else toast.error("Failed to upload logo");
     };
 
     const handleTabImageUpload = async (files: File[]) => {
@@ -242,6 +285,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 body: JSON.stringify({
                     ...formData,
                     description: formData.description.trim() || null,
+                    clientId: formData.clientId || null, // ✅ NEW
+                    projectClientLogo: formData.projectClientLogo || null, // ✅ NEW
                     tabs: formData.hasTabs ? tabs.map(({ name, images }) => ({ name, images })) : undefined,
                 }),
             });
@@ -292,7 +337,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         type="submit"
                         form="project-form"
                         size="sm"
-                        disabled={loading || uploadingBanner || uploadingImages || !isFormValid}
+                        disabled={loading || uploadingBanner || uploadingImages || uploadingProjectLogo || !isFormValid}
                         className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white"
                     >
                         {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
@@ -340,6 +385,80 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                     className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
                                 />
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.description.length} chars</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ✅ NEW: Client Selection Section */}
+                    <section className="bg-white border border-slate-200 rounded-xl p-5">
+                        <SectionHeading label="Client (Optional)" />
+                        <div className="space-y-4">
+                            <div>
+                                <FieldLabel>Select Client</FieldLabel>
+                                <select name="clientId" value={formData.clientId || ""} onChange={handleChange} className={sel} disabled={loadingClients}>
+                                    <option value="">{loadingClients ? "Loading clients…" : "Select a client…"}</option>
+                                    {clients.map((c) => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="mt-1 text-[11px] text-slate-400">Select an existing client or upload a custom logo below</p>
+                            </div>
+
+                            {/* Client preview */}
+                            {formData.clientId && clients.find((c) => c.id === formData.clientId) && (
+                                <div className="p-3 rounded-lg border border-slate-100 bg-slate-50">
+                                    <p className="text-[11px] text-slate-500 mb-2">Selected Client:</p>
+                                    <div className="flex items-center gap-3">
+                                        <img src={clients.find((c) => c.id === formData.clientId)?.image} alt="Client logo" className="h-10 w-auto object-contain" />
+                                        <span className="text-sm font-medium text-slate-800">{clients.find((c) => c.id === formData.clientId)?.name}</span>
+                                        <button type="button" onClick={() => setFormData((p) => ({ ...p, clientId: null }))} className="ml-auto text-xs text-slate-400 hover:text-red-500">
+                                            Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Custom logo upload */}
+                            <div>
+                                <FieldLabel ok={!!formData.projectClientLogo}>
+                                    Custom Client Logo <span className="text-slate-400 text-[10px]">(Optional - Not visible to clients)</span>
+                                </FieldLabel>
+                                <p className="text-[11px] text-slate-400 mb-2">Upload a custom logo if the client doesn't exist in the list above</p>
+
+                                <ImageUploader
+                                    files={projectLogoFiles}
+                                    onChange={(f) => {
+                                        setProjectLogoFiles(f);
+                                        handleProjectLogoUpload(f);
+                                    }}
+                                    maxFiles={1}
+                                    maxSize={5}
+                                    accept="image/*"
+                                />
+
+                                {uploadingProjectLogo && (
+                                    <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading logo…
+                                    </div>
+                                )}
+
+                                {formData.projectClientLogo && !uploadingProjectLogo && (
+                                    <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100 w-fit">
+                                        <img src={formData.projectClientLogo} alt="Custom client logo" className="h-16 w-auto object-contain p-2" />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData((p) => ({ ...p, projectClientLogo: null }));
+                                                setProjectLogoFiles([]);
+                                            }}
+                                            className="absolute top-1 right-1 p-1 rounded-md bg-white/90 shadow text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
+                                        >
+                                            <X className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>
@@ -510,7 +629,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                             type="submit"
                             form="project-form"
                             size="sm"
-                            disabled={loading || uploadingBanner || uploadingImages || !isFormValid}
+                            disabled={loading || uploadingBanner || uploadingImages || uploadingProjectLogo || !isFormValid}
                             className="flex-1 h-9 text-xs bg-slate-900 hover:bg-slate-700 text-white"
                         >
                             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
@@ -547,7 +666,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 <li>Banner: 1200×630 works great for all viewports.</li>
                                 <li>Use tabs to split images by room, area, or phase.</li>
                                 <li>Keep gallery images under 1 MB each for fast load.</li>
-                                <li>Description is optional but improves SEO.</li>
+                                <li>Client logo is optional and admin-only.</li>
                             </ul>
                         </div>
                     </div>

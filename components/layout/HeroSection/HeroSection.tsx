@@ -43,7 +43,7 @@ export default function HeroSection() {
             <div className="relative max-w-360 w-full mx-auto">
                 <div className="absolute left-0 lg:left-7.5 bottom-17.5 max-w-360 w-full mx-auto pl-5 lg:pl-12 pr-20 lg:pr-40 overflow-hidden">
                     <div className="overflow-hidden">
-                        <h1 ref={h1Ref} className="font-product-sans-light font-medium text-3xl lg:text-[70px] leading-8 lg:leading-20 text-white mb-4 tracking-tight">
+                        <h1 ref={h1Ref} className="font-helvetica-neue-roman font-medium text-3xl lg:text-[70px] leading-8 lg:leading-20 text-white mb-4 tracking-tight">
                             Turning Moments Into, Spectacular Experiences
                         </h1>
                     </div>

@@ -85,10 +85,10 @@ function AnimatedField({ label, type = "text", as = "input", rows = 3, value, on
                     animate={{
                         y: active ? -26 : 0,
                         scale: active ? 0.78 : 1,
-                        color: focused ? "#5B1196" : active ? "#334155" : "#475569",
+                        color: focused ? "#5B1196" : active ? "#334155" : "#909aa9",
                     }}
                     transition={{ duration: 0.18, ease: easeOut }}
-                    className="pointer-events-none absolute left-1 top-5 origin-left text-xl font-product-sans-regular uppercase tracking-wide"
+                    className="pointer-events-none absolute left-1 top-5 origin-left text-sm font-helvetica-neue-roman uppercase tracking-wide"
                 >
                     {label}
                 </motion.label>
@@ -102,7 +102,7 @@ function AnimatedField({ label, type = "text", as = "input", rows = 3, value, on
                         onChange={onChange}
                         onFocus={() => setFocused(true)}
                         onBlur={() => setFocused(false)}
-                        className="relative z-[1] w-full resize-none border-0 bg-transparent pb-1 pt-4 text-lg font-product-sans-regular text-slate-950 outline-none"
+                        className="relative z-[1] w-full resize-none border-0 bg-transparent pb-1 pt-4 text-lg font-helvetica-neue-roman text-slate-950 outline-none"
                     />
                 ) : (
                     <input
@@ -113,7 +113,7 @@ function AnimatedField({ label, type = "text", as = "input", rows = 3, value, on
                         onChange={onChange}
                         onFocus={() => setFocused(true)}
                         onBlur={() => setFocused(false)}
-                        className="relative z-[1] w-full border-0 bg-transparent pt-5 text-lg leading-5 font-product-sans-regular text-slate-950 outline-none"
+                        className="relative z-[1] w-full border-0 bg-transparent pt-5 text-sm leading-5 font-helvetica-neue-roman text-slate-950 outline-none"
                     />
                 )}
 
@@ -165,7 +165,7 @@ function AnimatedField({ label, type = "text", as = "input", rows = 3, value, on
                         animate={{ opacity: 1, y: 0, height: "auto" }}
                         exit={{ opacity: 0, y: -4, height: 0 }}
                         transition={{ duration: 0.18, ease: easeOut }}
-                        className="mt-1 text-xs font-product-sans-regular text-red-500"
+                        className="mt-1 text-xs font-helvetica-neue-roman text-red-500"
                     >
                         {error}
                     </motion.p>
@@ -343,15 +343,15 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                 {submitted ? (
                                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-12 text-center">
                                         <CheckCircle2 className="h-16 w-16 text-green-600 mb-4" />
-                                        <h3 className="text-3xl font-product-sans-regular font-bold text-primary mb-2">Thank You!</h3>
+                                        <h3 className="text-3xl font-helvetica-neue-roman font-bold text-primary mb-2">Thank You!</h3>
                                         <p className="text-lg text-footer-bg">We've received your message and will get back to you soon.</p>
                                     </motion.div>
                                 ) : (
                                     <>
                                         <div>
-                                            <h3 className="text-4xl font-product-sans-regular tracking-wider font-bold uppercase leading-11 text-primary">Get In Touch</h3>
-                                            <h2 className="text-4xl font-product-sans-regular tracking-wider font-bold uppercase leading-11 text-footer-bg">Got A Project In Mind?</h2>
-                                            <p className="text-sm font-product-sans-regular text-footer-bg md:text-lg">We're here to answer any question you may have.</p>
+                                            <h3 className="text-4xl font-helvetica-neue-roman tracking-wider font-bold uppercase leading-11 text-primary">Get In Touch</h3>
+                                            <h2 className="text-4xl font-helvetica-neue-roman tracking-wider font-bold uppercase leading-11 text-footer-bg">Got A Project In Mind?</h2>
+                                            <p className="text-sm font-helvetica-neue-roman text-footer-bg md:text-lg">We're here to answer any question you may have.</p>
                                         </div>
 
                                         <form onSubmit={handleSubmit} className="mt-7.5 space-y-2">

@@ -46,10 +46,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ success: false, error: "Name, role, and image are required." }, { status: 400 });
         }
 
-        if (!body.position || body.position < 1 || body.position > 35) {
-            return NextResponse.json({ success: false, error: "Position must be between 1 and 35." }, { status: 400 });
-        }
-
         const existingMember = await prisma.teamMember.findUnique({
             where: { id: memberId },
         });
@@ -58,41 +54,34 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ success: false, error: "Team member not found." }, { status: 404 });
         }
 
-        // Check if new position is taken by another member
-        if (body.position !== existingMember.position) {
-            const positionTaken = await prisma.teamMember.findUnique({
-                where: { position: body.position },
-            });
+        // If position wasn't sent (overflow member being edited without touching placement), keep it as-is.
+        let position = existingMember.position;
+
+        if (body.position && body.position !== existingMember.position) {
+            if (body.position < 1) {
+                return NextResponse.json({ success: false, error: "Position must be at least 1." }, { status: 400 });
+            }
+
+            const positionTaken = await prisma.teamMember.findUnique({ where: { position: body.position } });
 
             if (positionTaken) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: `Slot ${body.position} is already taken by "${positionTaken.name}".`,
-                    },
-                    { status: 400 },
-                );
+                return NextResponse.json({ success: false, error: `Slot ${body.position} is already taken by "${positionTaken.name}".` }, { status: 400 });
             }
+
+            position = body.position;
         }
 
         const updatedMember = await prisma.teamMember.update({
             where: { id: memberId },
             data: {
-                position: body.position,
+                position,
                 name: body.name,
                 role: body.role,
                 image: body.image,
             },
         });
 
-        return NextResponse.json(
-            {
-                success: true,
-                data: updatedMember,
-                message: "Team member updated successfully.",
-            },
-            { status: 200 },
-        );
+        return NextResponse.json({ success: true, data: updatedMember, message: "Team member updated successfully." }, { status: 200 });
     } catch (error) {
         console.error("PUT /api/team/[id] error:", error);
         return NextResponse.json({ success: false, error: "Failed to update team member." }, { status: 500 });

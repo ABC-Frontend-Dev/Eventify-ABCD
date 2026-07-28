@@ -102,21 +102,21 @@ export function MobileViewBlogList() {
                         </figure>
                         <div className="absolute w-full bottom-0 left-0 p-4 blog-page-gradient z-10">
                             <div className="flex items-start justify-between gap-2 mb-2">
-                                <div className="text-xs font-product-sans-medium font-light text-white bg-primary/80 px-2 py-1 rounded w-fit capitalize">{blog.category.name}</div>
+                                <div className="text-xs font-helvetica-neue-roman font-light text-white bg-primary/80 px-2 py-1 rounded w-fit capitalize">{blog.category.name}</div>
                             </div>
-                            <div className="text-sm leading-4 font-product-sans-bold font-medium text-white line-clamp-2 mb-2">{blog.title}</div>
+                            <div className="text-sm leading-4 font-helvetica-medium font-medium text-white line-clamp-2 mb-2">{blog.title}</div>
                             <div className="flex items-center gap-2 flex-wrap">
                                 <ul className="flex items-center gap-1.5">
                                     <li>
-                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.author.name}</p>
+                                        <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{blog.author.name}</p>
                                     </li>
                                     <li className="w-1 h-1 rounded-full bg-white"></li>
                                     <li>
-                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{formatDate(blog.createdAt)}</p>
+                                        <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{formatDate(blog.createdAt)}</p>
                                     </li>
                                     <li className="w-1 h-1 rounded-full bg-white"></li>
                                     <li>
-                                        <p className="font-product-sans-medium font-normal text-white text-xs leading-3.5">{blog.timeToRead}</p>
+                                        <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{blog.timeToRead}</p>
                                     </li>
                                 </ul>
                             </div>

@@ -38,7 +38,7 @@ export default function Footer() {
                     <div className="hidden md:flex items-center justify-between">
                         <h2 className="text-xl lg:text-2xl font-helvetica leading-6 lg:leading-7.5 uppercase">
                             Contact us
-                            <span className="ml-4.75 font-product-sans-regular text-sm lg:text-xl leading-7 tracking-wider">
+                            <span className="ml-4.75 font-helvetica-neue-roman text-sm lg:text-xl leading-7 tracking-wider">
                                 <span className="capitalize">Email ID: </span>
                                 <Link href="#" className="lowercase">
                                     <GoesOutComesInUnderline label="connect@eventifyentertainment.com" direction="right" />
@@ -127,7 +127,7 @@ export default function Footer() {
                                 </SocialIcon>
                             </div>
                         </div>
-                        <span className="font-product-sans-regular text-sm lg:text-xl leading-7 tracking-wider">
+                        <span className="font-helvetica-neue-roman text-sm lg:text-xl leading-7 tracking-wider">
                             <span className="capitalize">Email ID: </span>
                             <Link href="#" className="lowercase text-xs sm:text-sm md:text-md">
                                 <GoesOutComesInUnderline label="connect@eventifyentertainment.com" direction="right" />

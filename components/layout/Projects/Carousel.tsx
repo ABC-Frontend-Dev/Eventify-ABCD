@@ -87,11 +87,11 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
 
                         return (
                             <div key={`slide-${index}`} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-103 group">
-                                <div className="relative overflow-hidden h-full">
+                                <div className="relative overflow-hidden h-103">
                                     {isVideoFile ? (
-                                        <video src={mediaUrl} className="w-full h-full object-cover" controls playsInline preload="metadata" />
+                                        <video src={mediaUrl} className="w-full h-103 object-cover" controls playsInline preload="metadata" />
                                     ) : (
-                                        <Image src={mediaUrl} alt={`Slide ${index + 1}`} width={1000} height={1000} className="w-full h-full object-cover" priority={index === 0} />
+                                        <Image src={mediaUrl} alt={`Slide ${index + 1}`} width={1000} height={1000} className="w-full h-103 object-cover" priority={index === 0} />
                                     )}
                                 </div>
                             </div>
@@ -102,11 +102,11 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
 
             {/* Navigation Buttons */}
             {displayMedia.length > 1 && (
-                <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(97%+20px)] h-full flex items-center justify-between gap-4 pointer-events-none">
+                <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(97%+0px)] h-full flex items-center justify-between gap-4 pointer-events-none">
                     <button
                         onClick={scrollPrev}
                         disabled={prevBtnDisabled}
-                        className="w-15 h-15 bg-white shadow-md cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white pointer-events-auto"
+                        className="w-8.75 h-8.75 rounded-full bg-white shadow-md cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white pointer-events-auto"
                         aria-label="Previous slide"
                     >
                         <ChevronLeft className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
@@ -115,7 +115,7 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
                     <button
                         onClick={scrollNext}
                         disabled={nextBtnDisabled}
-                        className="w-15 h-15 bg-white shadow-md cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white pointer-events-auto"
+                        className="w-8.75 h-8.75 rounded-full bg-white shadow-md cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white pointer-events-auto"
                         aria-label="Next slide"
                     >
                         <ChevronRight className="w-6 h-6 text-primary group-hover:text-white transition-colors" />

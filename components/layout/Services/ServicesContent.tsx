@@ -77,7 +77,7 @@ export default function ServicesContent() {
                                 of Commerce and Industry, Government of Dubai Media Office, Dubai Press Club, Brand Dubai and DP World
                             </p>
 
-                            <p className="mt-1.5 lg:mt-4.5 font-product-sans-medium text-xl text-footer-bg leading-6">Key Conferences executed by the team are:</p>
+                            <p className="mt-1.5 lg:mt-4.5 font-helvetica-neue-roman text-xl text-footer-bg leading-6">Key Conferences executed by the team are:</p>
 
                             <ul className="mt-1.5 lg:mt-2.5 ml-4.25 space-y-1 list-disc">
                                 <li>

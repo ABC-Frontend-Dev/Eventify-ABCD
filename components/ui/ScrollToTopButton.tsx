@@ -143,7 +143,7 @@ export default function ScrollToTopButton({
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.7 }}
                                     transition={crossfadeTransition}
-                                    className="text-xs font-product-sans-regular font-semibold tabular-nums"
+                                    className="text-xs font-helvetica-neue-roman font-semibold tabular-nums"
                                 >
                                     {percent}%
                                 </motion.span>

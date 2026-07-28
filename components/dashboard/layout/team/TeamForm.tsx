@@ -27,6 +27,8 @@ interface TeamFormProps {
     mode: "create" | "edit";
 }
 
+const COLLAGE_MAX_POSITION = 35;
+
 function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
     return (
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
@@ -55,6 +57,8 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
     const [files, setFiles] = useState<File[]>([]);
     const [takenPositions, setTakenPositions] = useState<number[]>([]);
 
+    const [placementMode, setPlacementMode] = useState<"collage" | "overflow">(initialData && initialData.position > COLLAGE_MAX_POSITION ? "overflow" : "collage");
+
     const [formData, setFormData] = useState({
         name: initialData?.name || "",
         role: initialData?.role || "",
@@ -66,10 +70,10 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
         () => [
             { label: "Member Name", ok: !!formData.name.trim() },
             { label: "Role", ok: !!formData.role.trim() },
-            { label: "Position", ok: !!formData.position },
+            { label: "Placement", ok: placementMode === "overflow" || !!formData.position },
             { label: "Photo", ok: !!formData.image },
         ],
-        [formData],
+        [formData, placementMode],
     );
 
     const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
@@ -102,6 +106,7 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                             position: response.data.data.position,
                             image: response.data.data.image,
                         });
+                        setPlacementMode(response.data.data.position > COLLAGE_MAX_POSITION ? "overflow" : "collage");
                     }
                 } catch (error) {
                     console.error("Error loading member:", error);
@@ -159,8 +164,8 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
             toast.warning("Please enter a role");
             return;
         }
-        if (!formData.position) {
-            toast.warning("Please select a position");
+        if (placementMode === "collage" && !formData.position) {
+            toast.warning("Please select a collage slot");
             return;
         }
         if (!formData.image.trim()) {
@@ -173,10 +178,12 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
             const url = mode === "create" ? "/api/team" : `/api/team/${memberId}`;
             const method = mode === "create" ? "POST" : "PUT";
 
+            const payload = placementMode === "collage" ? formData : { name: formData.name, role: formData.role, image: formData.image }; // no position -> backend auto-appends / keeps existing
+
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             const result = await res.json();
@@ -272,20 +279,53 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.role.length}/100</p>
                             </div>
 
-                            {/* Grid Position */}
+                            {/* Placement */}
                             <div>
-                                <FieldLabel required ok={!!formData.position}>
-                                    Grid Slot (Position) — 1 to 35
+                                <FieldLabel required ok={placementMode === "overflow" || !!formData.position}>
+                                    Placement
                                 </FieldLabel>
-                                <select name="position" value={formData.position} onChange={handleChange} className={`w-full border rounded-md px-3 ${inp}`}>
-                                    <option value="">Select a slot...</option>
-                                    {Array.from({ length: 35 }, (_, i) => i + 1).map((num) => (
-                                        <option key={num} value={num} disabled={takenPositions.includes(num) && formData.position !== num}>
-                                            Slot {num} {takenPositions.includes(num) && formData.position !== num ? "(taken)" : ""}
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="text-xs text-muted-foreground mt-1">This decides exactly where this person appears in the fixed team grid layout on the site.</p>
+
+                                <div className="flex gap-2 mb-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setPlacementMode("collage")}
+                                        className={`flex-1 h-9 text-xs rounded-md border transition-colors ${
+                                            placementMode === "collage" ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                                        }`}
+                                    >
+                                        Fixed Collage Slot
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setPlacementMode("overflow");
+                                            setFormData((p) => ({ ...p, position: "" }));
+                                        }}
+                                        className={`flex-1 h-9 text-xs rounded-md border transition-colors ${
+                                            placementMode === "overflow" ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                                        }`}
+                                    >
+                                        Team List
+                                    </button>
+                                </div>
+
+                                {placementMode === "collage" ? (
+                                    <>
+                                        <select name="position" value={formData.position} onChange={handleChange} className={`w-full border rounded-md px-3 ${inp}`}>
+                                            <option value="">Select a slot...</option>
+                                            {Array.from({ length: COLLAGE_MAX_POSITION }, (_, i) => i + 1).map((num) => (
+                                                <option key={num} value={num} disabled={takenPositions.includes(num) && formData.position !== num}>
+                                                    Slot {num} {takenPositions.includes(num) && formData.position !== num ? "(taken)" : ""}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="text-xs text-muted-foreground mt-1">This decides exactly where this person appears in the fixed collage layout on the site.</p>
+                                    </>
+                                ) : (
+                                    <p className="text-xs text-muted-foreground bg-slate-50 border border-slate-200 rounded-md px-3 py-2">
+                                        This member will be automatically added to the end of the team list below the collage — no slot number needed.
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </section>
@@ -310,22 +350,6 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
                             </div>
                         )}
-
-                        {/* {formData.image && !uploading && (
-                            <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100 bg-slate-50 p-4 flex items-center justify-center">
-                                <img src={formData.image} alt="Photo preview" className="h-32 w-32 object-cover rounded-md" />
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setFormData((p) => ({ ...p, image: "" }));
-                                        setFiles([]);
-                                    }}
-                                    className="absolute top-2 right-2 p-1 rounded-md bg-white/90 shadow text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
-                                >
-                                    <X className="h-3.5 w-3.5" />
-                                </button>
-                            </div>
-                        )} */}
 
                         {/* Readonly path */}
                         <div className="mt-4">
@@ -377,7 +401,8 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                             <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                 <li>Use square photos for best grid display.</li>
                                 <li>Keep photos under 200 KB for fast load.</li>
-                                <li>Grid positions 1-35 are fixed layout slots.</li>
+                                <li>Collage slots 1-35 are fixed layout positions.</li>
+                                <li>Team List members are auto-added below the collage in order.</li>
                             </ul>
                         </div>
                     </div>

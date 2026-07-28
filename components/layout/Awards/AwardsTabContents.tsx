@@ -29,8 +29,8 @@ function AwardYearPanel({ carouselImages, items, gradientWidthClass }: AwardYear
                 <ul className="grid grid-cols-2 justify-center items-center gap-1.25">
                     {items.map((award) => (
                         <li key={award.id} className="p-3 bg-white/10 backdrop-blur-lg w-51.25 h-25 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-                            <h3 className="font-product-sans-medium text-lg leading-6 text-white">{award.title}</h3>
-                            <p className="mt-0.75 font-product-sans-light text-[13px] leading-4 text-white tracking-wide">{award.description}</p>
+                            <h3 className="font-helvetica-neue-roman text-lg leading-6 text-white">{award.title}</h3>
+                            <p className="mt-0.75 font-helvetica text-[13px] leading-4 text-white tracking-wide">{award.description}</p>
                         </li>
                     ))}
                 </ul>

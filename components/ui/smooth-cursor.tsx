@@ -29,7 +29,7 @@ const CustomCursorSVG: FC<{ isHovering: boolean }> = ({ isHovering }) => {
         <motion.div
             className="relative"
             animate={{
-                scale: isHovering ? 1.2 : 1,
+                scale: isHovering ? 1 : 1,
             }}
             transition={{ duration: 0.3, ease: "easeOut" }}
         >

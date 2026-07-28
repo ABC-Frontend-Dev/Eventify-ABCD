@@ -225,19 +225,24 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
 
             {/* Instagram icon — scales + fades in from center */}
             <div
-                className="absolute top-1/2 left-1/2 z-30 pointer-events-none bg-white"
+                className="absolute top-1/2 left-1/2 z-30 pointer-events-none"
                 style={{
                     transform: hovered ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.5)",
                     opacity: hovered ? 1 : 0,
                     transition: hovered ? "transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.3s, opacity 0.35s ease 0.3s" : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
                 }}
             >
-                <Image src="/images/icons/instagram.png" alt="Instagram" width={1000} height={1000} className="w-6 sm:w-7 md:w-8 lg:w-10 h-6 sm:h-7 md:h-8 lg:h-10 object-contain drop-shadow-lg" />
+                <Image
+                    src="https://res.cloudinary.com/afdhm38k/image/upload/v1785233685/instagram-icon_eunrcy.png"
+                    alt="Instagram"
+                    width={1000}
+                    height={1000}
+                    className="w-6 sm:w-7 md:w-8 lg:w-10 h-6 sm:h-7 md:h-8 lg:h-10 object-contain drop-shadow-lg"
+                />
             </div>
 
             {/* Lines with stagger */}
-            <div className="absolute inset-0 z-20 pointer-events-none">
-                {/* Top horizontal */}
+            {/* <div className="absolute inset-0 z-20 pointer-events-none">
                 <div
                     className="absolute h-[1.25px] bg-white top-3.5"
                     style={{
@@ -247,7 +252,6 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
                         transition: "width 0.65s cubic-bezier(0.22,1,0.36,1) 0.25s",
                     }}
                 />
-                {/* Bottom horizontal */}
                 <div
                     className="absolute h-[1.25px] bg-white bottom-3.5"
                     style={{
@@ -257,7 +261,6 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
                         transition: "width 0.65s cubic-bezier(0.22,1,0.36,1) 0.25s",
                     }}
                 />
-                {/* Left vertical */}
                 <div
                     className="absolute w-[1.25px] bg-white left-3.5"
                     style={{
@@ -267,7 +270,6 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
                         transition: "height 0.45s cubic-bezier(0.22,1,0.36,1) 0.25s",
                     }}
                 />
-                {/* Right vertical */}
                 <div
                     className="absolute w-[1.25px] bg-white right-3.5"
                     style={{
@@ -277,7 +279,7 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
                         transition: "height 0.45s cubic-bezier(0.22,1,0.36,1) 0.25s",
                     }}
                 />
-            </div>
+            </div> */}
         </li>
     );
 }

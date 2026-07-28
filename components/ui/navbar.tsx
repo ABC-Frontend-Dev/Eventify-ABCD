@@ -46,20 +46,20 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
     const getColorForPage = () => {
         if (pathname.startsWith("/blog")) {
             return {
-                default: "font-product-sans-regular text-black/90 hover:text-black",
-                scrolled: "font-product-sans-regular text-black/90 hover:text-black",
+                default: "font-helvetica text-black/90 hover:text-black",
+                scrolled: "font-helvetica text-black/90 hover:text-black",
             };
         }
         if (pathname.startsWith("/services")) {
             return {
-                default: "font-product-sans-regular text-black/90 hover:text-black",
-                scrolled: "font-product-sans-regular text-black/90 hover:text-black",
+                default: "font-helvetica text-black/90 hover:text-black",
+                scrolled: "font-helvetica text-black/90 hover:text-black",
             };
         }
 
         return {
-            default: "font-product-sans-regular text-white/90 hover:text-white",
-            scrolled: "font-product-sans-regular text-black/90 hover:text-black",
+            default: "font-helvetica text-white/90 hover:text-white",
+            scrolled: "font-helvetica text-black/90 hover:text-black",
         };
     };
 

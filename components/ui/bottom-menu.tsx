@@ -69,7 +69,7 @@ export function MenuBar({ items, className, ...props }: MenuBarProps) {
                             "dark:border-border/50 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)]",
                         )}
                     >
-                        <span className="text-[13px] font-product-sans-regular font-medium leading-tight">{items[activeIndex].label}</span>
+                        <span className="text-[13px] font-helvetica-neue-roman font-medium leading-tight">{items[activeIndex].label}</span>
                     </motion.div>
                 )}
             </AnimatePresence>

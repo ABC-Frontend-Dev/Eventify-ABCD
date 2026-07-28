@@ -201,7 +201,7 @@ export default function BlogListHeader({ onSearchResults, onFiltersChange }: Blo
                                         <path d="M9 19h6" />
                                     </svg>
                                 </div>
-                                <div className="font-product-sans-medium text-[20px] capitalize">filter</div>
+                                <div className="font-helvetica-neue-roman text-[20px] capitalize">filter</div>
                             </div>
                             <div className="w-fit">
                                 <svg width="19" height="10" viewBox="0 0 19 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -214,7 +214,7 @@ export default function BlogListHeader({ onSearchResults, onFiltersChange }: Blo
                             <div className="flex flex-col outline-none">
                                 <DropdownMenuItem
                                     onClick={() => handleCategoryChange("")}
-                                    className="cursor-pointer p-3.25 font-product-sans-medium text-[20px] capitalize hover:bg-slate-100 transition-colors duration-100 border-b border-slate-200"
+                                    className="cursor-pointer p-3.25 font-helvetica-neue-roman text-[20px] capitalize hover:bg-slate-100 transition-colors duration-100 border-b border-slate-200"
                                 >
                                     All Categories
                                 </DropdownMenuItem>
@@ -228,7 +228,7 @@ export default function BlogListHeader({ onSearchResults, onFiltersChange }: Blo
                                         <DropdownMenuItem
                                             key={category.id}
                                             onClick={() => handleCategoryChange(category.id.toString())}
-                                            className="cursor-pointer p-3.25 font-product-sans-medium text-[20px] capitalize hover:bg-slate-100 transition-colors duration-100 border-b border-slate-200 last:border-0"
+                                            className="cursor-pointer p-3.25 font-helvetica-neue-roman text-[20px] capitalize hover:bg-slate-100 transition-colors duration-100 border-b border-slate-200 last:border-0"
                                         >
                                             <div className={`flex items-center gap-2 ${selectedCategory === category.id.toString() ? "text-primary font-bold" : ""}`}>
                                                 {selectedCategory === category.id.toString() && "✓ "}

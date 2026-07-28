@@ -24,7 +24,7 @@ const menuItems = [
 function ShareBtn() {
     return (
         <div className="flex items-center justify-start gap-3 mb-2 pb-3 border-b">
-            <p className="text-lg font-product-sans-medium">Share On:</p>
+            <p className="text-lg font-helvetica-neue-roman">Share On:</p>
             <MenuBar items={menuItems} />
         </div>
     );
