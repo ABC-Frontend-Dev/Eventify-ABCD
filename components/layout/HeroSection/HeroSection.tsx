@@ -128,7 +128,7 @@ export default function HeroSection() {
                     </div>
                 )}
 
-                <div className="absolute right-4 lg:right-1/2 bottom-2.5 lg:bottom-1.5 -translate-x-1/2">
+                <div className="absolute left-1/2 lg:left-1/2 bottom-2.5 lg:bottom-1.5 -translate-x-1/2">
                     <figure className="w-6.5 lg:w-10 h-10 mt2.5 lg:mt-3 animate-bounce mx-auto">
                         <Image src="/images/icons/arrow-down.png" alt="Down Arrow Icon" width={20} height={20} className="w-full h-full object-contain" />
                     </figure>

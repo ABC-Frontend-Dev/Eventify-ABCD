@@ -200,9 +200,9 @@ export default function Projects() {
                         <button
                             type="button"
                             onClick={handleLoadMoreClick}
-                            className="relative max-w-50 w-fit mx-auto mt-4 overflow-hidden block text-center h-10 cursor-pointer rounded-[5px] px-6 py-2 text-sm bg-[#252525] text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="relative max-w-50 w-fit mx-auto mt-4 overflow-hidden block text-center h-10 cursor-pointer px-6 py-2 text-sm bg-primary text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {allLoaded ? "View Less" : "Load More"}
+                            {allLoaded ? "View less projects" : "View more projects"}
                         </button>
                     )}
                 </div>
