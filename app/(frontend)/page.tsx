@@ -21,10 +21,10 @@ export default function Home() {
             <AboutUs />
             <OurClients />
             <OurServices />
-            <BeforeAndAfterComparision />
+            {/* <BeforeAndAfterComparision /> */}
             <OurTeam />
-            <Awards />
             <Projects />
+            <Awards />
             <HomeBlogs />
             <InspirationInFrames />
         </>

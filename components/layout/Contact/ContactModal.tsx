@@ -316,7 +316,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                             layoutId="contact-modal-shell"
                             transition={{ layout: morphTransition }}
                             onClick={(e) => e.stopPropagation()}
-                            className="relative w-full max-w-[850px] overflow-hidden rounded-[28px] bg-[#F4F4F4] shadow-[0_20px_70px_rgba(0,0,0,0.20)] ring-1 ring-black/5 will-change-transform"
+                            className="relative w-full max-w-[650px] overflow-hidden rounded-[8px] bg-[#F4F4F4] shadow-[0_20px_70px_rgba(0,0,0,0.20)] ring-1 ring-black/5 will-change-transform"
                         >
                             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.85),rgba(255,255,255,0)_45%)]" />
 
@@ -328,7 +328,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -4 }}
                                 transition={{ duration: 0.18, ease: easeOut }}
-                                className="absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-black shadow-sm backdrop-blur-md transition hover:bg-white md:right-6 md:top-6"
+                                className="absolute right-2.5 top-2.5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-black shadow-sm backdrop-blur-md transition hover:bg-white md:right-3 md:top-3"
                             >
                                 <X className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.8} />
                             </motion.button>
@@ -338,7 +338,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                                 exit={{ opacity: 0, scale: 0.985, filter: "blur(4px)" }}
                                 transition={{ duration: 0.2, ease: easeOut }}
-                                className="relative px-8 py-10 md:px-12.5"
+                                className="relative px-8 py-10 md:px-10.5"
                             >
                                 {submitted ? (
                                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-12 text-center">
@@ -349,7 +349,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                 ) : (
                                     <>
                                         <div>
-                                            <h3 className="text-4xl font-helvetica-neue-roman tracking-wider font-bold uppercase leading-11 text-primary">Get In Touch</h3>
+                                            {/* <h3 className="text-4xl font-helvetica-neue-roman tracking-wider font-bold uppercase leading-11 text-primary">Get In Touch</h3> */}
                                             <h2 className="text-4xl font-helvetica-neue-roman tracking-wider font-bold uppercase leading-11 text-footer-bg">Got A Project In Mind?</h2>
                                             <p className="text-sm font-helvetica-neue-roman text-footer-bg md:text-lg">We're here to answer any question you may have.</p>
                                         </div>
@@ -363,8 +363,9 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                             <button
                                                 type="submit"
                                                 disabled={submitting}
-                                                className="mt-4 flex h-18 w-full items-center justify-center rounded-full bg-[#252525] font-helvetica-medium text-xl font-bold uppercase text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="relative max-w-50 w-fit mx-auto mt-4 overflow-hidden block text-center h-10 cursor-pointer rounded-[5px] px-6 py-2 text-sm bg-[#252525] text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
+                                                {/* className="max-w-50 mx-auto mt-4 block h-10 w-fit px-6 text-center rounded-[4px] bg-[#252525] font-helvetica-medium text-xl font-bold uppercase text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" */}
                                                 {submitting ? (
                                                     <>
                                                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />

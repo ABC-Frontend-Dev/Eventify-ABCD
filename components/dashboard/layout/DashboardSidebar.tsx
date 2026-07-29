@@ -14,7 +14,7 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Home, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon, User2 } from "lucide-react";
+import { Home, Image, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon, User2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -40,6 +40,11 @@ const menuItems: MenuItem[] = [
         icon: Home,
         href: "/dashboard",
         live: true,
+    },
+    {
+        title: "Hero Section",
+        icon: Image,
+        href: "/dashboard/hero-section",
     },
     {
         title: "Clients",

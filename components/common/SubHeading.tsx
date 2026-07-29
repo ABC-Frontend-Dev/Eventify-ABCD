@@ -51,7 +51,7 @@ export default function SubHeading({ title }: SubHeadingProps) {
     return (
         <h3
             ref={textRef}
-            className="text-xl md:text-2xl lg:text-4xl leading-6 md:leading-7 lg:leading-10 font-helvetica-medium tracking-wider font-bold capitalize text-primary wrap-break-word"
+            className="text-xl md:text-2xl lg:text-4xl leading-6 md:leading-7 lg:leading-10 font-helvetica-medium font-bold capitalize text-primary wrap-break-word"
             style={{ willChange: "filter" }} // Optimize performance
         >
             {title}

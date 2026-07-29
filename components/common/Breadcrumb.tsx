@@ -8,11 +8,11 @@ export default function Breadcrumb({ props }: { props?: any }) {
 
     const pathSegments = pathname.split("/").filter(Boolean);
 
-    // Check if current page is a blog detail page: /blogs/some-slug
-    const isBlogDetailPage = pathSegments[0] === "blogs" && pathSegments.length > 1;
+    // Matches any route under /blogs/*
+    const isBlogPage = pathSegments[0] === "blogs" && pathSegments.length > 1;
 
-    const textColor = isBlogDetailPage ? "text-white" : "text-footer-bg";
-    const separatorColor = isBlogDetailPage ? "text-white" : "text-footer-bg";
+    const textColor = isBlogPage ? "text-footer-bg" : "text-white";
+    const separatorColor = isBlogPage ? "text-footer-bg" : "text-white";
 
     return (
         <ul className={`flex items-center flex-nowrap overflow-hidden w-full max-w-full gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>

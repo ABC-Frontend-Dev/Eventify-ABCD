@@ -7,7 +7,7 @@ import BlogsCard from "./BlogsCard";
 
 export default function HomeBlogs() {
     return (
-        <section id="blog" className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9 scroll-mt-14">
+        <section id="blogs" className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9 scroll-mt-14">
             <header>
                 <HeadingWithoutLogo title="blog" />
                 <SubHeading title="Inside the Event World" />

@@ -18,7 +18,7 @@ const sizeStyles: Record<NonNullable<ShineButtonProps["size"]>, { padding: strin
 };
 
 export const ShineButton = React.forwardRef<HTMLButtonElement, ShineButtonProps>(function ShineButton(
-    { label = "Shine now", onClick, className = "", size = "md", bgColor = "linear-gradient(325deg, hsl(217 100% 56%) 0%, hsl(194 100% 69%) 55%, hsl(217 100% 56%) 90%)", ...motionProps },
+    { label = "Shine now", onClick, className = "", size = "md", bgColor = "", ...motionProps },
     ref,
 ) {
     const { padding, fontSize } = sizeStyles[size];

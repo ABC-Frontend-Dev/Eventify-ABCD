@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { Readable } from "stream";
 
 cloudinary.config({
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -7,47 +8,73 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// ─── Config ───────────────────────────────────────────────────────────────────
+
 const FOLDER_MAP: Record<string, string> = {
     clients: "eventify/clients",
     blogs: "eventify/blogs",
     projects: "eventify/projects",
     services: "eventify/services",
     banners: "eventify/banners",
+    hero: "eventify/hero",
+    videos: "eventify/videos",
+    comparisons: "eventify/comparisons",
 };
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB default
+
+const FOLDER_SIZE_LIMITS: Record<string, { image?: number; video?: number }> = {
+    hero: {
+        image: 5 * 1024 * 1024, // 5 MB
+        video: 200 * 1024 * 1024, // 200 MB
+    },
+    videos: {
+        video: 200 * 1024 * 1024, // 200 MB
+    },
+};
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg", "video/quicktime", "video/x-msvideo"];
 const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
 
-const CONVERSION_CONFIG = {
-    webp: {
-        quality: 95,
-        progressive: true,
-    },
-    webm: {
-        quality: 95,
-        video_codec: "vp9",
-        audio_codec: "libopus",
-        bit_rate: "2000k",
-    },
-};
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatMB(bytes: number) {
+    return `${(bytes / (1024 * 1024)).toFixed(bytes % (1024 * 1024) === 0 ? 0 : 1)}MB`;
+}
+
+function uploadStream(buffer: Buffer, options: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+            if (error) return reject(error);
+            if (!result) return reject(new Error("No result from Cloudinary"));
+            resolve(result as Record<string, unknown>);
+        });
+
+        const readable = new Readable();
+        readable.push(buffer);
+        readable.push(null);
+        readable.pipe(stream);
+    });
+}
+
+// ─── Route config ─────────────────────────────────────────────────────────────
+
+export const maxDuration = 300; // 5 minutes for large videos
+export const dynamic = "force-dynamic";
+
+// ─── POST handler ─────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
-        const file = formData.get("file") as File;
+        const file = formData.get("file") as File | null;
         const folderKey = request.nextUrl.searchParams.get("folder") ?? "";
-        const imageQuality = request.nextUrl.searchParams.get("imageQuality") ? parseInt(request.nextUrl.searchParams.get("imageQuality")!) : CONVERSION_CONFIG.webp.quality;
-        const videoQuality = request.nextUrl.searchParams.get("videoQuality") ? parseInt(request.nextUrl.searchParams.get("videoQuality")!) : CONVERSION_CONFIG.webm.quality;
+
+        // ── Validation ─────────────────────────────────────────────────────────
 
         if (!file) {
             return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
-        }
-
-        if (file.size > MAX_FILE_SIZE) {
-            return NextResponse.json({ success: false, error: "File size exceeds 10 MB limit" }, { status: 400 });
         }
 
         if (!ALLOWED_TYPES.includes(file.type)) {
@@ -60,35 +87,61 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
+        const folderLimits = FOLDER_SIZE_LIMITS[folderKey];
+        const maxSize = (isVideo ? folderLimits?.video : folderLimits?.image) ?? MAX_FILE_SIZE;
+
+        if (file.size > maxSize) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: `File size exceeds ${formatMB(maxSize)} limit for this upload.`,
+                },
+                { status: 400 },
+            );
+        }
+
+        // ── Buffer ─────────────────────────────────────────────────────────────
+
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        const base64 = buffer.toString("base64");
-        const dataUri = `data:${file.type};base64,${base64}`;
 
-        const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
         const folder = FOLDER_MAP[folderKey] ?? (isVideo ? "eventify/videos" : "eventify/images");
 
-        const result = await cloudinary.uploader.upload(dataUri, {
-            folder,
-            resource_type: isVideo ? "video" : "image",
-            unique_filename: true,
-            overwrite: false,
-            ...(isVideo
-                ? {
-                      format: "webm",
-                      video_codec: CONVERSION_CONFIG.webm.video_codec,
-                      audio_codec: CONVERSION_CONFIG.webm.audio_codec,
-                      bit_rate: CONVERSION_CONFIG.webm.bit_rate,
-                      quality: videoQuality,
-                      flags: "progressive",
-                  }
-                : {
-                      format: "webp",
-                      quality: imageQuality,
-                      fetch_format: "auto",
-                      flags: "progressive",
-                  }),
-        });
+        // ── Cloudinary options ─────────────────────────────────────────────────
+
+        let uploadOptions: Record<string, unknown>;
+
+        if (isVideo) {
+            uploadOptions = {
+                folder,
+                resource_type: "video",
+                unique_filename: true,
+                overwrite: false,
+
+                // ✅ NO transcoding — store the original video as-is
+                // Cloudinary will just store whatever the user uploaded
+                // without re-encoding, preserving 100% original quality.
+            };
+        } else {
+            uploadOptions = {
+                folder,
+                resource_type: "image",
+                unique_filename: true,
+                overwrite: false,
+
+                // Images: convert to webp but at near-lossless quality
+                format: "webp",
+                quality: "auto:best", // Cloudinary picks the best quality automatically
+                fetch_format: "auto",
+            };
+        }
+
+        // ── Upload ─────────────────────────────────────────────────────────────
+
+        const result = await uploadStream(buffer, uploadOptions);
+
+        // ── Response ───────────────────────────────────────────────────────────
 
         return NextResponse.json(
             {
@@ -97,7 +150,7 @@ export async function POST(request: NextRequest) {
                 publicId: result.public_id,
                 filename: result.original_filename,
                 size: result.bytes,
-                type: isVideo ? "video/webm" : "image/webp",
+                type: isVideo ? (result.format as string) : "image/webp",
                 isVideo,
                 width: result.width,
                 height: result.height,

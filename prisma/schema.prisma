@@ -15,6 +15,40 @@ model Model {
   updatedAt DateTime @updatedAt
 }
 
+model HeroSection {
+  id           Int      @id @default(autoincrement())
+  mediaType    String   // "video" or "image"
+
+  // Video fields
+  videoUrl     String?
+  videoTitle   String?
+  videoDesc    String?
+
+  // Image fields (multiple)
+  images       HeroImage[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model HeroImage {
+  id           Int      @id @default(autoincrement())
+  heroId       Int
+  hero         HeroSection @relation(fields: [heroId], references: [id], onDelete: Cascade)
+
+  imageUrl     String
+  altText      String?  // Optional, fallback to title, then default
+  title        String?  // Optional
+  description  String?  // Optional
+  isActive     Boolean  @default(false) // Only one image can be active
+  order        Int      @default(0)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([heroId])
+}
+
 model Clients {
   id          Int      @id @default(autoincrement())
   name        String

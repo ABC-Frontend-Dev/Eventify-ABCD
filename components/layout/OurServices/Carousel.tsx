@@ -184,22 +184,23 @@ export function EmblaCarousel() {
                             onMouseLeave={() => handleCardLeave(index)}
                             className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
-                            <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
-                                <div className="w-full h-full">
-                                    <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />
-                                </div>
-
-                                <div
-                                    ref={(el) => {
-                                        overlayRefs.current[index] = el;
-                                    }}
-                                    className="absolute inset-0 bg-black opacity-0 pointer-events-none"
-                                />
-
-                                <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
-                                    <h3 className="mb-2 text-xl md:text-2xl leading-6.5 tracking-wide font-helvetica-medium text-white">{item.title}</h3>
+                            <Link href={`/services/${item.url}`} className="">
+                                <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
+                                    <div className="w-full h-full">
+                                        <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                                    </div>
 
                                     <div
+                                        ref={(el) => {
+                                            overlayRefs.current[index] = el;
+                                        }}
+                                        className="absolute inset-0 bg-black opacity-0 pointer-events-none"
+                                    />
+
+                                    <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
+                                        <h3 className="mb-2 text-xl md:text-2xl leading-6.5 tracking-wide font-helvetica-medium text-white">{item.title}</h3>
+
+                                        {/* <div
                                         className="
                                             grid grid-rows-[0fr] opacity-0
                                             group-hover:grid-rows-[1fr] group-hover:opacity-100
@@ -209,27 +210,28 @@ export function EmblaCarousel() {
                                         "
                                     >
                                         <p className="font-helvetica tracking-[1px] text-sm leading-4.5 overflow-hidden min-h-0">{item.description}</p>
+                                    </div> */}
                                     </div>
-                                </div>
 
-                                <Link
-                                    href={`/services/${item.url}`}
-                                    className="absolute top-3.5 right-3.5 px-3.75 py-2.5 bg-slate-100 rounded-[4px] overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer group/link"
-                                >
-                                    <p className="text-sm font-helvetica-neue-roman text-slate-950 capitalize flex items-center justify-center gap-2.5">
-                                        read more
-                                        <span className="w-3.5 h-3 inline-block">
-                                            <Image
-                                                src="/images/icons/arrow-right.png"
-                                                alt="Read more"
-                                                width={1000}
-                                                height={1000}
-                                                className="w-full h-full object-contain transition-transform duration-300 group-hover:translate-x-1 group-hover/link:-translate-x-0.5 group-hover/link:-rotate-45"
-                                            />
-                                        </span>
-                                    </p>
-                                </Link>
-                            </div>
+                                    {/* <Link
+                                        href={`/services/${item.url}`}
+                                        className="absolute top-3.5 right-3.5 px-3.75 py-2.5 bg-slate-100 rounded-[4px] overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer group/link"
+                                    >
+                                        <p className="text-sm font-helvetica-neue-roman text-slate-950 capitalize flex items-center justify-center gap-2.5">
+                                            read more
+                                            <span className="w-3.5 h-3 inline-block">
+                                                <Image
+                                                    src="/images/icons/arrow-right.png"
+                                                    alt="Read more"
+                                                    width={1000}
+                                                    height={1000}
+                                                    className="w-full h-full object-contain transition-transform duration-300 group-hover:translate-x-1 group-hover/link:-translate-x-0.5 group-hover/link:-rotate-45"
+                                                />
+                                            </span>
+                                        </p>
+                                    </Link> */}
+                                </div>
+                            </Link>
                         </div>
                     ))}
                 </div>

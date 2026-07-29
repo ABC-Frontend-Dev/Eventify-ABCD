@@ -187,26 +187,26 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
 
     const relatedBlogs = await getRelatedBlogs(blog.categoryId, blog.id);
     return (
-        <section className="mt-0 lg:mt-25 scroll-mt-14">
+        <section className="mt-0 lg:mt-16 scroll-mt-14">
             <ViewTracker slug={slug} />
-            <div className="absolute top-16 md:top-12 lg:top-16 left-0 w-full h-80 lg:h-140 overflow-hidden after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black/20 after:z-10 after:backdrop-blur-sm">
+            {/* <div className="absolute top-16 md:top-12 lg:top-16 left-0 w-full h-80 lg:h-140 overflow-hidden after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black/20 after:z-10 after:backdrop-blur-sm">
                 <figure>
                     <Image src={blog.banner_image || blog.thumbnail} alt={blog.title} width={1000} height={1000} priority className="w-full h-full object-cover" />
                 </figure>
-                <div className="max-w-360 px-5 lg:px-20 absolute left-1/2 -translate-x-1/2 top-6 md:top-12 lg:top-16 w-full z-20 text-white">
-                    <div className="text-xl lg:text-[40px] leading-6 lg:leading-10 font-helvetica font-bold tracking-wide">Blog</div>
-                    <Breadcrumb props={{ className: "mt-1.5 md:mt-3.5 text-white" }} />
-                </div>
-            </div>
+                </div> */}
 
             <div className="relative max-w-360 w-full mx-auto px-2.5 lg:px-20 pb-9 z-20">
-                <div className="mt-40 lg:mt-64 z-40">
+                <div className="max-w-360 text-footer-bg">
+                    {/* <div className="text-xl lg:text-[40px] leading-6 lg:leading-10 font-helvetica font-bold tracking-wide">Blog</div> */}
+                    <Breadcrumb props={{ className: "mt-1.5 md:mt-3.5 text-white" }} />
+                </div>
+                <div className="mt-40 lg:mt-6 z-40">
                     {/* Banner Image */}
                     <div className="relative rounded-[8px] overflow-hidden">
                         <BlogBannerReveal desktopSrc={blog.banner_image} mobileSrc={blog.thumbnail} alt={blog.title} />
-                        <div className="absolute top-1.5 lg:top-3.5 right-1.5 lg:right-3.5 border border-primary/80 bg-primary/80 rounded-[6px] py-1 px-2 md:px-3 capitalize text-sm lg:text-lg font-helvetica-thin md:font-helvetica-neue-roman tracking-wide w-fit text-white">
+                        {/* <div className="absolute top-1.5 lg:top-3.5 right-1.5 lg:right-3.5 border border-primary/80 bg-primary/80 rounded-[6px] py-1 px-2 md:px-3 capitalize text-sm lg:text-lg font-helvetica-thin md:font-helvetica-neue-roman tracking-wide w-fit text-white">
                             {blog.category.name}
-                        </div>
+                        </div> */}
 
                         {/* Blog Header */}
                         <div className="absolute left-0 bottom-0 w-full h-68.5 lg:h-113.75 max-w-360 text-white bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,#000000_83.83%)]">
@@ -243,21 +243,26 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                     </div>
 
                     {/* Blog Content and Sidebar */}
-                    <div className="flex items-start justify-between flex-col lg:flex-row gap-x-10 mt-5">
+                    <div className="mt-5 max-w-max w-full">
                         {/* Blog Content */}
-                        <div className="max-w-203 w-full">
+                        <div className="">
                             <BlogContent content={blog.content} />
                         </div>
 
                         {/* Sidebar */}
-                        <aside className="w-full max-w-107 pt-6 lg:sticky lg:top-25 self-start lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto">
+                        {/* <aside className="w-full max-w-107 pt-6 lg:sticky lg:top-25 self-start lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto">
                             <ShareBtn />
                             <BlogToc />
                             <div className="mt-10">
                                 <p className="text-lg lg:text-2xl font-helvetica leading-8 font-extrabold text-slate-950">Related Blogs</p>
                                 <RelatedBlogList blogs={relatedBlogs as any} />
                             </div>
-                        </aside>
+                        </aside> */}
+
+                        <div className="mt-10">
+                            <p className="text-lg lg:text-2xl font-helvetica leading-8 font-extrabold text-slate-950">Related Blogs</p>
+                            <RelatedBlogList blogs={relatedBlogs as any} />
+                        </div>
                     </div>
                 </div>
 

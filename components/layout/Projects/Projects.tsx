@@ -52,6 +52,12 @@ const isVideoFile = (url: string): boolean => {
     return videoExtensions.some((ext) => lowerUrl.endsWith(ext)) || lowerUrl.includes("/videos/");
 };
 
+// Load more / view less counts — mobile is < 768px (md breakpoint)
+const DESKTOP_INITIAL_COUNT = 9;
+const DESKTOP_INCREMENT = 6;
+const MOBILE_INITIAL_COUNT = 6;
+const MOBILE_INCREMENT = 4;
+
 export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
@@ -60,9 +66,28 @@ export default function Projects() {
     const [activeTab, setActiveTab] = useState("tab-all");
     const [activeInnerTab, setActiveInnerTab] = useState("");
 
+    const [isMobile, setIsMobile] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(DESKTOP_INITIAL_COUNT);
+
     useEffect(() => {
         fetchProjects();
     }, []);
+
+    // Track mobile vs desktop breakpoint (< 768px = mobile)
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+        const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+        updateIsMobile();
+
+        mediaQuery.addEventListener("change", updateIsMobile);
+        return () => mediaQuery.removeEventListener("change", updateIsMobile);
+    }, []);
+
+    // Reset visible count whenever the tab changes or the breakpoint flips
+    useEffect(() => {
+        setVisibleCount(isMobile ? MOBILE_INITIAL_COUNT : DESKTOP_INITIAL_COUNT);
+    }, [activeTab, isMobile]);
 
     const fetchProjects = async () => {
         try {
@@ -81,6 +106,21 @@ export default function Projects() {
     const categories = useMemo(() => Array.from(new Map(projects.map((project) => [project.category.id, project.category])).values()), [projects]);
 
     const filteredProjects = activeTab === "tab-all" ? projects : projects.filter((project) => project.categoryId === Number(activeTab.replace("tab-", "")));
+
+    const initialCount = isMobile ? MOBILE_INITIAL_COUNT : DESKTOP_INITIAL_COUNT;
+    const increment = isMobile ? MOBILE_INCREMENT : DESKTOP_INCREMENT;
+
+    const visibleProjects = filteredProjects.slice(0, visibleCount);
+    const allLoaded = visibleCount >= filteredProjects.length;
+    const showLoadMoreButton = filteredProjects.length > initialCount;
+
+    const handleLoadMoreClick = () => {
+        if (allLoaded) {
+            setVisibleCount(initialCount);
+        } else {
+            setVisibleCount((prev) => Math.min(prev + increment, filteredProjects.length));
+        }
+    };
 
     const openModal = (project: Project) => {
         setSelectedProject(project);
@@ -109,7 +149,7 @@ export default function Projects() {
     }
 
     return (
-        <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
+        <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14" id="projects">
             <MainTabs value={activeTab} onValueChange={setActiveTab}>
                 <header className="flex items-end md:items-start lg:items-end justify-between flex-col lg:flex-row gap-y-5">
                     <div>
@@ -134,7 +174,7 @@ export default function Projects() {
                 <div className="mt-4 lg:mt-9">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
                         <AnimatePresence mode="popLayout">
-                            {filteredProjects.map((project) => (
+                            {visibleProjects.map((project) => (
                                 <motion.div
                                     key={project.id}
                                     layout
@@ -155,6 +195,16 @@ export default function Projects() {
                             ))}
                         </AnimatePresence>
                     </div>
+
+                    {showLoadMoreButton && (
+                        <button
+                            type="button"
+                            onClick={handleLoadMoreClick}
+                            className="relative max-w-50 w-fit mx-auto mt-4 overflow-hidden block text-center h-10 cursor-pointer rounded-[5px] px-6 py-2 text-sm bg-[#252525] text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {allLoaded ? "View Less" : "Load More"}
+                        </button>
+                    )}
                 </div>
             </MainTabs>
 
@@ -180,11 +230,11 @@ export default function Projects() {
                                             <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
                                                 <div className="h-full w-full overflow-hidden relative">
                                                     <EmblaCarousel media={tab.images} />
-                                                    <div className="absolute bottom-5 right-5 flex items-center gap-3">
+                                                    {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
                                                         <div className="inline-block rounded-[4px] bg-white px-2 py-1">
                                                             <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
                                                         </div>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </TabsPanel>
                                         ))}
@@ -193,32 +243,18 @@ export default function Projects() {
                             ) : (
                                 <div className="h-full w-full overflow-hidden relative">
                                     <EmblaCarousel media={selectedProject.images} />
-                                    <div className="absolute bottom-5 right-5 flex items-center gap-3">
+                                    {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
                                         <div className="inline-block rounded-[4px] bg-white px-2 py-1">
                                             <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             )}
                         </div>
 
                         {/* Content Section - Flexible height */}
                         <div className="p-5 flex-shrink-0">
-                            {/* ✅ NEW: Show logo if exists (from client or custom) */}
-                            {selectedProject.client?.image || selectedProject.projectClientLogo ? (
-                                <figure className="mb-4 max-w-48">
-                                    <Image
-                                        src={selectedProject.projectClientLogo || selectedProject.client?.image || ""}
-                                        alt={selectedProject.client?.name || "Client logo"}
-                                        width={500}
-                                        height={200}
-                                        className="w-full h-auto object-contain"
-                                    />
-                                </figure>
-                            ) : (
-                                /* ✅ Show title when no logo */
-                                <p className="font-helvetica-medium text-2xl lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
-                            )}
+                            <p className="font-helvetica-medium text-2xl lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
                             {selectedProject.description && <p className="mt-2 font-helvetica-neue-roman text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>}
                         </div>
