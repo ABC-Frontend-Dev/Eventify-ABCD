@@ -22,10 +22,10 @@ interface CarouselItem {
 
 export function EmblaCarousel() {
     const [emblaRef, emblaApi] = useEmblaCarousel({
-        loop: false,
+        loop: true,
         align: "start",
-        containScroll: "trimSnaps",
         dragFree: false,
+        skipSnaps: false,
     });
 
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
@@ -38,6 +38,25 @@ export function EmblaCarousel() {
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
     const overlayRefs = useRef<(HTMLDivElement | null)[]>([]);
     const hoverTlsRef = useRef<(gsap.core.Timeline | null)[]>([]);
+
+    const autoplayRef = useRef<NodeJS.Timeout | null>(null);
+
+    const stopAutoplay = useCallback(() => {
+        if (autoplayRef.current) {
+            clearInterval(autoplayRef.current);
+            autoplayRef.current = null;
+        }
+    }, []);
+
+    const startAutoplay = useCallback(() => {
+        if (!emblaApi) return;
+        stopAutoplay();
+        autoplayRef.current = setInterval(() => {
+            if (!emblaApi) return;
+
+            emblaApi.scrollNext();
+        }, 2500);
+    }, [emblaApi, stopAutoplay]);
 
     // Fetch services from API
     useEffect(() => {
@@ -160,6 +179,12 @@ export function EmblaCarousel() {
         };
     }, []);
 
+    useEffect(() => {
+        if (!emblaApi) return;
+        startAutoplay();
+        return () => stopAutoplay();
+    }, [emblaApi, startAutoplay, stopAutoplay]);
+
     if (loading) {
         return (
             <div className="flex gap-4">
@@ -171,7 +196,7 @@ export function EmblaCarousel() {
     }
 
     return (
-        <div className="relative w-full" ref={containerRef}>
+        <div className="relative w-full" ref={containerRef} onMouseEnter={stopAutoplay} onMouseLeave={startAutoplay}>
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
                     {services.map((item, index) => (
