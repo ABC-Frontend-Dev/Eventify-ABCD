@@ -21,9 +21,29 @@ export function TabsList({
     return (
         <TabsPrimitive.List
             className={cn(
-                "relative z-0 flex flex-nowrap overflow-x-auto lg:overflow-hidden md:flex-wrap w-fit items-center justify-center py-8 px-[11.1px] bg-black/10 backdrop-blur-sm opacity-60",
+                // ── Layout ──────────────────────────────────────────────────
+                "relative z-0",
+
+                // Always single row — never wrap
+                "flex flex-nowrap",
+
+                // Scroll horizontally when tabs overflow, hide the scrollbar visually
+                "overflow-x-auto",
+                "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+
+                // ── Sizing & spacing ─────────────────────────────────────────
+                "w-full items-center justify-start",
+                "py-8 px-[11.1px]",
+
+                // ── Appearance ───────────────────────────────────────────────
+                "bg-black/10 backdrop-blur-sm opacity-60",
+
+                // ── Vertical orientation ─────────────────────────────────────
                 "data-[orientation=vertical]:flex-col",
-                variant === "default" ? "" : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-8 data-[orientation=horizontal]:opacity-100 ",
+
+                // ── Variant overrides ────────────────────────────────────────
+                variant === "underline" ? "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-8 data-[orientation=horizontal]:opacity-100" : "",
+
                 className,
             )}
             data-slot="tabs-list"
@@ -60,15 +80,10 @@ export function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props): R
     return (
         <TabsPrimitive.Panel
             className={cn(
-                // ── Override hidden attribute so CSS transitions work ──
-                // When [hidden]: force display:block, take out of flow, hide visually
                 "[&[hidden]]:!block [&[hidden]]:absolute [&[hidden]]:inset-x-0 [&[hidden]]:top-0",
                 "[&[hidden]]:opacity-0 [&[hidden]]:translate-y-3 [&[hidden]]:pointer-events-none",
-                // ── Active state (no [hidden]) ──
                 "opacity-100 translate-y-0",
-                // ── Transition ──
                 "transition-[opacity,transform] duration-350 ease-out",
-                // ── Base styles ──
                 "flex-1 outline-none relative",
                 className,
             )}
