@@ -54,10 +54,9 @@ model Clients {
   name        String
   description String?
   image       String
+  order       Int       @default(0)
   projects    Project[]
   createdAt   DateTime @default(now())
-  
-  // FIX: Add @default(now()) so existing 24 rows get filled with the current time
   updatedAt   DateTime @default(now()) @updatedAt 
 }
 
@@ -68,6 +67,7 @@ model Project {
   bannerImage       String
   images            String[]
   categoryId        Int
+  order             Int             @default(0)
   hasTabs           Boolean         @default(false)
   clientId          Int?            
   projectClientLogo String?         

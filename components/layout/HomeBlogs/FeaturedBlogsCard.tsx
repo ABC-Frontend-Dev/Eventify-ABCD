@@ -98,7 +98,7 @@ export default function FeaturedBlogsCard() {
     const truncatedDescription = blog.description.substring(0, 120) + (blog.description.length > 120 ? "..." : "");
 
     return (
-        <div ref={cardRef} className="max-w-3xl max-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative mb-16 lg:mb-0" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+        <div ref={cardRef} className="max-w-3xl max-full lg:min-h-168.5 h-46 lg:h-168.5 w-full relative mb-16 lg:mb-0" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             <Link href={`/blogs/${blog.slug}`} className="block w-full h-full">
                 <figure className="w-full h-full">
                     <Image src={featuredImage} width={1000} height={1000} alt={altText} className="w-full h-full object-cover object-center" priority />
@@ -106,12 +106,12 @@ export default function FeaturedBlogsCard() {
             </Link>
 
             {/* Floating overlay (GSAP animated) */}
-            <div ref={overlayRef} className="absolute inset-0 z-10 opacity-0 pointer-events-none" style={{ willChange: "opacity" }}>
+            <div ref={overlayRef} className="absolute w-full h-full inset-0 z-10 opacity-0 pointer-events-none" style={{ willChange: "opacity" }}>
                 <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
-                <div className="relative w-full h-full flex flex-col items-center justify-center px-5 lg:px-7.5 py-5 lg:py-7.5">
+                <div className="relative w-full flex flex-col gap-5 items-center justify-center h-46 lg:h-168.5 px-2.5 lg:px-7.5 py-5 lg:py-7.5">
                     <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
 
-                    <p className="absolute px-7.5 w-full bottom-5 left-1/2 -translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
+                    <p className="relative lg:absolute px-7.5 w-full lg:bottom-5 lg:left-1/2 lg:-translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
                         {truncatedDescription}
                         <span className="block mt-2">
                             <GoesOutComesInUnderline label="Read More" direction="right" />

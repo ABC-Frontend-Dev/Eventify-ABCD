@@ -95,7 +95,7 @@ export default function TopReads() {
                     const truncatedDescription = blog.description.substring(0, 80) + (blog.description.length > 80 ? "..." : "");
 
                     return (
-                        <div key={blog.id} className="blog-card group relative w-full h-32.5 lg:h-41 overflow-hidden cursor-pointer">
+                        <div key={blog.id} className="blog-card group relative w-full h-28 lg:h-41 overflow-hidden cursor-pointer">
                             <Link href={`/blogs/${blog.slug}`}>
                                 <figure className="w-full h-full">
                                     <Image
@@ -111,8 +111,8 @@ export default function TopReads() {
                                     className="absolute inset-0 z-20 translate-y-full opacity-100 transition-transform duration-500 ease-in-out group-hover:translate-y-0"
                                     style={{ willChange: "transform" }}
                                 >
-                                    <div className="relative flex h-full w-full flex-col items-center justify-center bg-black/60 px-5 py-5 lg:px-12.75 lg:py-7.5">
-                                        <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
+                                    <div className="relative flex h-full w-full flex-col items-center justify-center bg-black/60 px-4 py-4 lg:px-12.75 lg:py-7.5">
+                                        <p className="text-center text-sm lg:text-xl leading-4.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
 
                                         <p className="mt-3 text-center text-xs lg:text-sm leading-4 lg:leading-4.5 tracking-wider font-helvetica text-white">{truncatedDescription}</p>
                                     </div>

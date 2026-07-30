@@ -21,7 +21,7 @@ export function TabsList({
     return (
         <TabsPrimitive.List
             className={cn(
-                "relative z-0 flex flex-wrap w-fit items-center justify-center py-8 px-[11.1px] bg-black/10 backdrop-blur-sm opacity-60",
+                "relative z-0 flex flex-nowrap overflow-x-auto lg:overflow-hidden md:flex-wrap w-fit items-center justify-center py-8 px-[11.1px] bg-black/10 backdrop-blur-sm opacity-60",
                 "data-[orientation=vertical]:flex-col",
                 variant === "default" ? "" : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-8 data-[orientation=horizontal]:opacity-100 ",
                 className,

@@ -208,57 +208,59 @@ export default function Projects() {
                 </div>
             </MainTabs>
 
-            <Modal isOpen={isModalOpen} onClose={closeModal} className="w-full max-w-80 xxs:max-w-92 md:max-w-2xl lg:max-w-166 bg-white p-0" allowEasyClose={true}>
+            <Modal isOpen={isModalOpen} onClose={closeModal} className="w-full max-w-80 xxs:max-w-92 md:max-w-2xl lg:max-w-200 bg-white p-0" allowEasyClose={true}>
                 {selectedProject && (
-                    <div className="flex flex-col bg-white">
-                        {/* Media Section - Fixed height */}
-                        <div className="h-103 w-full flex-shrink-0 relative">
-                            {selectedProject.hasTabs && selectedProject.tabs.length > 0 ? (
-                                <MainTabs value={activeInnerTab} onValueChange={setActiveInnerTab} className="h-full flex flex-col">
-                                    <div className="flex-shrink-0 absolute left-5 top-5 z-20 bg-white">
-                                        <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
+                    <MainTabs value={activeInnerTab} onValueChange={setActiveInnerTab}>
+                        <div className="flex flex-col bg-white">
+                            {/* Media Section - Fixed height */}
+                            <div className="h-110 w-full flex-shrink-0 relative">
+                                {selectedProject.hasTabs && selectedProject.tabs.length > 0 ? (
+                                    <div className="h-full flex flex-col">
+                                        <div className="flex-1 overflow-hidden">
                                             {selectedProject.tabs.map((tab) => (
-                                                <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
-                                                    {tab.name}
-                                                </TabsTab>
+                                                <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
+                                                    <div className="h-full w-full overflow-hidden relative">
+                                                        <EmblaCarousel media={tab.images} />
+                                                        {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
+                                                            <div className="inline-block rounded-[4px] bg-white px-2 py-1">
+                                                                <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
+                                                            </div>
+                                                        </div> */}
+                                                    </div>
+                                                </TabsPanel>
                                             ))}
-                                        </TabsList>
-                                    </div>
-
-                                    <div className="flex-1 overflow-hidden">
-                                        {selectedProject.tabs.map((tab) => (
-                                            <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
-                                                <div className="h-full w-full overflow-hidden relative">
-                                                    <EmblaCarousel media={tab.images} />
-                                                    {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
-                                                        <div className="inline-block rounded-[4px] bg-white px-2 py-1">
-                                                            <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
-                                                        </div>
-                                                    </div> */}
-                                                </div>
-                                            </TabsPanel>
-                                        ))}
-                                    </div>
-                                </MainTabs>
-                            ) : (
-                                <div className="h-full w-full overflow-hidden relative">
-                                    <EmblaCarousel media={selectedProject.images} />
-                                    {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
-                                        <div className="inline-block rounded-[4px] bg-white px-2 py-1">
-                                            <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
                                         </div>
-                                    </div> */}
-                                </div>
-                            )}
-                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="h-full w-full overflow-hidden relative">
+                                        <EmblaCarousel media={selectedProject.images} />
+                                        {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
+                                            <div className="inline-block rounded-[4px] bg-white px-2 py-1">
+                                                <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
+                                            </div>
+                                        </div> */}
+                                    </div>
+                                )}
+                            </div>
 
-                        {/* Content Section - Flexible height */}
-                        <div className="p-5 flex-shrink-0">
-                            <p className="font-helvetica-medium text-2xl lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
+                            {/* Content Section - Flexible height */}
+                            <div className="p-5 flex-shrink-0">
+                                <p className="font-helvetica-medium text-2xl lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
-                            {selectedProject.description && <p className="mt-2 font-helvetica-neue-roman text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>}
+                                {selectedProject.description && <p className="mt-2 font-helvetica-neue-roman text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>}
+
+                                {selectedProject.hasTabs && selectedProject.tabs.length > 0 && (
+                                    <TabsList className="mt-4 p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
+                                        {selectedProject.tabs.map((tab) => (
+                                            <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
+                                                {tab.name}
+                                            </TabsTab>
+                                        ))}
+                                    </TabsList>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </MainTabs>
                 )}
             </Modal>
         </section>
@@ -299,7 +301,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
                     <div className="flex items-center justify-center flex-col w-full h-full text-white">
                         {/* ✅ NEW: Show logo if exists */}
                         {logoToShow && (
-                            <figure className="max-w-40 w-full mb-4">
+                            <figure className="max-w-56 w-full mb-4">
                                 <Image src={logoToShow} alt={project.client?.name || "Client logo"} width={1000} height={1000} className="w-full h-auto object-contain" />
                             </figure>
                         )}

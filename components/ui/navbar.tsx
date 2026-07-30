@@ -39,10 +39,6 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
         return false;
     };
 
-    // const isActive = (item: IMenu) => {
-    //     return false; // TEMP TEST
-    // };
-
     const getColorForPage = () => {
         if (pathname.startsWith("/blog")) {
             return {
@@ -67,7 +63,7 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
 
     // Get indicator color based on current page and scroll state
     const getIndicatorColor = () => {
-        if (pathname.startsWith("/blog")) {
+        if (pathname.startsWith("/blog") || pathname.startsWith("/services")) {
             return {
                 active: "bg-black",
                 hover: "bg-black/50",
@@ -79,6 +75,18 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
 
     const indicatorColor = getIndicatorColor();
 
+    // Active link text color follows the same rules as the indicator: always
+    // black on /blog and /services, otherwise white until scrolled, then black.
+    const getActiveTextColor = () => {
+        if (pathname.startsWith("/blog") || pathname.startsWith("/services")) {
+            return "text-black";
+        }
+
+        return isScrolled ? "text-black" : "text-white";
+    };
+
+    const activeTextColor = getActiveTextColor();
+
     return (
         <MotionConfig transition={{ bounce: 0, type: "tween", duration: 0.3 }}>
             <nav className={"relative"}>
@@ -88,8 +96,9 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
 
                         return (
                             <li key={item.id} className={"relative"}>
+                                {/* text-primary <- if want to change the active color */}
                                 <Link
-                                    className={`relative px-3.5 py-2 transition-all block ${active ? "text-primary font-helvetica-bold" : isScrolled ? colorConfig.scrolled : colorConfig.default}`}
+                                    className={`relative px-3.5 py-2 transition-all block ${active ? `${activeTextColor} font-helvetica-bold` : isScrolled ? colorConfig.scrolled : colorConfig.default}`}
                                     onMouseEnter={() => setHovered(item.id)}
                                     onMouseLeave={() => setHovered(null)}
                                     href={item?.url}
@@ -98,13 +107,13 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
                                 </Link>
 
                                 {/* Active indicator */}
-                                {active && !item?.dropdown && (
+                                {/* {active && !item?.dropdown && (
                                     <motion.div
                                         layoutId="active-indicator"
                                         className={`absolute left-1/2 -translate-x-1/2 bottom-0 h-0.75 w-1/2 rounded-full ${indicatorColor.active}`}
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
-                                )}
+                                )} */}
 
                                 {/* Hover indicator */}
                                 {hovered === item?.id && !active && !item?.dropdown && (

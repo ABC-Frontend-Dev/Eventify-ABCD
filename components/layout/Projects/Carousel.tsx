@@ -1,17 +1,14 @@
-// components/layout/Projects/Carousel.tsx
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 interface EmblaCarouselProps {
-    media?: string[]; // Changed from 'images' to 'media' to support both
+    media?: string[];
     className?: string;
 }
 
-// Helper function to check if URL is a video
 const isVideo = (url: string): boolean => {
     const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
     const lowerUrl = url.toLowerCase();
@@ -20,17 +17,16 @@ const isVideo = (url: string): boolean => {
 
 export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({
-        loop: false,
+        loop: true, // enable looping for autoplay
         align: "start",
         containScroll: "trimSnaps",
         dragFree: false,
     });
 
-    const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
-    const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
+    const autoplayRef = useRef<NodeJS.Timeout | null>(null);
+
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    // Fallback to default images if none provided
     const displayMedia =
         media.length > 0
             ? media
@@ -43,17 +39,9 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
                   "/images/our-services/slide-6.png",
               ];
 
-    const scrollPrev = useCallback(() => {
-        if (emblaApi) emblaApi.scrollPrev();
-    }, [emblaApi]);
-
-    const scrollNext = useCallback(() => {
-        if (emblaApi) emblaApi.scrollNext();
-    }, [emblaApi]);
-
     const scrollTo = useCallback(
         (index: number) => {
-            if (emblaApi) emblaApi.scrollTo(index);
+            emblaApi?.scrollTo(index);
         },
         [emblaApi],
     );
@@ -61,15 +49,15 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
         setSelectedIndex(emblaApi.selectedScrollSnap());
-        setPrevBtnDisabled(!emblaApi.canScrollPrev());
-        setNextBtnDisabled(!emblaApi.canScrollNext());
     }, [emblaApi]);
 
     useEffect(() => {
         if (!emblaApi) return;
-        onSelect();
+
         emblaApi.on("select", onSelect);
         emblaApi.on("reInit", onSelect);
+
+        onSelect();
 
         return () => {
             emblaApi.off("select", onSelect);
@@ -77,8 +65,38 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
         };
     }, [emblaApi, onSelect]);
 
+    // -----------------------
+    // Autoplay
+    // -----------------------
+    const startAutoplay = useCallback(() => {
+        if (!emblaApi) return;
+
+        stopAutoplay();
+
+        autoplayRef.current = setInterval(() => {
+            if (!emblaApi) return;
+
+            emblaApi.scrollNext();
+        }, 2500);
+    }, [emblaApi]);
+
+    const stopAutoplay = useCallback(() => {
+        if (autoplayRef.current) {
+            clearInterval(autoplayRef.current);
+            autoplayRef.current = null;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+
+        startAutoplay();
+
+        return () => stopAutoplay();
+    }, [emblaApi, startAutoplay, stopAutoplay]);
+
     return (
-        <div className={`relative w-full ${className}`}>
+        <div className={`relative w-full ${className}`} onMouseEnter={stopAutoplay} onMouseLeave={startAutoplay}>
             {/* Carousel Viewport */}
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
@@ -86,12 +104,12 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
                         const isVideoFile = isVideo(mediaUrl);
 
                         return (
-                            <div key={`slide-${index}`} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-103 group">
-                                <div className="relative overflow-hidden h-103">
+                            <div key={`slide-${index}`} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-110 group">
+                                <div className="relative overflow-hidden h-110">
                                     {isVideoFile ? (
-                                        <video src={mediaUrl} className="w-full h-103 object-cover" controls playsInline preload="metadata" />
+                                        <video src={mediaUrl} className="w-full h-110 object-cover" controls playsInline preload="metadata" />
                                     ) : (
-                                        <Image src={mediaUrl} alt={`Slide ${index + 1}`} width={1000} height={1000} className="w-full h-103 object-cover" priority={index === 0} />
+                                        <Image src={mediaUrl} alt={`Slide ${index + 1}`} width={1000} height={1000} className="w-full h-110 object-cover" priority={index === 0} />
                                     )}
                                 </div>
                             </div>
@@ -100,28 +118,9 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
                 </div>
             </div>
 
-            {/* Navigation Buttons */}
+            {/* Dots */}
             {displayMedia.length > 1 && (
                 <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(97%+0px)] h-full flex items-center justify-between gap-4 pointer-events-none">
-                    <button
-                        onClick={scrollPrev}
-                        disabled={prevBtnDisabled}
-                        className="w-8.75 h-8.75 rounded-full bg-white shadow-md cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white pointer-events-auto"
-                        aria-label="Previous slide"
-                    >
-                        <ChevronLeft className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
-                    </button>
-
-                    <button
-                        onClick={scrollNext}
-                        disabled={nextBtnDisabled}
-                        className="w-8.75 h-8.75 rounded-full bg-white shadow-md cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white pointer-events-auto"
-                        aria-label="Next slide"
-                    >
-                        <ChevronRight className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
-                    </button>
-
-                    {/* Dots Indicator */}
                     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10">
                         <div className="flex gap-2">
                             {displayMedia.map((_, index) => (
@@ -138,14 +137,6 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
                     </div>
                 </div>
             )}
-
-            {/* Media Counter with Type Indicator */}
-            {/* <div className="absolute top-4 right-4 flex items-center gap-2">
-                <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm">
-                    {selectedIndex + 1} / {displayMedia.length}
-                </div>
-                {isVideo(displayMedia[selectedIndex]) && <div className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-medium">VIDEO</div>}
-            </div> */}
         </div>
     );
 }

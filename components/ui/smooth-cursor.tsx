@@ -56,8 +56,9 @@ const CustomCursorSVG: FC<{ isHovering: boolean }> = ({ isHovering }) => {
             transition={{ duration: 0.22, ease: "easeOut" }}
         >
             {/* hover bg so white icon stays visible */}
+            {/* bg-[#7E0ACB]/30 add color if needed on cursor */}
             <motion.div
-                className="absolute left-1/2 top-1/2 rounded-full bg-[#7E0ACB]/30"
+                className="absolute left-1/2 top-1/2 rounded-full"
                 initial={false}
                 animate={{
                     scale: isHovering ? 1 : 0.6,
