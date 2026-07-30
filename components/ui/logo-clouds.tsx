@@ -15,14 +15,14 @@ type CloudMarqueeProps = {
 
 function LogoItem({ logo }: { logo: Logo }) {
     return (
-        <div className="group mx-3 shrink-0 flex items-center justify-center w-fit h-20 bg-white dark:bg-white/5 duration-300">
+        <div className="group mx-3 shrink-0 flex items-center justify-center w-fit h-15 lg:h-20 bg-white dark:bg-white/5 duration-300">
             <img
                 src={logo.src}
                 alt={logo.alt}
                 width={32}
                 height={32}
                 draggable={false}
-                className="w-full h-18 object-contain select-none pointer-events-none
+                className="w-full h-14 lg:h-18 object-contain select-none pointer-events-none
           grayscale opacity-40
           transition-all duration-300
           group-hover:grayscale-0 group-hover:opacity-100"
@@ -46,7 +46,7 @@ function MarqueeRow({ logos, direction = "left", duration = 1 }: { logos: Logo[]
         CSS animates it by -50% (= one copy) so the seam is invisible.
       */}
             <div
-                className="flex w-max items-center gap-8"
+                className="flex w-max items-center gap-1 lg:gap-8"
                 style={{
                     animationName,
                     animationDuration: `${duration}s`,
