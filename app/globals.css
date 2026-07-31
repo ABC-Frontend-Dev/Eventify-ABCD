@@ -362,7 +362,7 @@ body.custom-cursor-active * {
 
 .awards-slideshow-gradient {
   background: #000000;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
 }
 
 .blog-page-wrapper h1 {

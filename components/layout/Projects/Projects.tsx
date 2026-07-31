@@ -1,4 +1,3 @@
-// components/layout/Projects/Projects.tsx
 "use client";
 
 import HeaderDescription from "@/components/common/HeaderDescription";
@@ -11,6 +10,8 @@ import Modal from "@/components/ui/modal-drop";
 import { useEffect, useMemo, useState } from "react";
 import { EmblaCarousel } from "./Carousel";
 import { AnimatePresence, motion } from "motion/react";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ProjectTab {
     id: number;
@@ -40,23 +41,44 @@ interface Project {
     tabs: ProjectTab[];
     images: string[];
     categoryId: number;
-    clientId: number | null; // ✅ NEW
-    projectClientLogo: string | null; // ✅ NEW
+    clientId: number | null;
+    projectClientLogo: string | null;
     category: Category;
-    client: Client | null; // ✅ NEW
+    client: Client | null;
 }
+
+// ─── Breakpoint type ──────────────────────────────────────────────────────────
+
+type Breakpoint = "mobile" | "tablet" | "desktop";
+
+// ─── Load more counts per breakpoint ─────────────────────────────────────────
+// mobile  : < 768px   → 1 column
+// tablet  : 768–1023px → 2 columns
+// desktop : ≥ 1024px  → 3 columns
+
+const COUNTS: Record<Breakpoint, { initial: number; increment: number }> = {
+    mobile: { initial: 6, increment: 4 },
+    tablet: { initial: 6, increment: 4 }, // 2-col grid → multiples of 2
+    desktop: { initial: 9, increment: 6 }, // 3-col grid → multiples of 3
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const isVideoFile = (url: string): boolean => {
     const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
-    const lowerUrl = url.toLowerCase();
-    return videoExtensions.some((ext) => lowerUrl.endsWith(ext)) || lowerUrl.includes("/videos/");
+    const lower = url.toLowerCase();
+    return videoExtensions.some((ext) => lower.endsWith(ext)) || lower.includes("/videos/");
 };
 
-// Load more / view less counts — mobile is < 768px (md breakpoint)
-const DESKTOP_INITIAL_COUNT = 9;
-const DESKTOP_INCREMENT = 6;
-const MOBILE_INITIAL_COUNT = 6;
-const MOBILE_INCREMENT = 4;
+function getBreakpoint(): Breakpoint {
+    if (typeof window === "undefined") return "desktop";
+    const w = window.innerWidth;
+    if (w < 768) return "mobile";
+    if (w < 1024) return "tablet";
+    return "desktop";
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -66,33 +88,18 @@ export default function Projects() {
     const [activeTab, setActiveTab] = useState("tab-all");
     const [activeInnerTab, setActiveInnerTab] = useState("");
 
-    const [isMobile, setIsMobile] = useState(false);
-    const [visibleCount, setVisibleCount] = useState(DESKTOP_INITIAL_COUNT);
+    const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
+    const [visibleCount, setVisibleCount] = useState(COUNTS.desktop.initial);
+
+    // ── Fetch ─────────────────────────────────────────────────────────────────
 
     useEffect(() => {
         fetchProjects();
     }, []);
 
-    // Track mobile vs desktop breakpoint (< 768px = mobile)
-    useEffect(() => {
-        const mediaQuery = window.matchMedia("(max-width: 767px)");
-
-        const updateIsMobile = () => setIsMobile(mediaQuery.matches);
-        updateIsMobile();
-
-        mediaQuery.addEventListener("change", updateIsMobile);
-        return () => mediaQuery.removeEventListener("change", updateIsMobile);
-    }, []);
-
-    // Reset visible count whenever the tab changes or the breakpoint flips
-    useEffect(() => {
-        setVisibleCount(isMobile ? MOBILE_INITIAL_COUNT : DESKTOP_INITIAL_COUNT);
-    }, [activeTab, isMobile]);
-
     const fetchProjects = async () => {
         try {
             const response = await axios.get("/api/projects");
-
             if (response.data.success) {
                 setProjects(response.data.data);
             }
@@ -103,12 +110,41 @@ export default function Projects() {
         }
     };
 
-    const categories = useMemo(() => Array.from(new Map(projects.map((project) => [project.category.id, project.category])).values()), [projects]);
+    // ── Breakpoint tracking ───────────────────────────────────────────────────
+    // Uses two media queries:
+    //   mobileQuery  matches when width < 768px  → mobile
+    //   tabletQuery  matches when width < 1024px → tablet (if not mobile)
+    // This avoids polling and fires instantly on resize.
 
-    const filteredProjects = activeTab === "tab-all" ? projects : projects.filter((project) => project.categoryId === Number(activeTab.replace("tab-", "")));
+    useEffect(() => {
+        const mobileQuery = window.matchMedia("(max-width: 767px)");
+        const tabletQuery = window.matchMedia("(max-width: 1023px)");
 
-    const initialCount = isMobile ? MOBILE_INITIAL_COUNT : DESKTOP_INITIAL_COUNT;
-    const increment = isMobile ? MOBILE_INCREMENT : DESKTOP_INCREMENT;
+        const update = () => setBreakpoint(getBreakpoint());
+        update(); // set on mount
+
+        mobileQuery.addEventListener("change", update);
+        tabletQuery.addEventListener("change", update);
+
+        return () => {
+            mobileQuery.removeEventListener("change", update);
+            tabletQuery.removeEventListener("change", update);
+        };
+    }, []);
+
+    // ── Reset visible count when tab or breakpoint changes ────────────────────
+
+    useEffect(() => {
+        setVisibleCount(COUNTS[breakpoint].initial);
+    }, [activeTab, breakpoint]);
+
+    // ── Derived values ────────────────────────────────────────────────────────
+
+    const categories = useMemo(() => Array.from(new Map(projects.map((p) => [p.category.id, p.category])).values()), [projects]);
+
+    const filteredProjects = activeTab === "tab-all" ? projects : projects.filter((p) => p.categoryId === Number(activeTab.replace("tab-", "")));
+
+    const { initial: initialCount, increment } = COUNTS[breakpoint];
 
     const visibleProjects = filteredProjects.slice(0, visibleCount);
     const allLoaded = visibleCount >= filteredProjects.length;
@@ -121,6 +157,8 @@ export default function Projects() {
             setVisibleCount((prev) => Math.min(prev + increment, filteredProjects.length));
         }
     };
+
+    // ── Modal ─────────────────────────────────────────────────────────────────
 
     const openModal = (project: Project) => {
         setSelectedProject(project);
@@ -138,6 +176,8 @@ export default function Projects() {
         }, 300);
     };
 
+    // ── Loading ───────────────────────────────────────────────────────────────
+
     if (loading) {
         return (
             <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
@@ -147,6 +187,8 @@ export default function Projects() {
             </section>
         );
     }
+
+    // ── Render ────────────────────────────────────────────────────────────────
 
     return (
         <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14" id="projects">
@@ -162,7 +204,6 @@ export default function Projects() {
                         <TabsTab value="tab-all" className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                             All Projects
                         </TabsTab>
-
                         {categories.map((category) => (
                             <TabsTab key={`tab-${category.id}`} value={`tab-${category.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                                 {category.name}
@@ -171,7 +212,7 @@ export default function Projects() {
                     </TabsList>
                 </header>
 
-                <div className="mt-4 lg:mt-9">
+                <div className="mt-4 lg:mt-9 relative">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {visibleProjects.map((project) => (
@@ -184,10 +225,7 @@ export default function Projects() {
                                     transition={{
                                         duration: 0.4,
                                         ease: [0.22, 1, 0.36, 1],
-                                        layout: {
-                                            duration: 0.45,
-                                            ease: [0.22, 1, 0.36, 1],
-                                        },
+                                        layout: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
                                     }}
                                 >
                                     <ProjectCard project={project} onClick={() => openModal(project)} />
@@ -197,22 +235,30 @@ export default function Projects() {
                     </div>
 
                     {showLoadMoreButton && (
-                        <button
-                            type="button"
-                            onClick={handleLoadMoreClick}
-                            className="relative max-w-50 w-fit mx-auto mt-4 overflow-hidden block text-center h-10 cursor-pointer px-6 py-2 text-sm bg-primary text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        <div
+                            className="absolute bottom-0 left-0 w-full h-85 flex items-end justify-end z-10"
+                            style={{
+                                background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.7) 60%, #FFFFFF 85%)",
+                            }}
                         >
-                            {allLoaded ? "View less projects" : "View more projects"}
-                        </button>
+                            <button
+                                type="button"
+                                onClick={handleLoadMoreClick}
+                                className="relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-10 cursor-pointer px-6 py-2 text-sm bg-primary text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {allLoaded ? "View less projects" : "View more projects"}
+                            </button>
+                        </div>
                     )}
                 </div>
             </MainTabs>
 
+            {/* ── Modal ──────────────────────────────────────────────────────── */}
             <Modal isOpen={isModalOpen} onClose={closeModal} className="w-full max-w-80 xxs:max-w-92 md:max-w-2xl lg:max-w-200 bg-white p-0" allowEasyClose={true}>
                 {selectedProject && (
                     <MainTabs value={activeInnerTab} onValueChange={setActiveInnerTab}>
                         <div className="flex flex-col bg-white">
-                            {/* Media Section - Fixed height */}
+                            {/* Media */}
                             <div className="h-110 w-full flex-shrink-0 relative">
                                 {selectedProject.hasTabs && selectedProject.tabs.length > 0 ? (
                                     <div className="h-full flex flex-col">
@@ -221,11 +267,6 @@ export default function Projects() {
                                                 <TabsPanel key={tab.id} value={`inner-tab-${tab.id}`} className="h-full">
                                                     <div className="h-full w-full overflow-hidden relative">
                                                         <EmblaCarousel media={tab.images} />
-                                                        {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
-                                                            <div className="inline-block rounded-[4px] bg-white px-2 py-1">
-                                                                <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
-                                                            </div>
-                                                        </div> */}
                                                     </div>
                                                 </TabsPanel>
                                             ))}
@@ -234,16 +275,11 @@ export default function Projects() {
                                 ) : (
                                     <div className="h-full w-full overflow-hidden relative">
                                         <EmblaCarousel media={selectedProject.images} />
-                                        {/* <div className="absolute bottom-5 right-5 flex items-center gap-3">
-                                            <div className="inline-block rounded-[4px] bg-white px-2 py-1">
-                                                <span className="text-sm font-medium text-primary">{selectedProject.category.name}</span>
-                                            </div>
-                                        </div> */}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Content Section - Flexible height */}
+                            {/* Content */}
                             <div className="p-5 flex-shrink-0">
                                 <p className="font-helvetica-medium text-2xl lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
@@ -267,6 +303,8 @@ export default function Projects() {
     );
 }
 
+// ─── Project Card ─────────────────────────────────────────────────────────────
+
 interface ProjectCardProps {
     project: Project;
     onClick: () => void;
@@ -274,7 +312,6 @@ interface ProjectCardProps {
 
 function ProjectCard({ project, onClick }: ProjectCardProps) {
     const isBannerVideo = isVideoFile(project.bannerImage);
-    // ✅ NEW: Determine which logo to show
     const logoToShow = project.projectClientLogo || project.client?.image;
 
     return (
@@ -297,18 +334,14 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
                     <Image src={project.bannerImage} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
                 )}
 
-                <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-10 bg-black/50 backdrop-blur-lg">
+                <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-10 bg-black/50">
                     <div className="flex items-center justify-center flex-col w-full h-full text-white">
-                        {/* ✅ NEW: Show logo if exists */}
                         {logoToShow && (
                             <figure className="max-w-56 w-full mb-4">
                                 <Image src={logoToShow} alt={project.client?.name || "Client logo"} width={1000} height={1000} className="w-full h-auto object-contain" />
                             </figure>
                         )}
-
-                        {/* ✅ NEW: Show title only if no logo */}
                         {!logoToShow && <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>}
-
                         {project.description && <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>}
                     </div>
 

@@ -21,25 +21,32 @@ interface CarouselItem {
     image: string;
 }
 
+const AUTOPLAY_DELAY = 2500;
+
 export function EmblaCarousel() {
-    // Autoplay plugin instance — handles the loop wrap-around reliably (a manual
-    // setInterval + scrollNext() can silently stall at the last slide if
-    // canScrollNext() briefly reports false right at the loop boundary).
+    // ── Autoplay plugin ───────────────────────────────────────────────────────
+    // stopOnInteraction: false  → autoplay never permanently stops
+    // stopOnMouseEnter: true    → pauses while hovering
+    // After a manual button click we call autoplayPlugin.current.reset()
+    // which restarts the full delay from 0 — so the timer never fires
+    // 0.5s after a click because we reset it to the full 2500ms immediately.
     const autoplayPlugin = useRef(
         Autoplay({
-            delay: 2500,
-            stopOnInteraction: false,
-            stopOnMouseEnter: true,
+            delay: AUTOPLAY_DELAY,
+            stopOnInteraction: false, // ← key fix: never permanently stop
+            stopOnMouseEnter: true, // pause on hover
             stopOnFocusIn: false,
+            playOnInit: true,
         }),
     );
 
     const [emblaRef, emblaApi] = useEmblaCarousel(
         {
             loop: true,
-            align: "start",
+            align: "center",
             dragFree: false,
             skipSnaps: false,
+            containScroll: false,
         },
         [autoplayPlugin.current],
     );
@@ -55,7 +62,8 @@ export function EmblaCarousel() {
     const overlayRefs = useRef<(HTMLDivElement | null)[]>([]);
     const hoverTlsRef = useRef<(gsap.core.Timeline | null)[]>([]);
 
-    // Fetch services from API
+    // ── Fetch services ────────────────────────────────────────────────────────
+
     useEffect(() => {
         const fetchServices = async () => {
             try {
@@ -74,13 +82,44 @@ export function EmblaCarousel() {
         fetchServices();
     }, []);
 
+    // ── Navigation ────────────────────────────────────────────────────────────
+    // After scrolling we call autoplayPlugin.current.reset() which:
+    // 1. Stops the current tick
+    // 2. Restarts the timer from the full AUTOPLAY_DELAY (2500ms)
+    // This means clicking at t=2000ms resets to t=0, so the next
+    // auto-scroll happens at t=2000+2500ms — never at t=2000+500ms.
+
     const scrollPrev = useCallback(() => {
-        if (emblaApi) emblaApi.scrollPrev();
+        if (!emblaApi) return;
+        emblaApi.scrollPrev();
+        autoplayPlugin.current.reset(); // restart countdown from 0
     }, [emblaApi]);
 
     const scrollNext = useCallback(() => {
-        if (emblaApi) emblaApi.scrollNext();
+        if (!emblaApi) return;
+        emblaApi.scrollNext();
+        autoplayPlugin.current.reset(); // restart countdown from 0
     }, [emblaApi]);
+
+    // ── Drag: also reset after drag ends ─────────────────────────────────────
+
+    useEffect(() => {
+        if (!emblaApi) return;
+
+        const onPointerUp = () => {
+            // Small timeout so embla finishes settling before we reset
+            setTimeout(() => {
+                autoplayPlugin.current.reset();
+            }, 50);
+        };
+
+        emblaApi.on("pointerUp", onPointerUp);
+        return () => {
+            emblaApi.off("pointerUp", onPointerUp);
+        };
+    }, [emblaApi]);
+
+    // ── Select state ──────────────────────────────────────────────────────────
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -100,18 +139,17 @@ export function EmblaCarousel() {
         };
     }, [emblaApi, onSelect]);
 
-    // Scroll-in reveal
+    // ── Scroll-in reveal ──────────────────────────────────────────────────────
+
     useEffect(() => {
         if (!containerRef.current || services.length === 0) return;
 
         const ctx = gsap.context(() => {
             const validSlides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
-
             const durations = [1.6, 1.4, 1.8, 1.5, 1.6, 1.1];
 
             validSlides.forEach((slide, index) => {
                 const inner = slide.querySelector(".slide-reveal-inner");
-
                 if (!inner) return;
 
                 gsap.set(inner, {
@@ -135,7 +173,8 @@ export function EmblaCarousel() {
         return () => ctx.revert();
     }, [services]);
 
-    // Hover effect
+    // ── Hover overlay effect ──────────────────────────────────────────────────
+
     useEffect(() => {
         const ctx = gsap.context(() => {
             overlayRefs.current.forEach((overlay, index) => {
@@ -144,7 +183,7 @@ export function EmblaCarousel() {
                 gsap.set(overlay, { opacity: 0 });
 
                 const tl = gsap.timeline({ paused: true }).to(overlay, {
-                    opacity: 0.4,
+                    opacity: 0.55,
                     duration: 0.45,
                     ease: "power2.out",
                 });
@@ -164,6 +203,7 @@ export function EmblaCarousel() {
         hoverTlsRef.current[index]?.reverse();
     }, []);
 
+    // Reset hover states when window loses focus
     useEffect(() => {
         const resetAll = () => {
             hoverTlsRef.current.forEach((tl) => tl?.reverse());
@@ -176,6 +216,8 @@ export function EmblaCarousel() {
         };
     }, []);
 
+    // ── Loading skeleton ──────────────────────────────────────────────────────
+
     if (loading) {
         return (
             <div className="flex gap-4">
@@ -185,6 +227,8 @@ export function EmblaCarousel() {
             </div>
         );
     }
+
+    // ── Render ────────────────────────────────────────────────────────────────
 
     return (
         <div className="relative w-full" ref={containerRef}>
@@ -198,10 +242,9 @@ export function EmblaCarousel() {
                             }}
                             onMouseEnter={() => handleCardEnter(index)}
                             onMouseLeave={() => handleCardLeave(index)}
-                            className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
+                            className="flex-[0_0_100%] px-1.25 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
-                            {/* href={`/services/${item.url}`} */}
-                            <Link href={`#`} className="">
+                            <Link href="#">
                                 <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
                                     <div className="w-full h-full">
                                         <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />
