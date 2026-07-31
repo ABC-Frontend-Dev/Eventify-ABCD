@@ -21,27 +21,32 @@ export function TabsList({
     return (
         <TabsPrimitive.List
             className={cn(
-                // ── Layout ──────────────────────────────────────────────────
+                // ── Layout ───────────────────────────────────────────────────
                 "relative z-0",
 
-                // Always single row — never wrap
+                // Single row on ALL screen sizes — no wrapping ever
                 "flex flex-nowrap",
 
-                // Scroll horizontally when tabs overflow, hide the scrollbar visually
+                // Scroll on ALL screen sizes when tabs overflow
                 "overflow-x-auto",
+
+                // Hide scrollbar visually on all browsers — still scrollable
                 "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
 
-                // ── Sizing & spacing ─────────────────────────────────────────
-                "w-full items-center justify-start",
+                // ── Sizing & spacing ──────────────────────────────────────────
+                // w-full would fight with overflow-x-auto on desktop
+                // use min-w-full so it expands but never shrinks below container
+                "min-w-0 w-max max-w-full",
+                "items-center justify-start",
                 "py-8 px-[11.1px]",
 
-                // ── Appearance ───────────────────────────────────────────────
+                // ── Appearance ────────────────────────────────────────────────
                 "bg-black/10 backdrop-blur-sm opacity-60",
 
-                // ── Vertical orientation ─────────────────────────────────────
+                // ── Vertical orientation ──────────────────────────────────────
                 "data-[orientation=vertical]:flex-col",
 
-                // ── Variant overrides ────────────────────────────────────────
+                // ── Variant overrides ─────────────────────────────────────────
                 variant === "underline" ? "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-8 data-[orientation=horizontal]:opacity-100" : "",
 
                 className,
@@ -67,7 +72,7 @@ export function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props): React
     return (
         <TabsPrimitive.Tab
             className={cn(
-                "relative font-helvetica flex h-full shrink-0 grow cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-[calc(--spacing(2.5)-1px)] font-medium text-sm outline-none transition-[color,background-color,box-shadow] focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:font-helvetica-medium data-active:border-slate-200 data-active:shadow data-disabled:opacity-64 sm:h-8 sm:text-sm [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0",
+                "relative font-helvetica flex h-full shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-[calc(--spacing(2.5)-1px)] font-medium text-sm outline-none transition-[color,background-color,box-shadow] focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:font-helvetica-medium data-active:border-slate-200 data-active:shadow data-disabled:opacity-64 sm:h-8 sm:text-sm [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0",
                 className,
             )}
             data-slot="tabs-tab"

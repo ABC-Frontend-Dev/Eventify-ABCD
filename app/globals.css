@@ -382,7 +382,7 @@ body.custom-cursor-active * {
 }
 
 .blog-page-wrapper p {
-  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
+  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica-thin font-medium tracking-wide;
 }
 
 .blog-page-wrapper li {
@@ -398,7 +398,7 @@ body.custom-cursor-active * {
 }
 
 .blog-page-wrapper ul {
-  @apply list-disc pl-6 mt-4;
+  @apply list-disc pl-4 lg:pl-6 mt-4;
 }
 
 .blog-page-wrapper ol {

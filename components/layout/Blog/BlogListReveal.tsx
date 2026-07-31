@@ -21,7 +21,7 @@ export default function BlogListReveal({ html, ordered }: BlogListRevealProps) {
     const Tag = ordered ? "ol" : "ul";
 
     return (
-        <Tag className={`blog-reveal-block ${ordered ? "list-decimal" : "list-disc"} pl-6 mt-4`}>
+        <Tag className={`blog-reveal-block ${ordered ? "list-decimal" : "list-disc"} pl-3 lg:pl-3 mt-4`}>
             {items.map((item, i) => (
                 <li key={i} className="mt-2">
                     {item.split("").map((char, j) => (

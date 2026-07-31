@@ -17,7 +17,7 @@ export default function Breadcrumb({ props }: { props?: any }) {
     return (
         <ul className={`flex items-center flex-nowrap overflow-hidden w-full max-w-full gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>
             <li className="shrink-0">
-                <Link href="/" className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200`}>
+                <Link href="/" className={`text-[10px] lg:text-xs leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200`}>
                     Home
                 </Link>
             </li>
@@ -34,15 +34,15 @@ export default function Breadcrumb({ props }: { props?: any }) {
                 }
 
                 return (
-                    <li key={href} className="flex items-center gap-2 min-w-0 shrink">
-                        <span className={`text-xs lg:text-lg leading-4.5 lg:leading-4 ${separatorColor} shrink-0`}>/</span>
+                    <li key={href} className={`flex items-center gap-2 ${isLast ? "min-w-0 shrink" : "shrink-0"}`}>
+                        <span className={`text-[10px] lg:text-xs leading-4.5 lg:leading-4 ${separatorColor} shrink-0`}>/</span>
 
                         {isLast ? (
-                            <span className="text-xs lg:text-lg leading-4.5 lg:leading-5.5 text-primary capitalize truncate block">{segment.replace(/-/g, " ")}</span>
+                            <span className="text-[10px] lg:text-xs leading-4.5 lg:leading-4 text-primary capitalize truncate block">{segment.replace(/-/g, " ")}</span>
                         ) : (
                             <Link
                                 href={href}
-                                className={`text-xs lg:text-lg leading-4.5 lg:leading-5.5 ${textColor} hover:text-primary transition-colors duration-200 capitalize truncate block shrink-0`}
+                                className={`text-[10px] lg:text-xs leading-4.5 lg:leading-4 ${textColor} hover:text-primary transition-colors duration-200 capitalize truncate block shrink-0`}
                             >
                                 {segment.replace(/-/g, " ")}
                             </Link>

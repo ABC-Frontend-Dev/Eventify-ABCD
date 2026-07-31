@@ -8,6 +8,7 @@ import { ShareBtn } from "@/components/layout/ShareOn/ShareOn";
 import BlogBannerReveal from "@/components/layout/Blog/BlogBannerReveal";
 import { useTrackBlogView } from "@/hooks/useTrackBlogView";
 import { ViewTracker } from "@/components/layout/Blog/ViewTracker";
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip-button";
 
 // ── Types ────────────────────────────────────────────────
 interface Author {
@@ -187,7 +188,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
 
     const relatedBlogs = await getRelatedBlogs(blog.categoryId, blog.id);
     return (
-        <section className="mt-0 lg:mt-16 scroll-mt-14">
+        <section className="mt-16 lg:mt-26 scroll-mt-14">
             <ViewTracker slug={slug} />
             {/* <div className="absolute top-16 md:top-12 lg:top-16 left-0 w-full h-80 lg:h-140 overflow-hidden after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black/20 after:z-10 after:backdrop-blur-sm">
                 <figure>
@@ -195,23 +196,36 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                 </figure>
                 </div> */}
 
-            <div className="relative max-w-360 w-full mx-auto px-2.5 lg:px-20 pb-9 z-20">
-                <div className="max-w-360 text-footer-bg">
+            <div className="relative max-w-300 w-full mx-auto px-2.5 lg:px-20 pb-9 z-20">
+                <div className="max-w-200 text-footer-bg">
                     {/* <div className="text-xl lg:text-[40px] leading-6 lg:leading-10 font-helvetica font-bold tracking-wide">Blog</div> */}
                     <Breadcrumb props={{ className: "mt-1.5 md:mt-3.5 text-white" }} />
+
+                    <div className="mt-7 flex gap-x-3">
+                        <p className="font-helvetica-neue-roman font-normal text-footer-bg text-sm leading-3.5 ">{formatDate(blog.publishedAt || blog.createdAt)}</p>
+                        <p className="font-helvetica-neue-roman font-normal text-footer-bg text-sm leading-3.5">|</p>
+                        <p className="font-helvetica-neue-roman font-normal text-footer-bg text-sm leading-3.5">{blog.category.name}</p>
+                    </div>
+
+                    <h1 className="mt-2.5 text-lg lg:text-[30px] leading-5.5 lg:leading-9 tracking-wide font-helvetica font-bold text-primary">{blog.title}</h1>
+
+                    <ShareBtn />
                 </div>
-                <div className="mt-40 lg:mt-6 z-40">
+                <div className="mt-5 lg:mt-8 z-40">
                     {/* Banner Image */}
-                    <div className="relative rounded-[8px] overflow-hidden">
+                    <div className="relative overflow-hidden">
                         <BlogBannerReveal desktopSrc={blog.banner_image} mobileSrc={blog.thumbnail} alt={blog.title} />
+                        <div className="bg-gray-200 p-2.5 lg:p-5 mt-2.5 lg:mt-4">
+                            <p className="text-sm lg:text-base leading-5 lg:leading-6 tracking-wide text-footer-bg font-helvetica-thin font-extralight">{blog.description}</p>
+                        </div>
+
                         {/* <div className="absolute top-1.5 lg:top-3.5 right-1.5 lg:right-3.5 border border-primary/80 bg-primary/80 rounded-[6px] py-1 px-2 md:px-3 capitalize text-sm lg:text-lg font-helvetica-thin md:font-helvetica-neue-roman tracking-wide w-fit text-white">
                             {blog.category.name}
                         </div> */}
 
                         {/* Blog Header */}
-                        <div className="absolute left-0 bottom-0 w-full h-68.5 lg:h-113.75 max-w-360 text-white bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,#000000_83.83%)]">
+                        {/* <div className="">
                             <div className="absolute left-0 bottom-0 px-4.5 lg:px-7.5 pb-4.5 lg:pb-7.5 w-full h-fit">
-                                <h1 className="mt-2 text-lg lg:text-[30px] leading-5.5 lg:leading-9 tracking-wide font-helvetica-medium font-bold text-white">{blog.title}</h1>
                                 <p className="mt-2 text-sm leading-4 tracking-wide text-white font-helvetica font-extralight">{blog.description}</p>
 
                                 <div className="mt-2.75 flex items-center gap-3">
@@ -220,9 +234,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                                     </figure>
                                     <div>
                                         <ul className="flex items-center gap-1.5">
-                                            <li>
-                                                <p className="font-helvetica-neue-roman font-normal text-white text-sm leading-3.5">{blog.author.name}</p>
-                                            </li>
+                                            <li></li>
                                             <li className="w-1.5 h-1.5 rounded-full bg-white" />
                                             <li>
                                                 <p className="font-helvetica-neue-roman font-normal text-white text-sm leading-3.5">{formatDate(blog.publishedAt || blog.createdAt)}</p>
@@ -239,7 +251,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Blog Content and Sidebar */}

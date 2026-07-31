@@ -1,31 +1,37 @@
 "use client";
 
 import * as React from "react";
-import { MenuBar } from "@/components/ui/bottom-menu";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ShareWhatsAppButton } from "@/components/layout/ShareOn/ShareWhatsAppButton";
 import { ShareLinkedInButton } from "./ShareLinkedInButton";
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip-button";
 
-const menuItems = [
+const shareBtn = [
     {
-        icon: <CopyButton />,
-        label: "Copy",
+        id: 1,
+        name: "Copy",
+        designation: "",
+        image: <CopyButton />,
     },
     {
-        icon: <ShareWhatsAppButton text="Check out this amazing page!" />,
-        label: "WhatsApp",
+        id: 2,
+        name: "WhatsApp",
+        designation: "",
+        image: <ShareWhatsAppButton text="Check out this amazing page!" />,
     },
     {
-        icon: <ShareLinkedInButton url="https://example.com" title="Check this out" summary="This is an amazing article" />,
-        label: "LinkedIn",
+        id: 3,
+        name: "LinkedIn",
+        designation: "",
+        image: <ShareLinkedInButton url="https://example.com" title="Check this out" summary="This is an amazing article" />,
     },
 ];
 
 function ShareBtn() {
     return (
-        <div className="flex items-center justify-start gap-3 mb-2 pb-3 border-b">
-            <p className="text-lg font-helvetica-neue-roman">Share On:</p>
-            <MenuBar items={menuItems} />
+        <div className="mt-6">
+            <p className="text-sm font-helvetica-neue-roman uppercase mb-1.5">Share</p>
+            <AnimatedTooltip items={shareBtn} />
         </div>
     );
 }

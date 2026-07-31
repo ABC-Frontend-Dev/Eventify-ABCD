@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import gsap from "gsap";
@@ -21,12 +22,27 @@ interface CarouselItem {
 }
 
 export function EmblaCarousel() {
-    const [emblaRef, emblaApi] = useEmblaCarousel({
-        loop: true,
-        align: "start",
-        dragFree: false,
-        skipSnaps: false,
-    });
+    // Autoplay plugin instance — handles the loop wrap-around reliably (a manual
+    // setInterval + scrollNext() can silently stall at the last slide if
+    // canScrollNext() briefly reports false right at the loop boundary).
+    const autoplayPlugin = useRef(
+        Autoplay({
+            delay: 2500,
+            stopOnInteraction: false,
+            stopOnMouseEnter: true,
+            stopOnFocusIn: false,
+        }),
+    );
+
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        {
+            loop: true,
+            align: "start",
+            dragFree: false,
+            skipSnaps: false,
+        },
+        [autoplayPlugin.current],
+    );
 
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
     const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
@@ -38,25 +54,6 @@ export function EmblaCarousel() {
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
     const overlayRefs = useRef<(HTMLDivElement | null)[]>([]);
     const hoverTlsRef = useRef<(gsap.core.Timeline | null)[]>([]);
-
-    const autoplayRef = useRef<NodeJS.Timeout | null>(null);
-
-    const stopAutoplay = useCallback(() => {
-        if (autoplayRef.current) {
-            clearInterval(autoplayRef.current);
-            autoplayRef.current = null;
-        }
-    }, []);
-
-    const startAutoplay = useCallback(() => {
-        if (!emblaApi) return;
-        stopAutoplay();
-        autoplayRef.current = setInterval(() => {
-            if (!emblaApi) return;
-
-            emblaApi.scrollNext();
-        }, 2500);
-    }, [emblaApi, stopAutoplay]);
 
     // Fetch services from API
     useEffect(() => {
@@ -179,12 +176,6 @@ export function EmblaCarousel() {
         };
     }, []);
 
-    useEffect(() => {
-        if (!emblaApi) return;
-        startAutoplay();
-        return () => stopAutoplay();
-    }, [emblaApi, startAutoplay, stopAutoplay]);
-
     if (loading) {
         return (
             <div className="flex gap-4">
@@ -196,7 +187,7 @@ export function EmblaCarousel() {
     }
 
     return (
-        <div className="relative w-full" ref={containerRef} onMouseEnter={stopAutoplay} onMouseLeave={startAutoplay}>
+        <div className="relative w-full" ref={containerRef}>
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
                     {services.map((item, index) => (
@@ -225,37 +216,7 @@ export function EmblaCarousel() {
 
                                     <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
                                         <h3 className="mb-2 text-xl md:text-2xl leading-6.5 tracking-wide font-helvetica-medium text-white">{item.title}</h3>
-
-                                        {/* <div
-                                        className="
-                                            grid grid-rows-[0fr] opacity-0
-                                            group-hover:grid-rows-[1fr] group-hover:opacity-100
-                                            transition-[grid-template-rows,opacity]
-                                            duration-500 ease-out
-                                            will-change-[grid-template-rows,opacity]
-                                        "
-                                    >
-                                        <p className="font-helvetica tracking-[1px] text-sm leading-4.5 overflow-hidden min-h-0">{item.description}</p>
-                                    </div> */}
                                     </div>
-
-                                    {/* <Link
-                                        href={`/services/${item.url}`}
-                                        className="absolute top-3.5 right-3.5 px-3.75 py-2.5 bg-slate-100 rounded-[4px] overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer group/link"
-                                    >
-                                        <p className="text-sm font-helvetica-neue-roman text-slate-950 capitalize flex items-center justify-center gap-2.5">
-                                            read more
-                                            <span className="w-3.5 h-3 inline-block">
-                                                <Image
-                                                    src="/images/icons/arrow-right.png"
-                                                    alt="Read more"
-                                                    width={1000}
-                                                    height={1000}
-                                                    className="w-full h-full object-contain transition-transform duration-300 group-hover:translate-x-1 group-hover/link:-translate-x-0.5 group-hover/link:-rotate-45"
-                                                />
-                                            </span>
-                                        </p>
-                                    </Link> */}
                                 </div>
                             </Link>
                         </div>

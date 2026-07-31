@@ -151,8 +151,8 @@ export default function Projects() {
     return (
         <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14" id="projects">
             <MainTabs value={activeTab} onValueChange={setActiveTab}>
-                <header className="flex items-end md:items-start lg:items-end justify-between flex-col lg:flex-row gap-y-5">
-                    <div>
+                <header className="flex items-end md:items-start lg:items-end flex-col lg:flex-row gap-y-5 lg:gap-x-5">
+                    <div className="shrink-0">
                         <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
                         <SubHeading title="Explore projects" />
                         <HeaderDescription description="The talented individuals working together to create memorable events." scrollContainerRef={undefined} />
