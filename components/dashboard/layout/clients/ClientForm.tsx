@@ -7,8 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useToasts } from "@/components/ui/toast";
-import { ArrowLeft, Save, Loader2, X, AlertCircle, CheckCircle2, Eye, ChevronRight } from "lucide-react";
+import { ArrowLeft, Loader2, X, AlertCircle, CheckCircle2, Eye, ChevronRight } from "lucide-react";
 import Link from "next/link";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const MAX_IMAGE_SIZE_MB = 1; // 1 MB max for client logos
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ClientFormProps {
     initialData?: { name: string; description: string; image: string };
@@ -16,10 +22,13 @@ interface ClientFormProps {
     mode: "create" | "edit";
 }
 
+// ─── Small helpers ────────────────────────────────────────────────────────────
+
 function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
     return (
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
             {children}
+            {/* Only show * if explicitly required */}
             {required && <span className="text-red-400">*</span>}
             {ok && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 ml-auto" />}
         </label>
@@ -35,6 +44,8 @@ function SectionHeading({ label }: { label: string }) {
     );
 }
 
+// ─── Main form ────────────────────────────────────────────────────────────────
+
 export default function ClientForm({ initialData, clientId, mode }: ClientFormProps) {
     const router = useRouter();
     const toast = useToasts();
@@ -49,19 +60,26 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
         image: initialData?.image || "",
     });
 
+    // ── Completion — description is NOT required ──────────────────────────────
     const completion = useMemo(
         () => [
-            { label: "Client Name", ok: !!formData.name.trim() },
-            { label: "Logo", ok: !!formData.image },
-            { label: "Description", ok: !!formData.description.trim() },
+            { label: "Client Name", ok: !!formData.name.trim(), required: true },
+            { label: "Logo", ok: !!formData.image, required: true },
+            // Description is optional — still shown in sidebar for awareness
+            // but does NOT block form submission
+            { label: "Description (optional)", ok: !!formData.description.trim(), required: false },
         ],
         [formData],
     );
 
+    const requiredItems = completion.filter((c) => c.required);
     const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
-    const isFormValid = completion.every((c) => c.ok);
 
-    // ── edit: load existing data ──────────────────────────
+    // Form is valid when only REQUIRED fields are filled
+    const isFormValid = requiredItems.every((c) => c.ok);
+
+    // ── Edit: load existing data ──────────────────────────────────────────────
+
     useEffect(() => {
         if (mode !== "edit" || !clientId) return;
         fetch(`/api/clients/${clientId}`)
@@ -84,29 +102,52 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
         setFormData((p) => ({ ...p, [name]: value }));
     };
 
-    // ── upload ────────────────────────────────────────────
+    // ── Upload — enforces 1 MB limit ──────────────────────────────────────────
+
     const handleFileUpload = async (uploadedFiles: File[]) => {
         if (!uploadedFiles.length) return;
+
+        const file = uploadedFiles[0];
+
+        // Client-side size check before even hitting the API
+        if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+            toast.error(`Logo must be under ${MAX_IMAGE_SIZE_MB}MB. Please compress the image and try again.`);
+            setFiles([]);
+            return;
+        }
+
         setUploading(true);
         try {
             const fd = new FormData();
-            fd.append("file", uploadedFiles[0]);
-            const res = await fetch("/api/upload", { method: "POST", body: fd });
+            fd.append("file", file);
+
+            // Pass folder=clients so upload API uses the clients folder
+            const res = await fetch("/api/upload?folder=clients", {
+                method: "POST",
+                body: fd,
+            });
             const result = await res.json();
+
             if (result.success) {
                 setFormData((p) => ({ ...p, image: result.path }));
                 toast.success("Logo uploaded");
-            } else toast.error(result.error || "Failed to upload logo");
+            } else {
+                toast.error(result.error || "Failed to upload logo");
+                setFiles([]);
+            }
         } catch {
             toast.error("Failed to upload logo");
+            setFiles([]);
         } finally {
             setUploading(false);
         }
     };
 
-    // ── submit ────────────────────────────────────────────
+    // ── Submit ────────────────────────────────────────────────────────────────
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (!formData.name.trim()) {
             toast.warning("Please enter a client name");
             return;
@@ -115,21 +156,30 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
             toast.warning("Please upload a client logo");
             return;
         }
+
         setLoading(true);
         try {
             const res = await fetch(mode === "create" ? "/api/clients" : `/api/clients/${clientId}`, {
                 method: mode === "create" ? "POST" : "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                // description is optional — send as null if empty
+                body: JSON.stringify({
+                    name: formData.name.trim(),
+                    image: formData.image,
+                    description: formData.description.trim() || null,
+                }),
             });
             const result = await res.json();
+
             if (result.success) {
                 toast.success(mode === "create" ? "Client created!" : "Client updated!");
                 setTimeout(() => {
                     router.push("/dashboard/clients");
                     router.refresh();
                 }, 800);
-            } else toast.error(result.message || result.error || "Failed to save client");
+            } else {
+                toast.error(result.message || result.error || "Failed to save client");
+            }
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
@@ -139,9 +189,11 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
 
     const inp = "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
 
+    // ── Render ────────────────────────────────────────────────────────────────
+
     return (
         <div className="min-h-screen bg-slate-50/60">
-            {/* ── sticky topbar ─────────────────────────── */}
+            {/* ── Sticky topbar ─────────────────────────────────────────────── */}
             <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
                     <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
@@ -156,7 +208,7 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                     <ChevronRight className="h-3 w-3 text-slate-300" />
                     <span className="text-xs font-medium text-slate-700 truncate max-w-[200px]">{mode === "create" ? "New client" : formData.name || "Edit client"}</span>
 
-                    {/* progress pill */}
+                    {/* Progress pill */}
                     <div className="hidden md:flex items-center gap-2 ml-3">
                         <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
                             <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
@@ -166,7 +218,6 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
 
                     <div className="flex-1" />
 
-                    {/* cancel */}
                     <Button
                         type="button"
                         variant="ghost"
@@ -178,7 +229,6 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                         Cancel
                     </Button>
 
-                    {/* save */}
                     <Button type="button" size="sm" onClick={handleSubmit} disabled={loading || uploading || !isFormValid} className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white">
                         {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
                         {mode === "create" ? "Create" : "Update"}
@@ -186,27 +236,28 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                 </div>
             </div>
 
-            {/* ── body ──────────────────────────────────── */}
+            {/* ── Body ──────────────────────────────────────────────────────── */}
             <form id="client-form" onSubmit={handleSubmit} className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 flex flex-col xl:flex-row gap-5">
-                {/* ── main column ───────────────────────── */}
+                {/* ── Main column ───────────────────────────────────────────── */}
                 <div className="flex-1 min-w-0 space-y-5">
                     {/* CLIENT INFO */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Client Info" />
                         <div className="space-y-4">
-                            {/* name */}
+                            {/* Name — required */}
                             <div>
-                                <FieldLabel required ok={!!formData.name}>
+                                <FieldLabel required ok={!!formData.name.trim()}>
                                     Client Name
                                 </FieldLabel>
                                 <Input name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Acme Events Inc." className={inp} maxLength={100} />
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.name.length}/100</p>
                             </div>
 
-                            {/* description */}
+                            {/* Description — optional, no * star */}
                             <div>
-                                <FieldLabel required ok={!!formData.description}>
+                                <FieldLabel ok={!!formData.description.trim()}>
                                     Description
+                                    <span className="ml-1 text-slate-300 font-normal">(optional)</span>
                                 </FieldLabel>
                                 <Textarea
                                     name="description"
@@ -226,6 +277,11 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Brand Logo" />
 
+                        {/* Size hint shown above uploader */}
+                        <p className="text-[11px] text-slate-400 mb-3">
+                            Max size: <span className="font-medium text-slate-600">{MAX_IMAGE_SIZE_MB}MB</span> · Accepted: JPG, PNG, WebP, SVG
+                        </p>
+
                         <ImageUploader
                             files={files}
                             onChange={(f) => {
@@ -233,7 +289,7 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                                 handleFileUpload(f);
                             }}
                             maxFiles={1}
-                            maxSize={4}
+                            maxSize={MAX_IMAGE_SIZE_MB}
                             accept="image/*"
                         />
 
@@ -259,7 +315,7 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                             </div>
                         )}
 
-                        {/* readonly path */}
+                        {/* Readonly path */}
                         <div className="mt-4">
                             <FieldLabel>Stored path</FieldLabel>
                             <Input
@@ -274,7 +330,7 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                         </div>
                     </section>
 
-                    {/* mobile footer */}
+                    {/* Mobile footer */}
                     <div className="flex sm:hidden gap-2">
                         <Button type="button" variant="outline" size="sm" onClick={() => router.back()} disabled={loading || uploading} className="flex-1 h-9 text-xs">
                             Cancel
@@ -286,10 +342,10 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                     </div>
                 </div>
 
-                {/* ── sidebar ───────────────────────────── */}
+                {/* ── Sidebar ───────────────────────────────────────────────── */}
                 <aside className="w-full xl:w-64 shrink-0">
                     <div className="xl:sticky xl:top-[108px] space-y-4">
-                        {/* completion */}
+                        {/* Completion */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xs font-medium text-slate-600">Completion</span>
@@ -303,20 +359,33 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
                             <div className="space-y-1.5">
                                 {completion.map((item) => (
                                     <div key={item.label} className="flex items-center gap-2">
-                                        {item.ok ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> : <AlertCircle className="h-3.5 w-3.5 text-slate-200  shrink-0" />}
+                                        {item.ok ? (
+                                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                        ) : (
+                                            <AlertCircle
+                                                className={`h-3.5 w-3.5 shrink-0 ${
+                                                    item.required
+                                                        ? "text-red-300" // required — red warning
+                                                        : "text-slate-200" // optional — grey
+                                                }`}
+                                            />
+                                        )}
                                         <span className={`text-[11px] ${item.ok ? "text-slate-600" : "text-slate-400"}`}>{item.label}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* tips */}
+                        {/* Tips */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
                             <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                 <li>Use a square or 4:3 logo for best display.</li>
-                                <li>Keep logo under 200 KB for fast load.</li>
-                                <li>One-line description fits card layouts best.</li>
+                                <li>
+                                    Keep logo under <span className="font-medium text-slate-500">{MAX_IMAGE_SIZE_MB}MB</span> for fast load.
+                                </li>
+                                <li>PNG or WebP with transparent background looks best.</li>
+                                <li>Description is optional — logo + name is enough.</li>
                             </ul>
                         </div>
                     </div>

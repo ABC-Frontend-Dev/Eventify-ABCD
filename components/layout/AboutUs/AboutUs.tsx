@@ -120,6 +120,8 @@ export default function AboutUs() {
     return (
         <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <header className="grid lg:grid-cols-[460px_1fr] gap-y-1 gap-x-10 items-start">
+                <h1 className="hidden">Eventify Entertainment</h1>
+
                 <SubHeading title="The team behind every celebration" />
                 <HeaderDescription
                     description="Eventify is a Dubai-born events company redefining how people experience culture, entertainment, and live moments. Built by industry leaders and creatives who have helped shape the region’s event scene for over two decades, Eventify thrives at the intersection of ideas, energy, and execution."
