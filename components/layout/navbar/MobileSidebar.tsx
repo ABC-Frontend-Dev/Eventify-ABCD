@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import ContactModal from "../Contact/ContactModal";
@@ -69,17 +70,34 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                 {isOpen && (
                     <motion.div
                         key="sidebar"
-                        initial={{ clipPath: "circle(0px at calc(100% - 40px) 40px)" }}
-                        animate={{ clipPath: "circle(150% at calc(100% - 40px) 40px)" }}
-                        exit={{ clipPath: "circle(0px at calc(100% - 40px) 40px)" }}
+                        initial={{ x: "-100%" }}
+                        animate={{ x: 0 }}
+                        exit={{ x: "-100%" }}
                         transition={{
-                            type: "spring",
-                            stiffness: 20,
-                            restDelta: 2,
-                            duration: 0.6,
+                            type: "tween",
+                            duration: 0.45,
+                            ease: [0.76, 0, 0.24, 1],
                         }}
-                        className="fixed w-[70%] right-0 top-0 bg-white z-40 shadow-xl"
+                        className="fixed w-full left-0 top-0 bg-white z-40 shadow-xl"
                     >
+                        {/* ── Logo ─────────────────────────────────────────── */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ delay: 0.15, duration: 0.3 }}
+                            className="absolute top-4 left-6 z-50"
+                        >
+                            <Image
+                                src="https://res.cloudinary.com/afdhm38k/image/upload/v1785754539/logo-dark_ymjn39.png"
+                                alt="Eventify Logo"
+                                width={140}
+                                height={40}
+                                className="h-8 w-auto object-contain"
+                                priority
+                            />
+                        </motion.div>
+
                         {/* ── Close Button ─────────────────────────────────── */}
                         <motion.button
                             initial={{ opacity: 0, scale: 0.8 }}
@@ -98,11 +116,11 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                         {/* ── Nav Content ──────────────────────────────────── */}
                         <nav className="h-screen pl-6 pr-6 flex flex-col items-start justify-between">
                             <div className="w-full">
-                                <div className="mt-14 w-full">
-                                    <p className="pb-1 border-b border-b-gray-600 text-sm text-gray-600">Menu</p>
-                                </div>
+                                {/* <div className="mt-14 w-full">
+                                    <p className="pb-1 border-b border-b-gray-600 text-sm text-gray-600">Menus</p>
+                                </div> */}
                                 {/* Menu Items */}
-                                <ul className="space-y-3.5 mt-4 w-full">
+                                <ul className="space-y-3.5 mt-12 w-full">
                                     {menuItems.map((menu, index) => (
                                         <motion.li
                                             key={menu.id}
@@ -127,67 +145,68 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                         </motion.li>
                                     ))}
                                 </ul>
-                            </div>
-                            {/* ── Let's Connect Button ──────────────────────── */}
-                            <motion.div
-                                initial={{ y: 30, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: 30, opacity: 0 }}
-                                transition={{
-                                    delay: menuItems.length * 0.05 + 0.3,
-                                    duration: 0.4,
-                                    ease: "easeOut",
-                                }}
-                                className="mb-4"
-                            >
-                                <button
-                                    className="group relative overflow-hidden inline-flex cursor-pointer w-full items-center justify-center gap-1.5 rounded-[5px]
+
+                                {/* ── Let's Connect Button ──────────────────────── */}
+                                <motion.div
+                                    initial={{ y: 30, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: 30, opacity: 0 }}
+                                    transition={{
+                                        delay: menuItems.length * 0.05 + 0.3,
+                                        duration: 0.4,
+                                        ease: "easeOut",
+                                    }}
+                                    className="mb-4"
+                                >
+                                    <button
+                                        className="mt-6 group relative overflow-hidden inline-flex cursor-pointer w-full items-center justify-center gap-1.5 rounded-[5px]
                                         font-helvetica-neue-roman will-change-transform hover:opacity-95
                                         border border-gray-200"
-                                    style={{
-                                        fontSize: "14px",
-                                        padding: "0.6rem 1.75rem",
-                                        height: "40px",
-                                        backgroundColor: "white",
-                                        color: "black",
-                                        transition: "background-color 0.3s ease, color 0.3s ease",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = "#7e0acb";
-                                        e.currentTarget.style.color = "white";
-                                        e.currentTarget.style.borderColor = "#7e0acb";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = "white";
-                                        e.currentTarget.style.color = "black";
-                                        e.currentTarget.style.borderColor = "#e5e7eb";
-                                    }}
-                                    onClick={() => {
-                                        closeMenu();
-                                        // small delay so sidebar closes before modal opens
-                                        setTimeout(() => setContactOpen(true), 300);
-                                    }}
-                                >
-                                    <span className="relative block overflow-hidden whitespace-nowrap text-center" style={{ minWidth: "110px" }}>
-                                        <span
-                                            className="block transition-transform duration-500
+                                        style={{
+                                            fontSize: "14px",
+                                            padding: "0.6rem 1.75rem",
+                                            height: "40px",
+                                            backgroundColor: "white",
+                                            color: "black",
+                                            transition: "background-color 0.3s ease, color 0.3s ease",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.backgroundColor = "#7e0acb";
+                                            e.currentTarget.style.color = "white";
+                                            e.currentTarget.style.borderColor = "#7e0acb";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.backgroundColor = "white";
+                                            e.currentTarget.style.color = "black";
+                                            e.currentTarget.style.borderColor = "#e5e7eb";
+                                        }}
+                                        onClick={() => {
+                                            closeMenu();
+                                            // small delay so sidebar closes before modal opens
+                                            setTimeout(() => setContactOpen(true), 300);
+                                        }}
+                                    >
+                                        <span className="relative block overflow-hidden whitespace-nowrap text-center" style={{ minWidth: "110px" }}>
+                                            <span
+                                                className="block transition-transform duration-500
                                                 ease-[cubic-bezier(0.76,0,0.24,1)]
                                                 group-hover:-translate-x-full"
-                                        >
-                                            Let's Connect
-                                        </span>
-                                        <span
-                                            aria-hidden="true"
-                                            className="absolute inset-0 flex items-center justify-center
+                                            >
+                                                Let's Connect
+                                            </span>
+                                            <span
+                                                aria-hidden="true"
+                                                className="absolute inset-0 flex items-center justify-center
                                                 translate-x-full transition-transform duration-500
                                                 ease-[cubic-bezier(0.76,0,0.24,1)]
                                                 group-hover:translate-x-0"
-                                        >
-                                            Let's Connect
+                                            >
+                                                Let's Connect
+                                            </span>
                                         </span>
-                                    </span>
-                                </button>
-                            </motion.div>
+                                    </button>
+                                </motion.div>
+                            </div>
                         </nav>
                     </motion.div>
                 )}

@@ -494,7 +494,7 @@ body.custom-cursor-active * {
 
 .blog-page-gradient {
   background: #000000;
-  background: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.00) 100%);
+  background: linear-gradient(360deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 .services-content p:not(:first-child) {
