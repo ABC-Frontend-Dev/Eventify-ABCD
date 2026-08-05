@@ -87,7 +87,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
                                     backgroundSize: "280% auto",
                                     backgroundPosition: "left top",
                                     transition: "background-position 0.8s ease, opacity 0.2s",
-                                    fontSize: "14px",
+                                    fontSize: "16px",
                                     padding: "0.6rem 1.75rem",
                                     height: "40px",
                                     backgroundColor: "white",

@@ -7,7 +7,7 @@ import type React from "react";
 export type TabsVariant = "default" | "underline";
 
 export function Tabs({ className, ...props }: TabsPrimitive.Root.Props): React.ReactElement {
-    return <TabsPrimitive.Root className={cn("flex flex-col gap-0 md:gap-5 data-[orientation=vertical]:flex-row", className)} data-slot="tabs" {...props} />;
+    return <TabsPrimitive.Root className={cn("flex flex-col gap-0 md:gap-0 data-[orientation=vertical]:flex-row", className)} data-slot="tabs" {...props} />;
 }
 
 export function TabsList({

@@ -147,11 +147,10 @@ export default function InspirationInFrames() {
     return (
         <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9 scroll-mt-14">
             <header>
-                <SubHeading title="see you later" />
-                <HeaderDescription description="A curated glimpse into our visual world" scrollContainerRef={undefined} />
+                <SubHeading sectionType="SYL" showDescription />
             </header>
 
-            <div className="mt-4 sm:mt-7.5">
+            <div className="mt-4 sm:mt-5">
                 <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative">
                     {/* <div ref={overlayRef} className="absolute top-0 left-0 z-20 pointer-events-none overflow-hidden opacity-0" style={{ willChange: "transform, width, height" }}>
                         <div className="absolute inset-0 bg-black/30 z-30" />

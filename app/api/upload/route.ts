@@ -1,3 +1,4 @@
+// app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
@@ -19,17 +20,21 @@ const FOLDER_MAP: Record<string, string> = {
     hero: "eventify/hero",
     videos: "eventify/videos",
     comparisons: "eventify/comparisons",
+    "about-us": "eventify/about-us",
 };
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB default
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const FOLDER_SIZE_LIMITS: Record<string, { image?: number; video?: number }> = {
     hero: {
-        image: 5 * 1024 * 1024, // 5 MB
-        video: 200 * 1024 * 1024, // 200 MB
+        image: 5 * 1024 * 1024,
+        video: 200 * 1024 * 1024,
     },
     videos: {
-        video: 200 * 1024 * 1024, // 200 MB
+        video: 200 * 1024 * 1024,
+    },
+    "about-us": {
+        image: 2 * 1024 * 1024,
     },
 };
 

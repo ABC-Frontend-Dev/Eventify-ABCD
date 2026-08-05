@@ -121,14 +121,14 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
             {/* Dots */}
             {displayMedia.length > 1 && (
                 <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(97%+0px)] h-full flex items-center justify-between gap-4 pointer-events-none">
-                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10">
-                        <div className="flex gap-2">
+                    <div className="absolute bottom-2.5 sm:bottom-5 left-1/2 -translate-x-1/2 z-10">
+                        <div className="flex gap-1 sm:gap-2">
                             {displayMedia.map((_, index) => (
                                 <button
                                     key={`dot-${index}`}
                                     onClick={() => scrollTo(index)}
                                     className={`pointer-events-auto transition-all duration-300 ${
-                                        index === selectedIndex ? "bg-primary w-8 h-2" : "bg-slate-300 hover:bg-slate-400 w-2 h-2"
+                                        index === selectedIndex ? "bg-primary w-3 sm:w-8 h-1 sm:h-2" : "bg-slate-300 hover:bg-slate-400 w-1 sm:w-2 h-1 sm:h-2"
                                     } rounded-full`}
                                     aria-label={`Go to slide ${index + 1}`}
                                 />

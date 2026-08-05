@@ -15,6 +15,26 @@ model Model {
   updatedAt DateTime @updatedAt
 }
 
+enum SectionType {
+CLIENT
+SERVICE
+TEAM
+PROJECT
+AWARD
+BLOG
+SYL //See You Later
+}
+
+model SectionTD {
+id Int @id @default(autoincrement())
+type SectionType @unique
+titlePartOne String
+titlePartTwo String?
+description String? @db.Text
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+}
+
 model HeroSection {
   id           Int      @id @default(autoincrement())
   mediaType    String   // "video" or "image"
@@ -31,16 +51,47 @@ model HeroSection {
   updatedAt    DateTime @updatedAt
 }
 
+model AboutUs {
+  id           Int           @id @default(autoincrement())
+
+  titlePartOne String        @db.VarChar(50)
+  titlePartTwo String?       @db.VarChar(50)
+
+  description  String        @db.Text
+
+  image         String       @db.Text
+  imageAlt      String?      @default("Eventify Banner Image")
+
+  cards         AboutUsCard[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model AboutUsCard {
+  id          Int      @id @default(autoincrement())
+
+  frontFace   String   @db.Text
+  backFace    String   @db.Text
+  sortOrder   Int
+
+  aboutUsId   Int
+  aboutUs     AboutUs  @relation(fields: [aboutUsId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model HeroImage {
   id           Int      @id @default(autoincrement())
   heroId       Int
   hero         HeroSection @relation(fields: [heroId], references: [id], onDelete: Cascade)
 
   imageUrl     String
-  altText      String?  // Optional, fallback to title, then default
-  title        String?  // Optional
-  description  String?  // Optional
-  isActive     Boolean  @default(false) // Only one image can be active
+  altText      String?
+  title        String?
+  description  String?
+  isActive     Boolean  @default(false)
   order        Int      @default(0)
 
   createdAt    DateTime @default(now())

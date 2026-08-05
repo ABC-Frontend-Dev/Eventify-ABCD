@@ -196,8 +196,7 @@ export default function Projects() {
                 <header className="flex items-end md:items-start lg:items-end flex-col lg:flex-row gap-y-5 lg:gap-x-5">
                     <div className="shrink-0">
                         <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
-                        <SubHeading title="Explore projects" />
-                        <HeaderDescription description="The talented individuals working together to create memorable events." scrollContainerRef={undefined} />
+                        <SubHeading sectionType="PROJECT" showDescription />
                     </div>
 
                     <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1">
@@ -212,7 +211,7 @@ export default function Projects() {
                     </TabsList>
                 </header>
 
-                <div className="mt-4 lg:mt-9 relative">
+                <div className="mt-4 lg:mt-5 relative">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {visibleProjects.map((project) => (
@@ -281,7 +280,7 @@ export default function Projects() {
 
                             {/* Content */}
                             <div className="p-5 flex-shrink-0">
-                                <p className="font-helvetica-medium text-2xl lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
+                                <p className="font-helvetica-medium text-lg lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
                                 {selectedProject.description && <p className="mt-2 font-helvetica-neue-roman text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>}
 

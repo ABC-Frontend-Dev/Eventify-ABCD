@@ -14,18 +14,30 @@ type CloudMarqueeProps = {
 };
 
 function LogoItem({ logo }: { logo: Logo }) {
+    // Color/grayscale is now driven by React state instead of CSS `group-hover`.
+    // group-hover relies on the :hover pseudo-class, which mobile browsers
+    // handle inconsistently on tap (sometimes never applies, sometimes sticks).
+    // Mouse AND touch events both explicitly set this state, so the visual
+    // effect stays in sync with the pause behavior below, which already uses
+    // the same kind of event handling.
+    const [isActive, setIsActive] = useState(false);
+
     return (
-        <div className="group mx-3 shrink-0 flex items-center justify-center w-fit h-15 lg:h-20 bg-white dark:bg-white/5 duration-300">
+        <div
+            className="mx-3 shrink-0 flex items-center justify-center w-fit h-15 lg:h-20 bg-white dark:bg-white/5 duration-300"
+            onMouseEnter={() => setIsActive(true)}
+            onMouseLeave={() => setIsActive(false)}
+            onTouchStart={() => setIsActive(true)}
+            onTouchEnd={() => setIsActive(false)}
+            onTouchCancel={() => setIsActive(false)}
+        >
             <img
                 src={logo.src}
                 alt={logo.alt}
                 width={32}
                 height={32}
                 draggable={false}
-                className="w-full h-14 lg:h-18 object-contain select-none pointer-events-none
-          grayscale opacity-40
-          transition-all duration-300
-          group-hover:grayscale-0 group-hover:opacity-100"
+                className={`w-full h-14 lg:h-18 object-contain select-none pointer-events-none transition-all duration-300 ${isActive ? "grayscale-0 opacity-100" : "grayscale opacity-40"}`}
             />
         </div>
     );
@@ -40,7 +52,14 @@ function MarqueeRow({ logos, direction = "left", duration = 1 }: { logos: Logo[]
     const animationName = direction === "left" ? "marquee-left" : "marquee-right";
 
     return (
-        <div className="relative overflow-hidden py-2" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+        <div
+            className="relative overflow-hidden py-2"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onTouchStart={() => setPaused(true)}
+            onTouchEnd={() => setPaused(false)}
+            onTouchCancel={() => setPaused(false)}
+        >
             {/*
         Container holds exactly 2 identical copies.
         CSS animates it by -50% (= one copy) so the seam is invisible.

@@ -14,12 +14,12 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Home, Image, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon, User2 } from "lucide-react";
+import { Home, Image, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon, User2, Text } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { signOut } from "next-auth/react";
-
+import NextImage from "next/image";
 type SubMenuItem = {
     title: string;
     icon: LucideIcon;
@@ -42,9 +42,19 @@ const menuItems: MenuItem[] = [
         live: true,
     },
     {
+        title: "Sections",
+        icon: Text,
+        href: "/dashboard/sections",
+    },
+    {
         title: "Hero Section",
         icon: Image,
         href: "/dashboard/hero-section",
+    },
+    {
+        title: "About Us",
+        icon: Image,
+        href: "/dashboard/about-us",
     },
     {
         title: "Clients",
@@ -137,7 +147,18 @@ export function DashboardSidebar() {
             {/* ── Logo ──────────────────────────────────── */}
             <SidebarHeader className="border-b border-slate-100 px-4 py-3.5">
                 <Link href="/dashboard" className="flex items-center gap-2.5 group">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white">E</div>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-primary rounded-sm p-0.5">
+                        <NextImage
+                            src={"https://res.cloudinary.com/afdhm38k/image/upload/v1785845462/favicon_xneik8.png"}
+                            alt="Eventify"
+                            width={1000}
+                            height={1000}
+                            priority
+                            className="w-full h-full object-contain"
+                        />
+                        {/* Type '{ src: string; alt: string; width: number; height: number; priority: true; className: string; }' is not assignable to type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'.
+  Property 'src' does not exist on type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'. */}
+                    </div>
                     <div>
                         <p className="text-sm font-semibold leading-none text-slate-900 tracking-tight">Eventify</p>
                         <p className="mt-0.5 text-[11px] text-slate-400">Admin console</p>

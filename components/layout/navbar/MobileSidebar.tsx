@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,28 +23,136 @@ interface MenuSidebarProps {
 export default function MenuSidebar({ menus }: MenuSidebarProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [contactOpen, setContactOpen] = useState(false);
+    const [activeSection, setActiveSection] = useState<string>("");
     const pathname = usePathname();
 
     const defaultMenus: MenuItem[] = [
-        { id: 1, title: "Home", name: "Home", url: "/", dropdown: false },
+        { id: 1, title: "Home", name: "Home", url: "#home", dropdown: false },
         { id: 2, title: "About Us", name: "About Us", url: "#about-us", dropdown: false },
-        { id: 3, title: "Projects", name: "Projects", url: "#", dropdown: false },
-        { id: 4, title: "Clients", name: "Clients", url: "#our-clients", dropdown: false },
-        { id: 5, title: "Services", name: "Services", url: "#our-services", dropdown: false },
-        { id: 6, title: "Teams", name: "Teams", url: "#teams", dropdown: false },
+        { id: 3, title: "Clients", name: "Clients", url: "#our-clients", dropdown: false },
+        { id: 4, title: "Services", name: "Services", url: "#our-services", dropdown: false },
+        { id: 5, title: "Teams", name: "Teams", url: "#teams", dropdown: false },
+        { id: 6, title: "Projects", name: "Projects", url: "#projects", dropdown: false },
         { id: 7, title: "Awards", name: "Awards", url: "#awards", dropdown: false },
         { id: 8, title: "Blogs", name: "Blogs", url: "#blogs", dropdown: false },
     ];
 
     const menuItems = menus || defaultMenus;
 
+    /* ── 1. Lock body scroll while sidebar is open (iOS-safe) ─────────── */
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+        if (!isOpen) return;
+
+        const scrollY = window.scrollY;
+        const body = document.body;
+
+        body.style.position = "fixed";
+        body.style.top = `-${scrollY}px`;
+        body.style.left = "0";
+        body.style.right = "0";
+        body.style.width = "100%";
+        body.style.overflow = "hidden";
+        body.style.touchAction = "none";
+
+        return () => {
+            body.style.position = "";
+            body.style.top = "";
+            body.style.left = "";
+            body.style.right = "";
+            body.style.width = "";
+            body.style.overflow = "";
+            body.style.touchAction = "";
+            window.scrollTo(0, scrollY);
+        };
+    }, [isOpen]);
+
+    /* ── 2. Scroll-spy via IntersectionObserver (runs on mount) ───────── */
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const hashItems = menuItems.filter((m) => m.url.startsWith("#") && m.url.length > 1);
+        const ids = hashItems.map((m) => m.url.slice(1));
+        if (ids.length === 0) return;
+
+        const elements = ids.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+        if (elements.length === 0) return;
+
+        const visible = new Map<string, number>();
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        visible.set(entry.target.id, entry.intersectionRatio);
+                    } else {
+                        visible.delete(entry.target.id);
+                    }
+                });
+
+                if (visible.size > 0) {
+                    // Pick the most visible section
+                    let topId = "";
+                    let topRatio = 0;
+                    visible.forEach((ratio, id) => {
+                        if (ratio > topRatio) {
+                            topRatio = ratio;
+                            topId = id;
+                        }
+                    });
+                    setActiveSection(topId);
+                } else {
+                    // No section in view — decide between Home and "below all"
+                    const allBelowViewportTop = elements.every((el) => el.getBoundingClientRect().top > window.innerHeight * 0.35);
+                    if (allBelowViewportTop) {
+                        setActiveSection(""); // Home
+                    } else {
+                        // Past them all — light up the last one
+                        const last = elements.map((el) => ({ id: el.id, top: el.getBoundingClientRect().top })).sort((a, b) => b.top - a.top)[0];
+                        setActiveSection(last?.id ?? "");
+                    }
+                }
+            },
+            {
+                // Trigger near the top-third of the viewport
+                rootMargin: "-35% 0px -55% 0px",
+                threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+            },
+        );
+
+        elements.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, [menuItems]);
+
     const toggleMenu = () => setIsOpen((prev) => !prev);
     const closeMenu = () => setIsOpen(false);
+
+    /* ── 3. Determine which menu item is "active" right now ───────────── */
+    const isActive = (menu: MenuItem): boolean => {
+        // Non-home route → fall back to pathname matching
+        const onHome = pathname === "/" || pathname === "";
+        if (!onHome) {
+            return pathname === menu.url;
+        }
+
+        // Home route
+        if (menu.url === "/") return activeSection === "";
+        if (menu.url === "#") return false; // Projects: never auto-highlights
+        if (menu.url.startsWith("#")) {
+            return activeSection === menu.url.slice(1);
+        }
+        return false;
+    };
 
     return (
         <>
             {/* ── Hamburger Button ─────────────────────────────────────────── */}
-            <button onClick={toggleMenu} className="z-50 flex flex-col justify-center items-center w-5.5 h-5.5 bg-transparent rounded-full transition-colors duration-300" aria-label="Toggle menu">
+            <button
+                onClick={toggleMenu}
+                className="z-50 flex flex-col justify-center items-center w-5.5 h-5.5 bg-transparent rounded-full transition-colors duration-300"
+                aria-label="Toggle menu"
+                aria-expanded={isOpen}
+            >
                 <motion.span animate={isOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }} transition={{ duration: 0.3 }} className="block w-5 h-0.5 bg-gray-800 mb-1" />
                 <motion.span animate={isOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }} className="block w-5 h-0.5 bg-gray-800 mb-1" />
                 <motion.span animate={isOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }} transition={{ duration: 0.3 }} className="block w-5 h-0.5 bg-gray-800" />
@@ -78,7 +186,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                             duration: 0.45,
                             ease: [0.76, 0, 0.24, 1],
                         }}
-                        className="fixed w-full left-0 top-0 bg-white z-40 shadow-xl"
+                        className="fixed w-full left-0 top-0 bg-white z-40 shadow-xl overflow-y-auto"
                     >
                         {/* ── Logo ─────────────────────────────────────────── */}
                         <motion.div
@@ -114,36 +222,50 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                         </motion.button>
 
                         {/* ── Nav Content ──────────────────────────────────── */}
-                        <nav className="h-screen pl-6 pr-6 flex flex-col items-start justify-between">
+                        <nav className="min-h-screen pl-6 pr-6 flex flex-col items-start justify-between">
                             <div className="w-full">
-                                {/* <div className="mt-14 w-full">
-                                    <p className="pb-1 border-b border-b-gray-600 text-sm text-gray-600">Menus</p>
-                                </div> */}
-                                {/* Menu Items */}
-                                <ul className="space-y-3.5 mt-12 w-full">
-                                    {menuItems.map((menu, index) => (
-                                        <motion.li
-                                            key={menu.id}
-                                            initial={{ y: 50, opacity: 0 }}
-                                            animate={{ y: 0, opacity: 1 }}
-                                            exit={{ y: 50, opacity: 0 }}
-                                            transition={{
-                                                delay: index * 0.05 + 0.2,
-                                                duration: 0.4,
-                                                ease: "easeOut",
-                                            }}
-                                        >
-                                            <Link
-                                                href={menu.url}
-                                                onClick={closeMenu}
-                                                className={`relative block py-0 px-0 text-sm sm:text-lg text-left
-                                                tracking-wide font-helvetica transition-all duration-200
-                                                ${pathname === menu.url ? "font-helvetica-medium text-footer-bg" : "text-gray-600 font-helvetica"}`}
+                                <ul className="space-y-3.5 mt-16 w-full">
+                                    {menuItems.map((menu, index) => {
+                                        const active = isActive(menu);
+                                        return (
+                                            <motion.li
+                                                key={menu.id}
+                                                initial={{ y: 50, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                exit={{ y: 50, opacity: 0 }}
+                                                transition={{
+                                                    delay: index * 0.05 + 0.2,
+                                                    duration: 0.4,
+                                                    ease: "easeOut",
+                                                }}
+                                                className="relative"
                                             >
-                                                {menu.name}
-                                            </Link>
-                                        </motion.li>
-                                    ))}
+                                                <Link
+                                                    href={menu.url}
+                                                    onClick={closeMenu}
+                                                    className={`relative block py-1 text-sm sm:text-lg text-left
+                                                    tracking-wide transition-all duration-300
+                                                    ${active ? "font-helvetica-medium text-footer-bg pl-3" : "text-gray-600 font-helvetica"}`}
+                                                >
+                                                    {/* Active indicator bar */}
+                                                    <AnimatePresence>
+                                                        {active && (
+                                                            <motion.span
+                                                                layoutId="mobile-active-indicator"
+                                                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-footer-bg rounded-full"
+                                                                transition={{
+                                                                    type: "spring",
+                                                                    stiffness: 380,
+                                                                    damping: 30,
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </AnimatePresence>
+                                                    {menu.name}
+                                                </Link>
+                                            </motion.li>
+                                        );
+                                    })}
                                 </ul>
 
                                 {/* ── Let's Connect Button ──────────────────────── */}
@@ -182,7 +304,6 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                         }}
                                         onClick={() => {
                                             closeMenu();
-                                            // small delay so sidebar closes before modal opens
                                             setTimeout(() => setContactOpen(true), 300);
                                         }}
                                     >
@@ -192,7 +313,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                                 ease-[cubic-bezier(0.76,0,0.24,1)]
                                                 group-hover:-translate-x-full"
                                             >
-                                                Let's Connect
+                                                Let&apos;s Connect
                                             </span>
                                             <span
                                                 aria-hidden="true"
@@ -201,7 +322,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                                 ease-[cubic-bezier(0.76,0,0.24,1)]
                                                 group-hover:translate-x-0"
                                             >
-                                                Let's Connect
+                                                Let&apos;s Connect
                                             </span>
                                         </span>
                                     </button>

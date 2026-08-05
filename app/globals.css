@@ -59,7 +59,9 @@
   --font-product-sans-black: var(--font-product-sans-black);
   --font-helvetica-neue-roman: var(--font-helvetica-neue-roman);
   --font-helvetica-thin: var(--font-helvetica-thin);
-  --color-primary: #7E0ACB;
+  --font-abc-laica-a-italic-variable-trial: var(--font-abc-laica-a-italic-variable-trial);
+  --color-primary: #57068C;
+  /* --color-primary: #7E0ACB; */
   /* --color-primary: #570689; */
   --color-slate-50: #F8FAFC;
   --color-slate-100: #F1F5F9;
@@ -366,7 +368,7 @@ body.custom-cursor-active * {
 }
 
 .blog-page-wrapper h1 {
-  @apply text-[40px] leading-11 font-helvetica-heavy font-bold text-slate-950 mt-6;
+  @apply text-[32px] leading-11 font-helvetica-heavy font-bold text-slate-950 mt-6;
 }
 
 .blog-page-wrapper h2:not(:first-child) {
@@ -382,7 +384,7 @@ body.custom-cursor-active * {
 }
 
 .blog-page-wrapper p {
-  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica-thin font-medium tracking-wide;
+  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
 }
 
 .blog-page-wrapper li {

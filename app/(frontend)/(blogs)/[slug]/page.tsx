@@ -215,9 +215,9 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                     {/* Banner Image */}
                     <div className="relative overflow-hidden">
                         <BlogBannerReveal desktopSrc={blog.banner_image} mobileSrc={blog.thumbnail} alt={blog.title} />
-                        <div className="bg-gray-200 p-2.5 lg:p-5 mt-2.5 lg:mt-4">
+                        {/* <div className="bg-gray-200 p-2.5 lg:p-5 mt-2.5 lg:mt-4">
                             <p className="text-sm lg:text-base leading-5 lg:leading-6 tracking-wide text-footer-bg font-helvetica-thin font-extralight">{blog.description}</p>
-                        </div>
+                        </div> */}
 
                         {/* <div className="absolute top-1.5 lg:top-3.5 right-1.5 lg:right-3.5 border border-primary/80 bg-primary/80 rounded-[6px] py-1 px-2 md:px-3 capitalize text-sm lg:text-lg font-helvetica-thin md:font-helvetica-neue-roman tracking-wide w-fit text-white">
                             {blog.category.name}

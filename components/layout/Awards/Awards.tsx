@@ -56,11 +56,10 @@ export default function Awards() {
                 <header className="flex items-end justify-between">
                     <div>
                         <HeadingWithoutLogo title="Awards" />
-                        <SubHeading title="Celebrated Achievements" />
-                        <HeaderDescription description="Each recognition reflects the impact of our creative event experiences." scrollContainerRef={undefined} />
+                        <SubHeading sectionType="AWARD" showDescription />
                     </div>
                 </header>
-                <div className="mt-9 flex items-center justify-center py-20">
+                <div className="mt-5 flex items-center justify-center py-20">
                     <p className="text-slate-400">Loading awards...</p>
                 </div>
             </section>
@@ -82,8 +81,7 @@ export default function Awards() {
                 <header className="flex items-end justify-between">
                     <div>
                         <HeadingWithoutLogo title="Awards" />
-                        <SubHeading title="Celebrated Achievements" />
-                        <HeaderDescription description="Each recognition reflects the impact of our creative event experiences." scrollContainerRef={undefined} />
+                        <SubHeading sectionType="AWARD" showDescription />
                     </div>
 
                     <TabsList className="p-1.25 rounded-none bg-slate-100 gap-2.5">
@@ -95,7 +93,7 @@ export default function Awards() {
                     </TabsList>
                 </header>
 
-                <div className="mt-9">
+                <div className="mt-5">
                     {awards.map((award) => (
                         <TabsPanel key={award.id} value={`tab-${award.id}`}>
                             <AwardsYearTabContent categories={award.categories} />

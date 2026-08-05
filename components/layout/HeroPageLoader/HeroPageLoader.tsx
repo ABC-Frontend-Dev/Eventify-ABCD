@@ -117,16 +117,16 @@ export default function HeroPageLoader() {
             },
         });
 
-        tl.to({}, { duration: 1.2 })
+        tl.to({}, { duration: 0.2 })
             .to(currentBars, {
                 rotation: (index) => [-20, 11, 0][index],
                 duration: 0.6,
                 ease: "power2.inOut",
             })
-            .to({}, { duration: 0.8 })
+            .to({}, { duration: 0.4 })
             .to(barsGroup, {
                 scale: 80,
-                duration: 1,
+                duration: 0.8,
                 ease: "power4.inOut",
             })
             .to(

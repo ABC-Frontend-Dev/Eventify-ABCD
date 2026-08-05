@@ -1,3 +1,4 @@
+// components/layout/OurClients/OurClients.tsx
 "use client";
 
 import HeadingWithLogo from "@/components/common/HeadingWithLogo";
@@ -53,8 +54,7 @@ export default function OurClients() {
         <section id="our-clients" ref={sectionRef} className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <header>
                 <HeadingWithLogo titlePart1="Our" titlePart2_1="Cli" titlePart2_2="nts" />
-                <SubHeading title="Brands that believe in us" />
-                <HeaderDescription description="From startups to established companies, our clients trust us to bring their ideas to life." scrollContainerRef={undefined} />
+                <SubHeading sectionType="CLIENT" showDescription />
             </header>
 
             <div className="mt-9">

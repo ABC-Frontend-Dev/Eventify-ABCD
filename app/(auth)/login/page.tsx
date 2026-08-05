@@ -5,6 +5,7 @@ import { useState, useRef, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Lock, Mail, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -66,16 +67,21 @@ function LoginForm() {
         <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
             <div className="w-full max-w-sm">
                 {/* brand */}
-                <div className="flex items-center gap-2.5 justify-center mb-8">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white">E</div>
-                    <div>
-                        <p className="text-sm font-semibold leading-none text-slate-900 tracking-tight">Eventify</p>
-                        <p className="mt-0.5 text-[11px] text-slate-400">Admin console</p>
-                    </div>
-                </div>
 
                 {/* card */}
-                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <div className="bg-white border border-slate-200 rounded-xl px-6 pb-6 pt-4 shadow-sm">
+                    <div className="flex items-center gap-2.5 justify-center h-16 mb-2 pb-3 border-b border-slate-300">
+                        <Image
+                            src={"https://res.cloudinary.com/afdhm38k/image/upload/v1785846557/logo_liluod.png"}
+                            alt="Eventify"
+                            width={1000}
+                            height={1000}
+                            priority
+                            className="w-full h-full object-contain"
+                        />
+                        {/* Type '{ src: string; alt: string; width: number; height: number; priority: true; className: string; }' is not assignable to type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'.
+  Property 'src' does not exist on type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'. */}
+                    </div>
                     <div className="mb-5">
                         <h1 className="text-base font-semibold text-slate-900">Sign in to your account</h1>
                         <p className="mt-0.5 text-xs text-slate-400">Enter your credentials below to continue</p>

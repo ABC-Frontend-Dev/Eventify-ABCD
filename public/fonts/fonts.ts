@@ -65,3 +65,9 @@ export const fontHelveticaThin = localFont({
     variable: "--font-helvetica-thin",
     display: "swap",
 });
+
+export const ABCLaicaAItalicVariableTrial = localFont({
+    src: "./ABCLaicaAItalicVariable-Trial.ttf",
+    variable: "--font-abc-laica-a-italic-variable-trial",
+    display: "swap",
+});

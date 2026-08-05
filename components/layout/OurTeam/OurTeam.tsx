@@ -11,10 +11,9 @@ export default function OurTeam() {
         <section id="teams" className="max-w-360 w-full mx-auto px-0 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <header className="px-5 lg:px-0">
                 <HeadingWithLogo titlePart1="" titlePart2_1="T" titlePart2_2="am" />
-                <SubHeading title="our event experts" />
-                <HeaderDescription description="The talented individuals working together to create memorable events." scrollContainerRef={undefined} />
+                <SubHeading sectionType="TEAM" showDescription />
             </header>
-            <div className="mt-4 lg:mt-9">
+            <div className="mt-4 lg:mt-5">
                 <Teams />
                 <OurTeamMobileView />
             </div>

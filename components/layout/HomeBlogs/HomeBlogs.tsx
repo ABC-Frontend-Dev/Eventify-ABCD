@@ -10,12 +10,11 @@ export default function HomeBlogs() {
         <section id="blogs" className="max-w-360 w-full mx-auto px-5 lg:px-20 py-9 scroll-mt-14">
             <header>
                 <HeadingWithoutLogo title="blog" />
-                <SubHeading title="Inside the Event World" />
-                <HeaderDescription description="Step behind the scenes of extraordinary events." scrollContainerRef={undefined} />
+                <SubHeading sectionType="BLOG" showDescription />
             </header>
 
             <div className="">
-                <div className="flex items-center justify-center flex-col md:flex-row lg:flex-row w-full mt-4 lg:mt-9 gap-y-1.5 lg:gap-5.5">
+                <div className="flex items-center justify-center flex-col md:flex-row lg:flex-row w-full mt-4 lg:mt-5 gap-y-1.5 lg:gap-5.5">
                     <BlogsCard />
                 </div>
                 {/* <div className="mt-5">
