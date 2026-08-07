@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 
+// Window globals (__lenis, __pendingHash) are declared in /types/global.d.ts
+
 export default function HeroPageLoader() {
     const loaderRef = useRef<HTMLDivElement>(null);
     const barsGroupRef = useRef<SVGGElement>(null);
@@ -114,6 +116,38 @@ export default function HeroPageLoader() {
                 document.removeEventListener("keydown", preventKey);
 
                 setIsLoading(false);
+
+                /* ── Pending-hash scroll: runs AFTER the loader has unmounted,
+                   the body styles are cleared, and lenis can drive the scroll. */
+                const hash = window.__pendingHash;
+                if (hash) {
+                    // Clear so back/forward navigation doesn't re-trigger it
+                    window.__pendingHash = undefined;
+
+                    const tryScroll = (attempt = 0) => {
+                        const target = document.getElementById(hash);
+                        const lenis = window.__lenis;
+
+                        if (target && lenis) {
+                            lenis.scrollTo(target, {
+                                offset: -80,
+                                duration: 1.2,
+                                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                            });
+                        } else if (attempt < 20) {
+                            // Wait one frame at a time — gives React, image
+                            // loading and lazy sections up to ~330 ms to mount
+                            requestAnimationFrame(() => tryScroll(attempt + 1));
+                        } else {
+                            // Final fallback if lenis is missing for any reason
+                            target?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                    };
+
+                    // Defer one frame so React can flush the loader unmount
+                    // and the body styles above are fully cleared first
+                    requestAnimationFrame(() => tryScroll());
+                }
             },
         });
 
@@ -124,20 +158,8 @@ export default function HeroPageLoader() {
                 ease: "power2.inOut",
             })
             .to({}, { duration: 0.4 })
-            .to(barsGroup, {
-                scale: 80,
-                duration: 0.8,
-                ease: "power4.inOut",
-            })
-            .to(
-                loader,
-                {
-                    opacity: 0,
-                    duration: 0.35,
-                    ease: "power2.out",
-                },
-                "-=0.2",
-            );
+            .to(barsGroup, { scale: 80, duration: 0.8, ease: "power4.inOut" })
+            .to(loader, { opacity: 0, duration: 0.35, ease: "power2.out" }, "-=0.2");
 
         return () => {
             tl.kill();

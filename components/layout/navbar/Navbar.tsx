@@ -1,3 +1,4 @@
+// components/layout/navbar/Navbar.tsx
 "use client";
 
 import Image from "next/image";

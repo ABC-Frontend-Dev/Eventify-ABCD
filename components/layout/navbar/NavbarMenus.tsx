@@ -1,3 +1,4 @@
+// // components/layout/navbar/NavbarMenu.tsx
 "use client";
 
 import { usePathname } from "next/navigation";
@@ -30,7 +31,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
             id: 2,
             title: "About Us",
             name: "About Us",
-            url: "#about-us",
+            url: "/#about-us",
             sectionId: "about-us",
             dropdown: false,
         },
@@ -38,7 +39,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
             id: 3,
             title: "Clients",
             name: "Clients",
-            url: "#our-clients",
+            url: "/#our-clients",
             sectionId: "our-clients",
             dropdown: false,
         },
@@ -46,7 +47,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
             id: 4,
             title: "Services",
             name: "Services",
-            url: "#our-services",
+            url: "/#our-services",
             sectionId: "our-services",
             dropdown: false,
         },
@@ -54,7 +55,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
             id: 5,
             title: "Teams",
             name: "Teams",
-            url: "#teams",
+            url: "/#teams",
             sectionId: "teams",
             dropdown: false,
         },
@@ -63,7 +64,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
             id: 7,
             title: "Awards",
             name: "Awards",
-            url: "#awards",
+            url: "/#awards",
             sectionId: "awards",
             dropdown: false,
         },
@@ -82,7 +83,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
                         <motion.div key="contact-trigger" layoutId="contact-modal-shell" transition={{ layout: morphTransition }} whileTap={{ scale: 0.985 }}>
                             {/* <ShineButton label="Let's Connect" size="md" bgColor="linear-gradient(325deg, #57068C 0%, #bd76eb 55%, #57068C 90%)" onClick={() => setOpen(true)} /> */}
                             <button
-                                className="group relative overflow-hidden inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-[5px] font-helvetica-neue-roman will-change-transform hover:opacity-95"
+                                className="group relative overflow-hidden inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-[5px] font-helvetica-neue-roman will-change-transform hover:opacity-95 border border-footer-bg/20"
                                 style={{
                                     backgroundSize: "280% auto",
                                     backgroundPosition: "left top",

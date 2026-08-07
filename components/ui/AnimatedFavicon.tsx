@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ROTATIONS = [-8, 10.5, 0];
+const ROTATIONS = [-24, 10.5, 0];
 
 export default function AnimatedFavicon() {
     const containerRef = useRef<HTMLUListElement>(null);
@@ -44,9 +44,10 @@ export default function AnimatedFavicon() {
     }, []);
 
     return (
-        <ul ref={containerRef} className="flex flex-col items-center justify-between w-4.25 lg:w-6.25 h-4.5 lg:h-6.5 -translate-y-px">
-            <li className="block w-full h-0.75 lg:h-1.25 bg-primary"></li>
-            <li className="block w-full h-0.75 lg:h-1.25 bg-primary"></li>
+        // justify-between  h-4.5 lg:h-7
+        <ul ref={containerRef} className="flex flex-col items-center w-4.25 lg:w-6.25 -translate-y-0.75">
+            <li className="block w-full h-0.75 lg:h-1.25 mb-2.25 bg-primary"></li>
+            <li className="block w-full h-0.75 lg:h-1.25 mb-1.25 bg-primary"></li>
             <li className="block w-full h-0.75 lg:h-1.25 bg-primary"></li>
         </ul>
     );

@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import axios from "axios";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -128,11 +129,13 @@ export default function HeroSection() {
                     </div>
                 )}
 
-                <div className="absolute left-1/2 lg:left-1/2 bottom-2.5 lg:bottom-1.5 -translate-x-1/2">
-                    <figure className="w-6.5 lg:w-10 h-10 mt2.5 lg:mt-3 animate-bounce mx-auto">
-                        <Image src="/images/icons/arrow-down.png" alt="Down Arrow Icon" width={20} height={20} className="w-full h-full object-contain" />
-                    </figure>
-                    <p className="font-helvetica-medium font-medium text-xs lg:text-base leading-4 lg:leading-6 tracking-wider text-white">Let's Eventify</p>
+                <div className="absolute left-1/2 lg:left-1/2 bottom-2.5 lg:bottom-4 -translate-x-1/2">
+                    <Link href={"#about-us"}>
+                        <figure className="w-6.5 lg:w-10 h-10 mt2.5 lg:mt-3 animate-bounce mx-auto">
+                            <Image src="/images/icons/arrow-down.png" alt="Down Arrow Icon" width={20} height={20} className="w-full h-full object-contain" />
+                        </figure>
+                        <p className="font-helvetica-medium font-medium text-xs lg:text-base leading-4 lg:leading-6 tracking-wider text-white">Let's Eventify</p>
+                    </Link>
                 </div>
             </div>
         </section>

@@ -251,8 +251,8 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                         </div>
 
                         {/* Related Blogs */}
-                        <div className="mt-3 sm:mt-5 md:mt-7 lg:mt-10">
-                            <p className="text-lg lg:text-2xl font-helvetica leading-5.5 lg:leading-8 font-extrabold text-slate-950">Related Blogs</p>
+                        <div className="mt-4 sm:mt-5 md:mt-7 lg:mt-10">
+                            <p className="text-lg lg:text-2xl font-helvetica-neue-roman md:font-helvetica leading-5.5 lg:leading-8 font-extrabold text-slate-950">Related Blogs</p>
                             <RelatedBlogList blogs={relatedBlogs} />
                         </div>
                     </div>

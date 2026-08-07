@@ -87,8 +87,8 @@ export default function BlogBannerReveal({ desktopSrc, mobileSrc, alt, bannerIma
     }, []);
 
     return (
-        <div className="max-w-full w-full h-68.5 lg:h-125">
-            <figure ref={containerRef} className="invisible h-68.5 lg:h-125 w-full overflow-hidden relative">
+        <div className="max-w-full w-full h-68.5 sm:h-78 md:h-86 lg:h-125">
+            <figure ref={containerRef} className="invisible h-68.5 sm:h-78 md:h-86 lg:h-125 w-full overflow-hidden relative">
                 {/* Desktop — uses resolvedDesktopSrc (falls back to thumbnail if banner_image is null) */}
                 <div ref={desktopWrapRef} className="block w-full h-full overflow-hidden">
                     <Image

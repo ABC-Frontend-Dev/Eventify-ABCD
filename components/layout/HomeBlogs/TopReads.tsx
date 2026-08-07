@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2, ChevronUp, ChevronDown } from "lucide-react";
@@ -50,13 +50,6 @@ function BlogRow({ blog }: { blog: Blog }) {
         });
     }, []);
 
-    const formatDate = (d: string) =>
-        new Date(d).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
-
     return (
         <div className="blog-card group relative w-full h-28 lg:h-41 overflow-hidden cursor-pointer" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             <Link href={`/blogs/${blog.slug}`} className="block w-full h-full">
@@ -67,7 +60,7 @@ function BlogRow({ blog }: { blog: Blog }) {
                         alt={blog.thumbnailAlt || blog.title}
                         width={800}
                         height={600}
-                        className="w-full h-41 object-cover object-center transition-transform duration-500 group-hover:scale-101"
+                        className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-101"
                     />
                 </figure>
 
@@ -75,7 +68,6 @@ function BlogRow({ blog }: { blog: Blog }) {
                 <div className="absolute inset-0 z-20 translate-y-full opacity-100 transition-transform duration-500 ease-in-out group-hover:translate-y-0" style={{ willChange: "transform" }}>
                     <div className="relative flex h-full w-full flex-col items-center justify-center bg-black/60 px-4 py-4 lg:px-12.75 lg:py-7.5">
                         <p className="text-center text-sm lg:text-xl leading-4.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
-
                         <p className="mt-3 text-center text-xs lg:text-sm leading-4 lg:leading-4.5 tracking-wider font-helvetica text-white">{truncatedDescription}</p>
                     </div>
                 </div>
@@ -100,11 +92,14 @@ export default function TopReads() {
     const [loading, setLoading] = useState(true);
 
     // currentIndex = index of the first visible card in the right column
-    // Right column shows blogs[currentIndex] … blogs[currentIndex + VISIBLE - 1]
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    const listRef = useRef<HTMLDivElement>(null);
+    const viewportRef = useRef<HTMLDivElement>(null); // fixed-height window
+    const trackRef = useRef<HTMLDivElement>(null); // contains ALL rows, absolutely positioned
     const animating = useRef(false);
+
+    // measured row step (height + gap) so the math stays right at every breakpoint
+    const stepRef = useRef(0);
 
     // ── Fetch latest published blogs (skip first — that's in FeaturedBlogsCard)
     useEffect(() => {
@@ -120,47 +115,85 @@ export default function TopReads() {
             .finally(() => setLoading(false));
     }, []);
 
-    // ── Animate vertical slide ────────────────────────────────────────────────
+    /* ── Measure one row's height + gap after mount and on resize ─────────── */
+    const measureStep = useCallback(() => {
+        if (!trackRef.current) return;
+        const firstRow = trackRef.current.querySelector<HTMLElement>("[data-blog-row]");
+        if (!firstRow) return;
+        const styles = window.getComputedStyle(trackRef.current);
+        const rowH = firstRow.getBoundingClientRect().height;
+        const gap = parseFloat(styles.rowGap || styles.gap || "0") || 0;
+        stepRef.current = rowH + gap;
+    }, []);
+
+    useLayoutEffect(() => {
+        measureStep();
+        window.addEventListener("resize", measureStep);
+        return () => window.removeEventListener("resize", measureStep);
+    }, [measureStep, blogs]);
+
+    /* ── Reduced motion preference ─────────────────────────────────────────── */
+    const reducedMotionRef = useRef(false);
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+        reducedMotionRef.current = mq.matches;
+        const apply = () => (reducedMotionRef.current = mq.matches);
+        mq.addEventListener?.("change", apply);
+        return () => mq.removeEventListener?.("change", apply);
+    }, []);
+
+    /* ── Animate vertical slide ─────────────────────────────────────────────── */
+
+    // Last real row must land flush at the window bottom — so the most we can
+    // ever advance is (realCount - VISIBLE). Clamp to ≥0 so it stays safe when
+    // there are fewer than VISIBLE blogs (in that case the buttons disable).
+    const maxIndex = Math.max(0, blogs.length - VISIBLE);
 
     const slide = useCallback(
         (direction: "up" | "down") => {
-            if (animating.current || !listRef.current) return;
+            if (!trackRef.current) return;
 
             const nextIndex = direction === "down" ? currentIndex + 1 : currentIndex - 1;
+            if (nextIndex < 0 || nextIndex > maxIndex) return;
 
-            if (nextIndex < 0 || nextIndex + VISIBLE > blogs.length) return;
+            // kill any in-flight tween so rapid clicks don't fight each other
+            gsap.killTweensOf(trackRef.current);
+
+            const targetY = -nextIndex * stepRef.current;
+
+            if (reducedMotionRef.current || stepRef.current === 0) {
+                // jump instantly with no animation
+                gsap.set(trackRef.current, { y: targetY });
+                setCurrentIndex(nextIndex);
+                return;
+            }
 
             animating.current = true;
 
-            const yFrom = direction === "down" ? 40 : -40;
-
-            gsap.fromTo(
-                listRef.current,
-                { opacity: 0.4, y: yFrom },
-                {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.45,
-                    ease: "power3.out",
-                    onComplete: () => {
-                        animating.current = false;
-                    },
+            gsap.to(trackRef.current, {
+                y: targetY,
+                duration: 0.45,
+                ease: "power3.out",
+                overwrite: "auto",
+                onComplete: () => {
+                    animating.current = false;
                 },
-            );
+            });
 
             setCurrentIndex(nextIndex);
         },
-        [currentIndex, blogs.length],
+        [currentIndex, maxIndex],
     );
 
     const canScrollUp = currentIndex > 0;
-    const canScrollDown = currentIndex + VISIBLE < blogs.length;
+    const canScrollDown = currentIndex < maxIndex;
 
     // ── Loading ───────────────────────────────────────────────────────────────
 
     if (loading) {
         return (
-            <div className="w-full lg:flex-1 h-168.5 flex items-center justify-center bg-slate-50">
+            <div className="w-full lg:flex-1 h-[466px] lg:h-[674px] flex items-center justify-center bg-slate-50">
                 <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
             </div>
         );
@@ -168,13 +201,11 @@ export default function TopReads() {
 
     if (blogs.length === 0) {
         return (
-            <div className="w-full lg:flex-1 flex items-center justify-center h-168.5 bg-slate-50">
+            <div className="w-full lg:flex-1 h-[466px] lg:h-[674px] flex items-center justify-center bg-slate-50">
                 <p className="text-slate-400 text-sm">No more blogs available</p>
             </div>
         );
     }
-
-    const visibleBlogs = blogs.slice(currentIndex, currentIndex + VISIBLE);
 
     // ── Render ────────────────────────────────────────────────────────────────
 
@@ -190,11 +221,7 @@ export default function TopReads() {
                             onClick={() => slide("up")}
                             disabled={!canScrollUp}
                             aria-label="Scroll up"
-                            className="w-8 h-8 rounded-full border border-slate-200 bg-white
-                            flex items-center justify-center
-                            hover:border-primary hover:text-primary
-                            disabled:opacity-30 disabled:cursor-not-allowed
-                            transition-colors duration-200"
+                            className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
                         >
                             <ChevronUp className="w-4 h-4" />
                         </button>
@@ -203,49 +230,27 @@ export default function TopReads() {
                             onClick={() => slide("down")}
                             disabled={!canScrollDown}
                             aria-label="Scroll down"
-                            className="w-8 h-8 rounded-full border border-slate-200 bg-white
-                            flex items-center justify-center
-                            hover:border-primary hover:text-primary
-                            disabled:opacity-30 disabled:cursor-not-allowed
-                            transition-colors duration-200"
+                            className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
                         >
                             <ChevronDown className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
-                {/* <span className="text-sm font-helvetica-medium text-slate-700 uppercase tracking-widest">Latest Blogs</span> */}
             </div>
 
-            {/* ── Carousel list ───────────────────────────────────────────────── */}
-            <div ref={listRef} className="flex flex-col gap-1.5 flex-1" style={{ minHeight: 0 }}>
-                {visibleBlogs.map((blog) => (
-                    <BlogRow key={blog.id} blog={blog} />
-                ))}
-
-                {/* Fill empty slots so height stays stable */}
-                {visibleBlogs.length < VISIBLE && Array.from({ length: VISIBLE - visibleBlogs.length }).map((_, i) => <div key={`empty-${i}`} className="flex-1 bg-slate-50 min-h-0" />)}
-            </div>
-
-            {/* ── Page indicator ─────────────────────────────────────────────── */}
-            {/* {blogs.length > VISIBLE && (
-                <div className="flex items-center justify-center gap-1 mt-3">
-                    {Array.from({
-                        length: Math.ceil(blogs.length / VISIBLE),
-                    }).map((_, i) => (
-                        <button
-                            key={i}
-                            type="button"
-                            onClick={() => {
-                                if (!animating.current) {
-                                    setCurrentIndex(Math.min(i * VISIBLE, blogs.length - VISIBLE));
-                                }
-                            }}
-                            className={`h-1 rounded-full transition-all duration-300 ${Math.floor(currentIndex / VISIBLE) === i ? "w-6 bg-primary" : "w-2 bg-slate-200"}`}
-                            aria-label={`Go to page ${i + 1}`}
-                        />
+            {/* ── Carousel: fixed-height viewport + absolutely positioned track ── */}
+            {/* Viewport is clipped at exactly 4 rows worth of height.
+                Track is `absolute`, so its full intrinsic height never pushes the
+                surrounding layout — the column ends at the viewport height. */}
+            <div ref={viewportRef} className="relative overflow-hidden h-[466px] lg:h-[674px]">
+                <div ref={trackRef} className="absolute top-0 left-0 right-0 flex flex-col gap-1.5 will-change-transform" style={{ transform: "translate3d(0,0,0)" }}>
+                    {blogs.map((blog) => (
+                        <div key={blog.id} data-blog-row className="shrink-0">
+                            <BlogRow blog={blog} />
+                        </div>
                     ))}
                 </div>
-            )} */}
+            </div>
         </div>
     );
 }

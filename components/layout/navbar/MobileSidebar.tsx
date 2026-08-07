@@ -20,6 +20,12 @@ interface MenuSidebarProps {
     menus?: MenuItem[];
 }
 
+declare global {
+    interface Window {
+        __pendingHash?: string;
+    }
+}
+
 export default function MenuSidebar({ menus }: MenuSidebarProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [contactOpen, setContactOpen] = useState(false);
@@ -27,14 +33,14 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
     const pathname = usePathname();
 
     const defaultMenus: MenuItem[] = [
-        { id: 1, title: "Home", name: "Home", url: "#home", dropdown: false },
-        { id: 2, title: "About Us", name: "About Us", url: "#about-us", dropdown: false },
-        { id: 3, title: "Clients", name: "Clients", url: "#our-clients", dropdown: false },
-        { id: 4, title: "Services", name: "Services", url: "#our-services", dropdown: false },
-        { id: 5, title: "Teams", name: "Teams", url: "#teams", dropdown: false },
-        { id: 6, title: "Projects", name: "Projects", url: "#projects", dropdown: false },
-        { id: 7, title: "Awards", name: "Awards", url: "#awards", dropdown: false },
-        { id: 8, title: "Blogs", name: "Blogs", url: "#blogs", dropdown: false },
+        { id: 1, title: "Home", name: "Home", url: "/", dropdown: false },
+        { id: 2, title: "About Us", name: "About Us", url: "/#about-us", dropdown: false },
+        { id: 3, title: "Clients", name: "Clients", url: "/#our-clients", dropdown: false },
+        { id: 4, title: "Services", name: "Services", url: "/#our-services", dropdown: false },
+        { id: 5, title: "Teams", name: "Teams", url: "/#teams", dropdown: false },
+        { id: 6, title: "Projects", name: "Projects", url: "/#projects", dropdown: false },
+        { id: 7, title: "Awards", name: "Awards", url: "/#awards", dropdown: false },
+        { id: 8, title: "Blogs", name: "Blogs", url: "/#blogs", dropdown: false },
     ];
 
     const menuItems = menus || defaultMenus;
@@ -67,12 +73,19 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
         };
     }, [isOpen]);
 
-    /* ── 2. Scroll-spy via IntersectionObserver (runs on mount) ───────── */
+    /* ── 2. Scroll-spy via IntersectionObserver ───────────────────────── */
     useEffect(() => {
         if (typeof window === "undefined") return;
 
-        const hashItems = menuItems.filter((m) => m.url.startsWith("#") && m.url.length > 1);
-        const ids = hashItems.map((m) => m.url.slice(1));
+        // Parse ids from BOTH "#id" and "/#id" forms so the observer matches
+        // the same hash strings the menu URLs produce.
+        const ids = menuItems
+            .map((m) => {
+                const i = m.url.indexOf("#");
+                return i >= 0 ? m.url.slice(i + 1) : "";
+            })
+            .filter(Boolean);
+
         if (ids.length === 0) return;
 
         const elements = ids.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
@@ -91,7 +104,6 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                 });
 
                 if (visible.size > 0) {
-                    // Pick the most visible section
                     let topId = "";
                     let topRatio = 0;
                     visible.forEach((ratio, id) => {
@@ -102,22 +114,16 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                     });
                     setActiveSection(topId);
                 } else {
-                    // No section in view — decide between Home and "below all"
                     const allBelowViewportTop = elements.every((el) => el.getBoundingClientRect().top > window.innerHeight * 0.35);
                     if (allBelowViewportTop) {
                         setActiveSection(""); // Home
                     } else {
-                        // Past them all — light up the last one
                         const last = elements.map((el) => ({ id: el.id, top: el.getBoundingClientRect().top })).sort((a, b) => b.top - a.top)[0];
                         setActiveSection(last?.id ?? "");
                     }
                 }
             },
-            {
-                // Trigger near the top-third of the viewport
-                rootMargin: "-35% 0px -55% 0px",
-                threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
-            },
+            { rootMargin: "-35% 0px -55% 0px", threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] },
         );
 
         elements.forEach((el) => observer.observe(el));
@@ -128,20 +134,29 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
     const closeMenu = () => setIsOpen(false);
 
     /* ── 3. Determine which menu item is "active" right now ───────────── */
+    const hashOf = (url: string) => {
+        const i = url.indexOf("#");
+        return i >= 0 ? url.slice(i + 1) : "";
+    };
+
     const isActive = (menu: MenuItem): boolean => {
-        // Non-home route → fall back to pathname matching
-        const onHome = pathname === "/" || pathname === "";
-        if (!onHome) {
+        // On a non-home route, fall back to pathname comparison
+        if (pathname !== "/" && pathname !== "") {
             return pathname === menu.url;
         }
 
-        // Home route
+        // On the home route
         if (menu.url === "/") return activeSection === "";
-        if (menu.url === "#") return false; // Projects: never auto-highlights
-        if (menu.url.startsWith("#")) {
-            return activeSection === menu.url.slice(1);
-        }
-        return false;
+        const hash = hashOf(menu.url);
+        if (!hash) return false;
+        return activeSection === hash;
+    };
+
+    /* ── 4. Stash the hash on click so the loader can pick it up on cross-page nav */
+    const handleNavClick = (url: string) => {
+        const hash = hashOf(url);
+        if (hash) window.__pendingHash = hash;
+        closeMenu();
     };
 
     return (
@@ -181,14 +196,9 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                         initial={{ x: "-100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "-100%" }}
-                        transition={{
-                            type: "tween",
-                            duration: 0.45,
-                            ease: [0.76, 0, 0.24, 1],
-                        }}
+                        transition={{ type: "tween", duration: 0.45, ease: [0.76, 0, 0.24, 1] }}
                         className="fixed w-full left-0 top-0 bg-white z-40 shadow-xl overflow-y-auto"
                     >
-                        {/* ── Logo ─────────────────────────────────────────── */}
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -206,22 +216,18 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                             />
                         </motion.div>
 
-                        {/* ── Close Button ─────────────────────────────────── */}
                         <motion.button
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
                             transition={{ delay: 0.2, duration: 0.2 }}
                             onClick={closeMenu}
-                            className="absolute top-4.5 right-4 z-50 flex items-center justify-center
-                                w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200
-                                text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                            className="absolute top-4.5 right-4 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors duration-200"
                             aria-label="Close menu"
                         >
                             <X className="h-4 w-4" />
                         </motion.button>
 
-                        {/* ── Nav Content ──────────────────────────────────── */}
                         <nav className="min-h-screen pl-6 pr-6 flex flex-col items-start justify-between">
                             <div className="w-full">
                                 <ul className="space-y-3 mt-18 w-full">
@@ -233,34 +239,14 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                                 initial={{ y: 50, opacity: 0 }}
                                                 animate={{ y: 0, opacity: 1 }}
                                                 exit={{ y: 50, opacity: 0 }}
-                                                transition={{
-                                                    delay: index * 0.05 + 0.2,
-                                                    duration: 0.4,
-                                                    ease: "easeOut",
-                                                }}
+                                                transition={{ delay: index * 0.05 + 0.2, duration: 0.4, ease: "easeOut" }}
                                                 className="relative"
                                             >
                                                 <Link
                                                     href={menu.url}
-                                                    onClick={closeMenu}
-                                                    className={`relative block py-1 text-sm sm:text-lg text-left
-                                                    tracking-wide transition-all duration-300
-                                                    ${active ? "font-helvetica-medium text-primary" : "text-gray-600 font-helvetica"}`}
+                                                    onClick={() => handleNavClick(menu.url)}
+                                                    className={`relative block py-1 text-sm sm:text-lg text-left tracking-wide transition-all duration-300 hover:text-primary ${active ? "font-helvetica-medium text-primary" : "text-gray-600 font-helvetica"}`}
                                                 >
-                                                    {/* Active indicator bar */}
-                                                    {/* <AnimatePresence>
-                                                        {active && (
-                                                            <motion.span
-                                                                layoutId="mobile-active-indicator"
-                                                                className="absolute left-0 top-1/2 -translate-y-1/2 w-0.75 h-5 bg-footer-bg rounded-full"
-                                                                transition={{
-                                                                    type: "spring",
-                                                                    stiffness: 380,
-                                                                    damping: 30,
-                                                                }}
-                                                            />
-                                                        )}
-                                                    </AnimatePresence> */}
                                                     {menu.name}
                                                 </Link>
                                             </motion.li>
@@ -268,22 +254,15 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                     })}
                                 </ul>
 
-                                {/* ── Let's Connect Button ──────────────────────── */}
                                 <motion.div
                                     initial={{ y: 30, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: 30, opacity: 0 }}
-                                    transition={{
-                                        delay: menuItems.length * 0.05 + 0.3,
-                                        duration: 0.4,
-                                        ease: "easeOut",
-                                    }}
+                                    transition={{ delay: menuItems.length * 0.05 + 0.3, duration: 0.4, ease: "easeOut" }}
                                     className="mb-4"
                                 >
                                     <button
-                                        className="mt-6 group relative overflow-hidden inline-flex cursor-pointer w-full items-center justify-center gap-1.5 rounded-[5px]
-                                        font-helvetica-neue-roman will-change-transform hover:opacity-95
-                                        border border-gray-200"
+                                        className="mt-6 group relative overflow-hidden inline-flex cursor-pointer w-full items-center justify-center gap-1.5 rounded-[5px] font-helvetica-neue-roman will-change-transform hover:opacity-95 border border-gray-200"
                                         style={{
                                             fontSize: "14px",
                                             padding: "0.6rem 1.75rem",
@@ -308,19 +287,10 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                         }}
                                     >
                                         <span className="relative block overflow-hidden whitespace-nowrap text-center" style={{ minWidth: "110px" }}>
-                                            <span
-                                                className="block transition-transform duration-500
-                                                ease-[cubic-bezier(0.76,0,0.24,1)]
-                                                group-hover:-translate-x-full"
-                                            >
-                                                Let&apos;s Connect
-                                            </span>
+                                            <span className="block transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-x-full">Let&apos;s Connect</span>
                                             <span
                                                 aria-hidden="true"
-                                                className="absolute inset-0 flex items-center justify-center
-                                                translate-x-full transition-transform duration-500
-                                                ease-[cubic-bezier(0.76,0,0.24,1)]
-                                                group-hover:translate-x-0"
+                                                className="absolute inset-0 flex items-center justify-center translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:translate-x-0"
                                             >
                                                 Let&apos;s Connect
                                             </span>
@@ -333,7 +303,6 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                 )}
             </AnimatePresence>
 
-            {/* ── Contact Modal ─────────────────────────────────────────────── */}
             <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
         </>
     );
