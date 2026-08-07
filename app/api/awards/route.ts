@@ -1,22 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-type ItemData = {
-    title: string;
-    description: string;
-};
-
-type CarouselImageData = {
+type AwardImageData = {
     url: string;
+    imageAlt?: string;
+    title: string;
+    description?: string;
 };
 
 type CategoryData = {
     name: string;
     icon: string;
     iconAlt: string;
-    items: ItemData[];
-    carouselImages: CarouselImageData[];
-    gradientWidthClass: string;
+    images: AwardImageData[];
 };
 
 type AwardBody = {
@@ -28,28 +24,18 @@ type AwardBody = {
 export async function GET(request: NextRequest) {
     try {
         const awards = await prisma.award.findMany({
-            orderBy: {
-                year: "desc",
-            },
+            orderBy: { year: "desc" },
             include: {
                 categories: {
                     orderBy: { order: "asc" },
                     include: {
-                        items: { orderBy: { order: "asc" } },
-                        carouselImages: { orderBy: { order: "asc" } },
+                        images: { orderBy: { order: "asc" } },
                     },
                 },
             },
         });
 
-        return NextResponse.json(
-            {
-                success: true,
-                data: awards,
-                count: awards.length,
-            },
-            { status: 200 },
-        );
+        return NextResponse.json({ success: true, data: awards, count: awards.length }, { status: 200 });
     } catch (error) {
         console.error("GET /api/awards error:", error);
         return NextResponse.json({ success: false, error: "Failed to fetch awards." }, { status: 500 });
@@ -59,11 +45,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body: AwardBody = await request.json();
-
-        console.log("📥 Received award creation request:", {
-            year: body.year,
-            categoriesCount: body.categories?.length || 0,
-        });
 
         if (!body.year) {
             return NextResponse.json({ success: false, error: "Year is required." }, { status: 400 });
@@ -88,92 +69,64 @@ export async function POST(request: NextRequest) {
             if (!category.icon?.trim()) {
                 return NextResponse.json({ success: false, error: "All categories must have an icon." }, { status: 400 });
             }
-            if (!category.items || category.items.length === 0) {
+            if (!category.images || category.images.length === 0) {
                 return NextResponse.json(
                     {
                         success: false,
-                        error: `Category "${category.name}" must have at least one award item.`,
+                        error: `Category "${category.name}" must have at least one award image.`,
                     },
                     { status: 400 },
                 );
             }
-            if (!category.carouselImages || category.carouselImages.length === 0) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: `Category "${category.name}" must have at least one carousel image.`,
-                    },
-                    { status: 400 },
-                );
+            for (const img of category.images) {
+                if (!img.title?.trim()) {
+                    return NextResponse.json({ success: false, error: "Each award image must have a title." }, { status: 400 });
+                }
             }
         }
-
-        console.log("✅ All validations passed. Creating award with categories...");
 
         const newAward = await prisma.award.create({
             data: {
                 year: body.year,
                 order: body.order ?? 0,
                 categories: {
-                    create: body.categories.map((category, catIndex) => {
-                        console.log(`📦 Creating category: ${category.name} with ${category.items.length} items and ${category.carouselImages.length} images`);
-
-                        return {
-                            name: category.name,
-                            icon: category.icon,
-                            iconAlt: category.iconAlt,
-                            gradientWidthClass: category.gradientWidthClass,
-                            order: catIndex,
-                            items: {
-                                create: category.items.map((item, itemIndex) => ({
-                                    title: item.title,
-                                    description: item.description,
-                                    order: itemIndex,
-                                })),
-                            },
-                            carouselImages: {
-                                create: category.carouselImages.map((img, imgIndex) => ({
-                                    url: img.url,
-                                    order: imgIndex,
-                                })),
-                            },
-                        };
-                    }),
+                    create: body.categories.map((category, catIndex) => ({
+                        name: category.name,
+                        icon: category.icon,
+                        iconAlt: category.iconAlt,
+                        order: catIndex,
+                        images: {
+                            create: category.images.map((img, imgIndex) => ({
+                                url: img.url,
+                                imageAlt: img.imageAlt ?? "",
+                                title: img.title,
+                                description: img.description ?? "",
+                                order: imgIndex,
+                            })),
+                        },
+                    })),
                 },
             },
             include: {
                 categories: {
                     orderBy: { order: "asc" },
                     include: {
-                        items: { orderBy: { order: "asc" } },
-                        carouselImages: { orderBy: { order: "asc" } },
+                        images: { orderBy: { order: "asc" } },
                     },
                 },
             },
-        });
-
-        console.log("🎉 Award created successfully:", {
-            id: newAward.id,
-            year: newAward.year,
-            categoriesCount: newAward.categories.length,
         });
 
         return NextResponse.json(
             {
                 success: true,
                 data: newAward,
-                message: "Award created successfully with all categories.",
+                message: "Award created successfully.",
             },
             { status: 201 },
         );
     } catch (error) {
-        console.error("❌ POST /api/awards error:", error);
-
-        if (error instanceof Error) {
-            console.error("Error message:", error.message);
-            console.error("Error stack:", error.stack);
-        }
-
+        console.error("POST /api/awards error:", error);
         return NextResponse.json(
             {
                 success: false,

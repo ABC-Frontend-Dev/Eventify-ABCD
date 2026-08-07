@@ -14,7 +14,7 @@ interface CopyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 
 const sizeMap: Record<SizeVariant, { button: string; icon: number }> = {
     sm: { button: "h-8 w-8", icon: 14 },
-    default: { button: "h-9 w-9", icon: 16 },
+    default: { button: "h-2 md:h-9 w-2 md:w-9", icon: 16 },
     lg: { button: "h-12 w-12", icon: 20 },
 };
 
@@ -90,12 +90,12 @@ const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(({ value
         >
             {/* Copied icon */}
             <div className={cn("transition-all duration-200", copied ? "scale-100 opacity-100 blur-none" : "scale-70 opacity-0 blur-[2px]")}>
-                <CopyCheck size={iconSize} strokeWidth={2} color="#fff" aria-hidden="true" />
+                <CopyCheck className="w-3 md:w-4 h-3 md:h-4" strokeWidth={2} color="#fff" aria-hidden="true" />
             </div>
 
             {/* Copy icon */}
             <div className={cn("absolute transition-all duration-200", copied ? "scale-0 opacity-0 blur-[2px]" : "scale-100 opacity-100 blur-none")}>
-                <CopyIcon size={iconSize} color="#fff" aria-hidden="true" />
+                <CopyIcon className="w-3 md:w-4 h-3 md:h-4" color="#fff" aria-hidden="true" />
             </div>
         </button>
     );

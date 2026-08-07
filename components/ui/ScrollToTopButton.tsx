@@ -99,9 +99,9 @@ export default function ScrollToTopButton({
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.6, y: 16 }}
                     transition={showTransition}
-                    style={{ width: size, height: size }}
+                    // style={{ width: size, height: size }}
                     className={`fixed ${position} z-50 grid place-items-center rounded-full
-                        bg-white text-neutral-900 shadow-lg ring-1 ring-black/5
+                        bg-white w-8 md:w-11 lg:w-14 h-8 md:h-11 lg:h-14 text-neutral-900 shadow-lg ring-1 ring-black/5
                         transition-shadow duration-300 ease-out
                         dark:bg-neutral-900 dark:text-white dark:ring-white/10
                         ${nearBottom ? "shadow-[0_0_0_5px_rgba(99,102,241,0.25)]" : ""}
@@ -119,7 +119,7 @@ export default function ScrollToTopButton({
                     )}
 
                     {/* Progress ring */}
-                    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 -rotate-90">
+                    <svg viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 -rotate-90 w-8 md:w-11 lg:w-14 h-8 md:h-11 lg:h-14">
                         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={strokeWidth} className="stroke-black/10 dark:stroke-white/10" />
                         <circle
                             cx={size / 2}
@@ -128,13 +128,13 @@ export default function ScrollToTopButton({
                             fill="none"
                             strokeWidth={strokeWidth}
                             strokeLinecap="round"
-                            className="stroke-indigo-500 transition-[stroke-dashoffset] duration-150 ease-linear"
+                            className="stroke-primary transition-[stroke-dashoffset] duration-150 ease-linear"
                             style={{ strokeDasharray: circumference, strokeDashoffset }}
                         />
                     </svg>
 
                     {/* Arrow <-> percentage crossfade, percentage only on hover/focus */}
-                    <span className="relative grid h-5 w-9 place-items-center overflow-hidden">
+                    <span className="relative grid h-3 md:h-5 w-5 md:w-9 place-items-center overflow-hidden">
                         <AnimatePresence mode="wait" initial={false}>
                             {hovered ? (
                                 <motion.span
@@ -156,7 +156,7 @@ export default function ScrollToTopButton({
                                     transition={crossfadeTransition}
                                     className="grid place-items-center"
                                 >
-                                    <ArrowUp className={`h-5 w-5 ${iconClassName}`} />
+                                    <ArrowUp className={`w-3 md:w-5 h-3 md:h-5 ${iconClassName}`} />
                                 </motion.span>
                             )}
                         </AnimatePresence>

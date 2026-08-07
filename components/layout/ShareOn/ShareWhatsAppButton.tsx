@@ -15,13 +15,13 @@ interface ShareWhatsAppButtonProps extends React.ButtonHTMLAttributes<HTMLButton
 
 const sizeMap: Record<SizeVariant, { button: string; icon: number }> = {
     sm: { button: "h-8 w-8", icon: 14 },
-    default: { button: "h-9 w-9", icon: 16 },
+    default: { button: "h-2 md:h-9 w-2 md:w-9", icon: 16 },
     lg: { button: "h-12 w-12", icon: 20 },
 };
 
 // WhatsApp Icon Component
 const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-3 md:w-4 h-3 md:h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </svg>
 );

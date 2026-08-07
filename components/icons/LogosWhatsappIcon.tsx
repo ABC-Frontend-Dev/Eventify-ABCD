@@ -3,7 +3,7 @@ import { SVGProps } from "react";
 export function LogosWhatsappIcon(props: SVGProps<SVGSVGElement>) {
     return (
         // <-- Added return statement
-        <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" viewBox="0 0 24 24" {...props}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 md:w-4 h-3 md:h-4" viewBox="0 0 24 24" {...props}>
             {/* Icon from Unicons by Iconscout - https://github.com/Iconscout/unicons/blob/master/LICENSE */}
             <path
                 fill="#fff"

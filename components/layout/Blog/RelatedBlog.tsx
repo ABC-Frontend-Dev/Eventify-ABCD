@@ -1,7 +1,6 @@
-// components/layout/Blog/RelatedBlog.tsx
 "use client";
 
-import { Fragment, useMemo } from "react";
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,70 +13,46 @@ interface Blog {
     thumbnailAlt?: string | null;
     createdAt: string;
     timeToRead?: string | null;
-    author?: {
-        name: string;
-    } | null;
-    category?: {
-        name: string;
-    } | null;
+    author?: { name: string } | null;
+    category?: { name: string } | null;
 }
 
 interface RelatedBlogListProps {
     blogs: Blog[];
-    fallbackBlogs?: Blog[];
-    currentBlogId?: number;
-    currentBlogSlug?: string;
 }
 
-const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
     });
-};
 
-export function RelatedBlogList({ blogs, fallbackBlogs = [], currentBlogId, currentBlogSlug }: RelatedBlogListProps) {
-    const displayBlogs = useMemo(() => {
-        const source = blogs.length > 0 ? blogs : fallbackBlogs;
-        const seen = new Set<string>();
-
-        return source
-            .filter((blog) => {
-                if (currentBlogId !== undefined && blog.id === currentBlogId) return false;
-                if (currentBlogSlug && blog.slug === currentBlogSlug) return false;
-
-                const key = blog.slug || String(blog.id);
-                if (seen.has(key)) return false;
-
-                seen.add(key);
-                return true;
-            })
-            .slice(0, 3);
-    }, [blogs, fallbackBlogs, currentBlogId, currentBlogSlug]);
-
-    if (displayBlogs.length === 0) {
+export function RelatedBlogList({ blogs }: RelatedBlogListProps) {
+    if (!blogs.length) {
         return (
-            <div className="mt-3.75">
+            <div className="mt-2 sm:mt-2.5 md:mt-3.25 lg:mt-3.75">
                 <p className="text-sm text-slate-600 font-helvetica">No related blogs available</p>
             </div>
         );
     }
 
     return (
-        <div className="mt-3.75">
+        <div className="mt-2 sm:mt-2.5 md:mt-3.25 lg:mt-3.75">
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {displayBlogs.map((blog) => {
+                {blogs.map((blog) => {
                     const metaItems = [blog.author?.name ?? "Eventify", formatDate(blog.createdAt), blog.timeToRead ?? null].filter(Boolean) as string[];
 
                     return (
                         <li key={blog.id} className="min-w-0 relative">
                             <Link href={`/blogs/${blog.slug}`} className="group block h-full">
+                                {/* Category badge */}
                                 <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                                     {blog.category?.name ?? "Blog"}
                                 </div>
 
-                                <figure className="h-80 w-full overflow-hidden">
+                                {/* Thumbnail */}
+                                <figure className="h-60 sm:h-65 md:h-70 lg:h-80 w-full overflow-hidden">
                                     <Image
                                         src={blog.thumbnail}
                                         alt={blog.thumbnailAlt || blog.title}
@@ -87,6 +62,7 @@ export function RelatedBlogList({ blogs, fallbackBlogs = [], currentBlogId, curr
                                     />
                                 </figure>
 
+                                {/* Overlay */}
                                 <div className="absolute w-full bottom-0 left-0 p-3.5 blog-page-gradient z-10">
                                     <div className="text-sm lg:text-[16px] leading-4.5 lg:leading-5 font-helvetica-medium font-medium text-white line-clamp-2">{blog.title}</div>
 
@@ -97,8 +73,7 @@ export function RelatedBlogList({ blogs, fallbackBlogs = [], currentBlogId, curr
                                                     <li>
                                                         <p className="font-helvetica-neue-roman font-normal text-white text-xs leading-3.5">{item}</p>
                                                     </li>
-
-                                                    {index < metaItems.length - 1 && <li className="w-1.5 h-1.5 rounded-full bg-white"></li>}
+                                                    {index < metaItems.length - 1 && <li className="w-1.5 h-1.5 rounded-full bg-white" />}
                                                 </Fragment>
                                             ))}
                                         </ul>
@@ -111,51 +86,4 @@ export function RelatedBlogList({ blogs, fallbackBlogs = [], currentBlogId, curr
             </ul>
         </div>
     );
-}
-
-/**
- * Optional backward-compatible sample component.
- * Keeps export name alive if used somewhere else.
- */
-export function RelatedBlog() {
-    const card: Blog[] = [
-        {
-            id: 1,
-            slug: "how-to-choose-the-right-event-management-software",
-            title: "How to Choose the Right Event Management Software",
-            description: "Choosing the right event management software can make or break your workflow.",
-            thumbnail: "/images/blogs/Group 48531.png",
-            thumbnailAlt: "How to Choose the Right Event Management Software",
-            createdAt: "2023-05-15",
-            timeToRead: "5 min read",
-            author: { name: "Eventify" },
-            category: { name: "Events" },
-        },
-        {
-            id: 2,
-            slug: "best-practices-for-running-modern-events",
-            title: "Best Practices for Running Modern Events",
-            description: "A practical guide to planning and managing better event experiences.",
-            thumbnail: "/images/blogs/Group 48531.png",
-            thumbnailAlt: "Best Practices for Running Modern Events",
-            createdAt: "2023-06-20",
-            timeToRead: "4 min read",
-            author: { name: "Eventify" },
-            category: { name: "Events" },
-        },
-        {
-            id: 3,
-            slug: "ways-to-improve-attendee-engagement",
-            title: "Ways to Improve Attendee Engagement",
-            description: "Simple strategies to create stronger attendee interaction.",
-            thumbnail: "/images/blogs/Group 48531.png",
-            thumbnailAlt: "Ways to Improve Attendee Engagement",
-            createdAt: "2023-07-10",
-            timeToRead: "6 min read",
-            author: { name: "Eventify" },
-            category: { name: "Engagement" },
-        },
-    ];
-
-    return <RelatedBlogList blogs={card} />;
 }

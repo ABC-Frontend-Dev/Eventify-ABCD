@@ -1,3 +1,4 @@
+// components/dashboard/layout/awards/AwardCategoryModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";

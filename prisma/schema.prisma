@@ -278,34 +278,24 @@ model Award {
 }
 
 model AwardCategory {
-  id                 Int                  @id @default(autoincrement())
-  name               String
-  icon               String
-  iconAlt            String
-  order              Int                  @default(0)
-  gradientWidthClass String               @default("w-4/5")
-  awardId            Int
-  carouselImages     AwardCarouselImage[]
-  award              Award                @relation(fields: [awardId], references: [id], onDelete: Cascade)
-  items              AwardItem[]
+  id        Int          @id @default(autoincrement())
+  name      String
+  icon      String
+  iconAlt   String
+  order     Int          @default(0)
+  awardId   Int
+  award     Award        @relation(fields: [awardId], references: [id], onDelete: Cascade)
+  images    AwardImage[]
 
   @@index([awardId])
 }
 
-model AwardCarouselImage {
-  id         Int           @id @default(autoincrement())
-  url        String
-  order      Int           @default(0)
-  categoryId Int
-  category   AwardCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@index([categoryId])
-}
-
-model AwardItem {
+model AwardImage {
   id          Int           @id @default(autoincrement())
+  url         String
+  imageAlt    String        @default("")
   title       String
-  description String
+  description String        @default("")
   order       Int           @default(0)
   categoryId  Int
   category    AwardCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)

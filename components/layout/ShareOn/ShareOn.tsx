@@ -29,7 +29,7 @@ const shareBtn = [
 
 function ShareBtn() {
     return (
-        <div className="mt-6">
+        <div className="mt-3 sm:mt-6">
             {/* <p className="text-sm font-helvetica-neue-roman uppercase mb-1.5">Share</p> */}
             <AnimatedTooltip items={shareBtn} />
         </div>

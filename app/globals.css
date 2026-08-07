@@ -362,13 +362,13 @@ body.custom-cursor-active * {
   /* filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#7D09CA", endColorstr="#FFFFFF", GradientType=1); */
 }
 
-.awards-slideshow-gradient {
+/* .awards-slideshow-gradient {
   background: #000000;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
-}
+} */
 
 .blog-page-wrapper h1 {
-  @apply text-[32px] leading-11 font-helvetica-heavy font-bold text-slate-950 mt-6;
+  @apply text-lg lg:text-[32px] leading-5.5 lg:leading-11 font-helvetica-neue-roman md:font-helvetica-heavy font-bold text-slate-950 mt-6;
 }
 
 .blog-page-wrapper h2:not(:first-child) {
@@ -376,19 +376,19 @@ body.custom-cursor-active * {
 }
 
 .blog-page-wrapper h2 {
-  @apply text-base lg:text-2xl leading-5 lg:leading-7.5 font-helvetica-neue-roman font-medium tracking-wide text-slate-950 mt-4;
+  @apply text-base sm:text-lg lg:text-2xl leading-5 sm:leading-5.5 lg:leading-7.5 font-helvetica-neue-roman font-medium tracking-wide text-slate-950 mb-0.5 sm:mb-1 md:mb-1.25;
 }
 
 .blog-page-wrapper h3 {
-  @apply text-base lg:text-xl leading-5 lg:leading-6 font-helvetica-neue-roman text-slate-950 mt-4;
+  @apply text-sm sm:text-base lg:text-xl sm:leading-5 leading-5 lg:leading-6 font-helvetica-neue-roman text-slate-950 mb-px sm:mb-0.5 md:mb-0.75;
 }
 
 .blog-page-wrapper p {
-  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
+  @apply text-sm sm:text-base lg:text-lg leading-4.5 sm:leading-5 lg:leading-5.5 text-footer-bg mb-2.5 sm:mb-2.75 md:mb-3.5 font-helvetica font-medium tracking-wide;
 }
 
 .blog-page-wrapper li {
-  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-2.5 font-helvetica font-medium tracking-wide;
+  @apply text-sm lg:text-lg leading-4.5 lg:leading-5.5 text-footer-bg mt-1 sm:mt-1.5 md:mt-2.5 font-helvetica font-medium tracking-wide;
 }
 
 .blog-page-wrapper .text-reveal-word {
@@ -400,11 +400,11 @@ body.custom-cursor-active * {
 }
 
 .blog-page-wrapper ul {
-  @apply list-disc pl-4 lg:pl-6 mt-4;
+  @apply list-disc pl-4 lg:pl-6 mt-2.5 sm:mt-3.25 md:mt-4;
 }
 
 .blog-page-wrapper ol {
-  @apply list-decimal pl-6 mt-4;
+  @apply list-decimal pl-6 mt-2.5 sm:mt-3.25 md:mt-4;
 }
 
 .blog-page-wrapper li {
@@ -609,5 +609,87 @@ body.custom-cursor-active * {
   .services-content ul li {
     list-style: disc;
     margin-left: 18px;
+  }
+}
+
+/* ── Ken Burns motion presets ─────────────────────────────────────────────── */
+@keyframes kenburns-1 {
+  0% {
+    transform: scale(1.00) translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: scale(1.12) translate3d(-2%, -1.5%, 0);
+  }
+}
+
+@keyframes kenburns-2 {
+  0% {
+    transform: scale(1.00) translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: scale(1.14) translate3d(2%, 1%, 0);
+  }
+}
+
+@keyframes kenburns-3 {
+  0% {
+    transform: scale(1.12) translate3d(-1%, -2%, 0);
+  }
+
+  100% {
+    transform: scale(1.00) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes kenburns-4 {
+  0% {
+    transform: scale(1.10) translate3d(1.5%, 1%, 0);
+  }
+
+  100% {
+    transform: scale(1.00) translate3d(0, 0, 0);
+  }
+}
+
+.kb-kenburns-1,
+.kb-kenburns-2,
+.kb-kenburns-3,
+.kb-kenburns-4 {
+  animation-duration: 7000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  will-change: transform;
+}
+
+.kb-kenburns-1 {
+  animation-name: kenburns-1;
+}
+
+.kb-kenburns-2 {
+  animation-name: kenburns-2;
+}
+
+.kb-kenburns-3 {
+  animation-name: kenburns-3;
+}
+
+.kb-kenburns-4 {
+  animation-name: kenburns-4;
+}
+
+.kb-static {
+  transform: scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .kb-kenburns-1,
+  .kb-kenburns-2,
+  .kb-kenburns-3,
+  .kb-kenburns-4 {
+    animation: none !important;
   }
 }

@@ -77,7 +77,7 @@ function TooltipItem({
             {/* ── Icon / Image ──────────────────────────────────────────────── */}
             <div
                 className={cn(
-                    "!m-0 !p-0 rounded-full h-8 w-8 bg-footer-bg",
+                    "!m-0 !p-0 rounded-full w-6 md:w-8 h-6 md:h-8 bg-footer-bg",
                     "border-background relative transition duration-500",
                     "group-hover:scale-105 group-hover:z-30",
                     "flex items-center justify-center overflow-hidden",

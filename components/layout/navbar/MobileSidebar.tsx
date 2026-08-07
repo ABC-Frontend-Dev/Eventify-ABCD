@@ -194,14 +194,14 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ delay: 0.15, duration: 0.3 }}
-                            className="absolute top-4 left-6 z-50"
+                            className="absolute top-4.5 left-6 z-50"
                         >
                             <Image
                                 src="https://res.cloudinary.com/afdhm38k/image/upload/v1785754539/logo-dark_ymjn39.png"
                                 alt="Eventify Logo"
                                 width={140}
-                                height={40}
-                                className="h-8 w-auto object-contain"
+                                height={25}
+                                className="h-6.25 w-auto object-contain"
                                 priority
                             />
                         </motion.div>
@@ -213,7 +213,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                             exit={{ opacity: 0, scale: 0.8 }}
                             transition={{ delay: 0.2, duration: 0.2 }}
                             onClick={closeMenu}
-                            className="absolute top-4 right-4 z-50 flex items-center justify-center
+                            className="absolute top-4.5 right-4 z-50 flex items-center justify-center
                                 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200
                                 text-gray-600 hover:text-gray-900 transition-colors duration-200"
                             aria-label="Close menu"
@@ -224,7 +224,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                         {/* ── Nav Content ──────────────────────────────────── */}
                         <nav className="min-h-screen pl-6 pr-6 flex flex-col items-start justify-between">
                             <div className="w-full">
-                                <ul className="space-y-3.5 mt-16 w-full">
+                                <ul className="space-y-3 mt-18 w-full">
                                     {menuItems.map((menu, index) => {
                                         const active = isActive(menu);
                                         return (
@@ -245,14 +245,14 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                                     onClick={closeMenu}
                                                     className={`relative block py-1 text-sm sm:text-lg text-left
                                                     tracking-wide transition-all duration-300
-                                                    ${active ? "font-helvetica-medium text-footer-bg pl-3" : "text-gray-600 font-helvetica"}`}
+                                                    ${active ? "font-helvetica-medium text-primary" : "text-gray-600 font-helvetica"}`}
                                                 >
                                                     {/* Active indicator bar */}
-                                                    <AnimatePresence>
+                                                    {/* <AnimatePresence>
                                                         {active && (
                                                             <motion.span
                                                                 layoutId="mobile-active-indicator"
-                                                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-footer-bg rounded-full"
+                                                                className="absolute left-0 top-1/2 -translate-y-1/2 w-0.75 h-5 bg-footer-bg rounded-full"
                                                                 transition={{
                                                                     type: "spring",
                                                                     stiffness: 380,
@@ -260,7 +260,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                                                 }}
                                                             />
                                                         )}
-                                                    </AnimatePresence>
+                                                    </AnimatePresence> */}
                                                     {menu.name}
                                                 </Link>
                                             </motion.li>

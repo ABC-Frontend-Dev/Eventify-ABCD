@@ -1,4 +1,3 @@
-// app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
@@ -8,8 +7,6 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-// ─── Config ───────────────────────────────────────────────────────────────────
 
 const FOLDER_MAP: Record<string, string> = {
     clients: "eventify/clients",
@@ -21,6 +18,7 @@ const FOLDER_MAP: Record<string, string> = {
     videos: "eventify/videos",
     comparisons: "eventify/comparisons",
     "about-us": "eventify/about-us",
+    awards: "eventify/awards", // ← added
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -36,13 +34,14 @@ const FOLDER_SIZE_LIMITS: Record<string, { image?: number; video?: number }> = {
     "about-us": {
         image: 2 * 1024 * 1024,
     },
+    awards: {
+        image: 1 * 1024 * 1024, // ← 1MB limit for award images
+    },
 };
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg", "video/quicktime", "video/x-msvideo"];
 const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatMB(bytes: number) {
     return `${(bytes / (1024 * 1024)).toFixed(bytes % (1024 * 1024) === 0 ? 0 : 1)}MB`;
@@ -55,7 +54,6 @@ function uploadStream(buffer: Buffer, options: Record<string, unknown>): Promise
             if (!result) return reject(new Error("No result from Cloudinary"));
             resolve(result as Record<string, unknown>);
         });
-
         const readable = new Readable();
         readable.push(buffer);
         readable.push(null);
@@ -63,20 +61,14 @@ function uploadStream(buffer: Buffer, options: Record<string, unknown>): Promise
     });
 }
 
-// ─── Route config ─────────────────────────────────────────────────────────────
-
-export const maxDuration = 300; // 5 minutes for large videos
+export const maxDuration = 300;
 export const dynamic = "force-dynamic";
-
-// ─── POST handler ─────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
         const file = formData.get("file") as File | null;
         const folderKey = request.nextUrl.searchParams.get("folder") ?? "";
-
-        // ── Validation ─────────────────────────────────────────────────────────
 
         if (!file) {
             return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
@@ -106,14 +98,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // ── Buffer ─────────────────────────────────────────────────────────────
-
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-
         const folder = FOLDER_MAP[folderKey] ?? (isVideo ? "eventify/videos" : "eventify/images");
-
-        // ── Cloudinary options ─────────────────────────────────────────────────
 
         let uploadOptions: Record<string, unknown>;
 
@@ -123,10 +110,6 @@ export async function POST(request: NextRequest) {
                 resource_type: "video",
                 unique_filename: true,
                 overwrite: false,
-
-                // ✅ NO transcoding — store the original video as-is
-                // Cloudinary will just store whatever the user uploaded
-                // without re-encoding, preserving 100% original quality.
             };
         } else {
             uploadOptions = {
@@ -134,19 +117,13 @@ export async function POST(request: NextRequest) {
                 resource_type: "image",
                 unique_filename: true,
                 overwrite: false,
-
-                // Images: convert to webp but at near-lossless quality
                 format: "webp",
-                quality: "auto:best", // Cloudinary picks the best quality automatically
+                quality: "auto:best",
                 fetch_format: "auto",
             };
         }
 
-        // ── Upload ─────────────────────────────────────────────────────────────
-
         const result = await uploadStream(buffer, uploadOptions);
-
-        // ── Response ───────────────────────────────────────────────────────────
 
         return NextResponse.json(
             {
@@ -166,7 +143,6 @@ export async function POST(request: NextRequest) {
         );
     } catch (error) {
         console.error("Cloudinary upload error:", error);
-        console.error("Error details:", error instanceof Error ? error.message : error);
         return NextResponse.json({ success: false, error: "Failed to upload file" }, { status: 500 });
     }
 }

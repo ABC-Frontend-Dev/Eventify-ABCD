@@ -64,14 +64,14 @@ export default function Navbar() {
                 isScrolled ? "bg-white/50 backdrop-blur-xs" : "bg-transparent"
             }`}
         >
-            <div className="shrink-0 max-w-[150px] sm:max-w-[180px]">
-                <Link href={"/"}>
+            <div className="shrink-0 max-w-40 sm:max-w-48 md:max-w-52">
+                <Link href={"/"} className="w-full h-12 block">
                     <Image
                         src={isScrolled ? logo.scrolled || logo.default : logo.default}
                         alt="Logo"
-                        width={156}
-                        height={34}
-                        className="w-full h-auto object-contain transition-all duration-300"
+                        width={1000}
+                        height={1000}
+                        className="w-full h-full object-contain transition-all duration-300"
                         priority
                     />
                 </Link>

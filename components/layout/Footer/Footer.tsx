@@ -16,7 +16,7 @@ export default function Footer() {
                 <div className="mt-8 lg:mt-20.75 text-white">
                     <div className="flex justify-between items-center pb-1 lg:pb-5 border-b border-slate-600">
                         <p className="text-xl lg:text-2xl font-helvetica leading-7.5 uppercase">OUR OFFICES</p>
-                        <p className="hidden lg:block ml-4.75 font-helvetica-neue-roman text-sm lg:text-xl leading-7 tracking-wider">
+                        <p className="hidden sm:block ml-4.75 font-helvetica-neue-roman text-sm lg:text-xl leading-7 tracking-wider">
                             {/* <span className="capitalize">Email ID: </span> */}
                             <Link href="#" className="lowercase">
                                 <GoesOutComesInUnderline label="connect@eventifyentertainment.com" direction="right" />
@@ -42,7 +42,7 @@ export default function Footer() {
                             </div>
                         </div>
                         <div className="flex gap-0 md:gap-5 w-full justify-between lg:justify-end">
-                            <p className="block lg:hidden font-helvetica-neue-roman text-xs lg:text-xl leading-7 tracking-wider">
+                            <p className="block sm:hidden font-helvetica-neue-roman text-xs lg:text-xl leading-7 tracking-wider">
                                 {/* <span className="capitalize">Email ID: </span> */}
                                 <Link href="#" className="lowercase">
                                     <GoesOutComesInUnderline label="connect@eventifyentertainment.com" direction="right" />

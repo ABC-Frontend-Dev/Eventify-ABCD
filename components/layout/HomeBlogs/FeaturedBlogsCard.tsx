@@ -1,4 +1,3 @@
-// components/layout/HomeBlogs/FeaturedBlogsCard.tsx
 "use client";
 
 import { useRef, useCallback, useState, useEffect } from "react";
@@ -8,7 +7,7 @@ import Link from "next/link";
 import { GoesOutComesInUnderline } from "@/components/ui/underline-animation";
 import { Loader2 } from "lucide-react";
 
-interface TopBlog {
+interface Blog {
     id: number;
     slug: string;
     title: string;
@@ -17,60 +16,39 @@ interface TopBlog {
     thumbnailAlt: string | null;
     banner_image: string;
     bannerImageAlt: string | null;
-    viewCount: number;
-    author: {
-        name: string;
-    };
-    category: {
-        name: string;
-    };
+    createdAt: string;
+    author: { name: string };
+    category: { name: string };
 }
 
 export default function FeaturedBlogsCard() {
-    const cardRef = useRef<HTMLDivElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
-    const [blog, setBlog] = useState<TopBlog | null>(null);
+    const [blog, setBlog] = useState<Blog | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchFeaturedBlog();
+        fetch("/api/blogs?status=PUBLISHED&sortBy=latest&limit=1")
+            .then((r) => r.json())
+            .then((res) => {
+                if (res.success && res.data.length > 0) {
+                    setBlog(res.data[0]);
+                }
+            })
+            .catch(() => {})
+            .finally(() => setLoading(false));
     }, []);
-
-    const fetchFeaturedBlog = async () => {
-        try {
-            setLoading(true);
-            const response = await fetch("/api/blogs/top-reads?limit=1&days=0"); // Get #1 all-time
-            const result = await response.json();
-
-            if (result.success && result.data.length > 0) {
-                setBlog(result.data[0]);
-            } else {
-                console.error("Failed to fetch featured blog");
-                setLoading(false);
-            }
-        } catch (error) {
-            console.error("Error fetching featured blog:", error);
-            setLoading(false);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleEnter = useCallback(() => {
         setIsHovered(true);
-        const overlay = overlayRef.current;
-        if (!overlay) return;
-
-        gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" });
+        if (!overlayRef.current) return;
+        gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" });
     }, []);
 
     const handleLeave = useCallback(() => {
         setIsHovered(false);
-        const overlay = overlayRef.current;
-        if (!overlay) return;
-
-        gsap.to(overlay, {
+        if (!overlayRef.current) return;
+        gsap.to(overlayRef.current, {
             opacity: 0,
             duration: 0.25,
             ease: "power2.in",
@@ -79,7 +57,7 @@ export default function FeaturedBlogsCard() {
 
     if (loading) {
         return (
-            <div className="max-w-3xl max-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative mb-16 lg:mb-0 flex items-center justify-center bg-slate-100 rounded-lg">
+            <div className="w-full lg:flex-1 h-46 lg:h-168.5 flex items-center justify-center bg-slate-100">
                 <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
             </div>
         );
@@ -87,8 +65,8 @@ export default function FeaturedBlogsCard() {
 
     if (!blog) {
         return (
-            <div className="max-w-3xl max-full lg:min-h-168.5 h-full lg:h-168.5 w-full relative mb-16 lg:mb-0 flex items-center justify-center bg-slate-100 rounded-lg">
-                <p className="text-slate-500">No featured blog available</p>
+            <div className="w-full lg:flex-1 h-46 lg:h-168.5 flex items-center justify-center bg-slate-100">
+                <p className="text-slate-500 text-sm">No blog available</p>
             </div>
         );
     }
@@ -98,19 +76,18 @@ export default function FeaturedBlogsCard() {
     const truncatedDescription = blog.description.substring(0, 120) + (blog.description.length > 120 ? "..." : "");
 
     return (
-        <div ref={cardRef} className="max-w-3xl max-full lg:min-h-168.5 h-46 lg:h-168.5 w-full relative mb-16 lg:mb-0" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+        <div className="w-full lg:flex-1 h-46 lg:h-168.5 relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             <Link href={`/blogs/${blog.slug}`} className="block w-full h-full">
                 <figure className="w-full h-full">
                     <Image src={featuredImage} width={1000} height={1000} alt={altText} className="w-full h-full object-cover object-center" priority />
                 </figure>
             </Link>
 
-            {/* Floating overlay (GSAP animated) */}
-            <div ref={overlayRef} className="absolute w-full h-full inset-0 z-10 opacity-0 pointer-events-none" style={{ willChange: "opacity" }}>
+            {/* GSAP overlay */}
+            <div ref={overlayRef} className="absolute inset-0 z-10 opacity-0 pointer-events-none" style={{ willChange: "opacity" }}>
                 <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
-                <div className="relative w-full flex flex-col gap-5 items-center justify-center h-46 lg:h-168.5 px-2.5 lg:px-7.5 py-5 lg:py-7.5">
+                <div className="relative w-full h-full flex flex-col gap-5 items-center justify-center px-2.5 lg:px-7.5 py-5 lg:py-7.5">
                     <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
-
                     <p className="relative lg:absolute px-7.5 w-full lg:bottom-5 lg:left-1/2 lg:-translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
                         {truncatedDescription}
                         <span className="block mt-2">
@@ -120,7 +97,6 @@ export default function FeaturedBlogsCard() {
                 </div>
             </div>
 
-            {/* Make overlay clickable when visible */}
             {isHovered && <Link href={`/blogs/${blog.slug}`} className="absolute inset-0 z-20" />}
         </div>
     );

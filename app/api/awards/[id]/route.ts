@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// ──────────────────────────────────────────────────────────
-// TYPE DEFINITIONS
-// ──────────────────────────────────────────────────────────
-type ItemData = {
-    title: string;
-    description: string;
-};
-
-type CarouselImageData = {
+type AwardImageData = {
     url: string;
+    imageAlt?: string;
+    title: string;
+    description?: string;
 };
 
 type CategoryData = {
@@ -18,9 +13,7 @@ type CategoryData = {
     name: string;
     icon: string;
     iconAlt: string;
-    items: ItemData[];
-    carouselImages: CarouselImageData[];
-    gradientWidthClass: string;
+    images: AwardImageData[];
 };
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -38,21 +31,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 categories: {
                     orderBy: { order: "asc" },
                     include: {
-                        items: { orderBy: { order: "asc" } },
-                        carouselImages: { orderBy: { order: "asc" } },
+                        images: { orderBy: { order: "asc" } },
                     },
                 },
             },
         });
 
         if (!award) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: `Award with id: ${awardId} not found.`,
-                },
-                { status: 404 },
-            );
+            return NextResponse.json({ success: false, error: `Award with id: ${awardId} not found.` }, { status: 404 });
         }
 
         return NextResponse.json({ success: true, data: award }, { status: 200 });
@@ -75,35 +61,19 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
         const existingAward = await prisma.award.findUnique({
             where: { id: awardId },
-            include: {
-                categories: {
-                    include: {
-                        items: true,
-                        carouselImages: true,
-                    },
-                },
-            },
         });
 
         if (!existingAward) {
             return NextResponse.json({ success: false, error: "Award not found." }, { status: 404 });
         }
 
-        console.log("📥 Updating award:", { id: awardId, year: body.year });
-
-        // ────────────────────────────────────────────────────────────
-        // STEP 1: Delete old categories (cascade deletes items & images)
-        // ────────────────────────────────────────────────────────────
+        // Delete old categories (cascade deletes images)
         if (body.categories && body.categories.length > 0) {
             await prisma.awardCategory.deleteMany({
-                where: { awardId: awardId },
+                where: { awardId },
             });
-            console.log("🗑️ Deleted old categories");
         }
 
-        // ────────────────────────────────────────────────────────────
-        // STEP 2: Update award year/order & create new categories
-        // ────────────────────────────────────────────────────────────
         const updatedAward = await prisma.award.update({
             where: { id: awardId },
             data: {
@@ -111,30 +81,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 order: body.order ?? existingAward.order,
                 categories: body.categories
                     ? {
-                          create: body.categories.map((category: CategoryData, catIndex: number) => {
-                              console.log(`📦 Updating category: ${category.name}`);
-
-                              return {
-                                  name: category.name,
-                                  icon: category.icon,
-                                  iconAlt: category.iconAlt,
-                                  gradientWidthClass: category.gradientWidthClass,
-                                  order: catIndex,
-                                  items: {
-                                      create: (category.items || []).map((item: ItemData, itemIndex: number) => ({
-                                          title: item.title,
-                                          description: item.description,
-                                          order: itemIndex,
-                                      })),
-                                  },
-                                  carouselImages: {
-                                      create: (category.carouselImages || []).map((img: CarouselImageData, imgIndex: number) => ({
-                                          url: img.url,
-                                          order: imgIndex,
-                                      })),
-                                  },
-                              };
-                          }),
+                          create: body.categories.map((category: CategoryData, catIndex: number) => ({
+                              name: category.name,
+                              icon: category.icon,
+                              iconAlt: category.iconAlt,
+                              order: catIndex,
+                              images: {
+                                  create: (category.images || []).map((img: AwardImageData, imgIndex: number) => ({
+                                      url: img.url,
+                                      imageAlt: img.imageAlt ?? "",
+                                      title: img.title,
+                                      description: img.description ?? "",
+                                      order: imgIndex,
+                                  })),
+                              },
+                          })),
                       }
                     : undefined,
             },
@@ -142,35 +103,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 categories: {
                     orderBy: { order: "asc" },
                     include: {
-                        items: { orderBy: { order: "asc" } },
-                        carouselImages: { orderBy: { order: "asc" } },
+                        images: { orderBy: { order: "asc" } },
                     },
                 },
             },
-        });
-
-        console.log("🎉 Award updated successfully:", {
-            id: updatedAward.id,
-            year: updatedAward.year,
-            categoriesCount: updatedAward.categories.length,
         });
 
         return NextResponse.json(
             {
                 success: true,
                 data: updatedAward,
-                message: "Award updated successfully with all categories and images.",
+                message: "Award updated successfully.",
             },
             { status: 200 },
         );
     } catch (error) {
         console.error("PUT /api/awards/[id] error:", error);
-
-        if (error instanceof Error) {
-            console.error("Error message:", error.message);
-            console.error("Error stack:", error.stack);
-        }
-
         return NextResponse.json(
             {
                 success: false,
@@ -198,9 +146,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             return NextResponse.json({ success: false, error: "Award not found." }, { status: 404 });
         }
 
-        await prisma.award.delete({
-            where: { id: awardId },
-        });
+        await prisma.award.delete({ where: { id: awardId } });
 
         return NextResponse.json({ success: true, message: "Award deleted successfully." }, { status: 200 });
     } catch (error) {

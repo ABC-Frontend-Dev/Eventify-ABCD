@@ -1,15 +1,11 @@
-import prisma from "@/lib/prisma";
 import FeaturedBlogsCard from "./FeaturedBlogsCard";
 import TopReads from "./TopReads";
 
-export default async function BlogsCard() {
-    // This now works because 'prisma' was initialized with an adapter
-    const models = await prisma.model.findMany();
-
+export default function BlogsCard() {
     return (
-        <>
+        <div className="flex flex-col lg:flex-row w-full gap-y-1.5 lg:gap-5.5">
             <FeaturedBlogsCard />
             <TopReads />
-        </>
+        </div>
     );
 }
