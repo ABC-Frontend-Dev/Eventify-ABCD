@@ -14,7 +14,7 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Home, Image, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon, User2, Text } from "lucide-react";
+import { Home, Image, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon, User2, Text, Send } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -126,6 +126,15 @@ const menuItems: MenuItem[] = [
         title: "Contacts",
         icon: Mail,
         href: "/dashboard/contacts",
+    },
+    {
+        title: "Newsletter",
+        icon: Send,
+        href: "/dashboard/newsletter",
+        subItems: [
+            { title: "Compose & Send", icon: Mail, href: "/dashboard/newsletter" },
+            { title: "Subscribers", icon: Users, href: "/dashboard/newsletter?tab=subscribers" },
+        ],
     },
     {
         title: "Profile",

@@ -242,3 +242,85 @@ export async function sendContactConfirmationEmail(email: string, name: string) 
         return false;
     }
 }
+
+// ── Add to lib/email.ts ───────────────────────────────────────────────────────
+
+export async function sendNewsletterEmail(subscriberEmail: string, subject: string, html: string): Promise<boolean> {
+    try {
+        await transporter.sendMail({
+            from: `"Eventify Newsletter" <${process.env.GMAIL_EMAIL}>`,
+            to: subscriberEmail,
+            subject,
+            html,
+        });
+        return true;
+    } catch (error) {
+        console.error(`Failed to send newsletter to ${subscriberEmail}:`, error);
+        return false;
+    }
+}
+
+export async function sendWelcomeEmail(email: string): Promise<boolean> {
+    try {
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
+<body style="margin:0;padding:0;background-color:#F4F4F4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F4F4F4;padding:32px 16px;">
+  <tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+      <tr>
+        <td style="background-color:#57068C;border-radius:10px 10px 0 0;padding:28px 32px;text-align:center;">
+          <img src="https://res.cloudinary.com/afdhm38k/image/upload/v1785846557/logo_liluod.png"
+               alt="Eventify" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;"/>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#ffffff;padding:40px 32px;border-left:1px solid #E2E8F0;border-right:1px solid #E2E8F0;">
+          <h1 style="margin:0 0 16px 0;font-size:26px;font-weight:800;color:#0F172A;">Welcome to Eventify! 🎉</h1>
+          <p style="margin:0 0 20px 0;font-size:15px;color:#475569;line-height:1.75;">
+            Thank you for subscribing to our newsletter. You'll be the first to know about our latest events, awards, and updates from the world of event management.
+          </p>
+          <p style="margin:0;font-size:15px;color:#475569;line-height:1.75;">
+            Stay tuned — great things are coming your way.
+          </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px auto 0 auto;">
+            <tr>
+              <td align="center" style="border-radius:6px;background-color:#57068C;">
+                <a href="https://eventifyentertainment.com"
+                   style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;">
+                  Visit Our Website
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#272727;border-radius:0 0 10px 10px;padding:24px 32px;text-align:center;">
+          <p style="margin:0 0 8px 0;font-size:12px;color:#64748B;">
+            Eventify &copy; ${new Date().getFullYear()} &middot; All rights reserved
+          </p>
+          <p style="margin:0;font-size:11px;color:#475569;">
+            eventifyentertainment.com
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+
+        await transporter.sendMail({
+            from: `"Eventify Newsletter" <${process.env.GMAIL_EMAIL}>`,
+            to: email,
+            subject: "Welcome to Eventify Newsletter! 🎉",
+            html,
+        });
+        return true;
+    } catch (error) {
+        console.error("Failed to send welcome email:", error);
+        return false;
+    }
+}

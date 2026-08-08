@@ -338,3 +338,24 @@ enum ContactSubmissionStatus {
   NEW
   READ
 }
+
+model NewsletterSubscriber {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  subscribedAt    DateTime @default(now())
+  unsubscribeToken String  @unique @default(cuid())
+  unsubscribedAt  DateTime?
+  isActive        Boolean  @default(true)
+
+  @@index([email])
+  @@index([isActive])
+}
+
+model NewsletterSend {
+  id           Int      @id @default(autoincrement())
+  subject      String
+  templateId   String
+  templateData Json
+  sentAt       DateTime @default(now())
+  recipientCount Int    @default(0)
+}
