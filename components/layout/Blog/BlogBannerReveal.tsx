@@ -25,81 +25,73 @@ export default function BlogBannerReveal({ desktopSrc, mobileSrc, alt, bannerIma
     const resolvedDesktopSrc = desktopSrc ?? mobileSrc;
     const altText = bannerImageAlt || alt;
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            const container = containerRef.current;
-            const desktopWrap = desktopWrapRef.current;
-            const mobileWrap = mobileWrapRef.current;
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         const container = containerRef.current;
+    //         const desktopWrap = desktopWrapRef.current;
+    //         const mobileWrap = mobileWrapRef.current;
 
-            if (!container) return;
+    //         if (!container) return;
 
-            const desktopImg = desktopWrap?.querySelector("img");
-            const mobileImg = mobileWrap?.querySelector("img");
+    //         const desktopImg = desktopWrap?.querySelector("img");
+    //         const mobileImg = mobileWrap?.querySelector("img");
 
-            const ctx = gsap.context(() => {
-                const tl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: container,
-                        start: "top 85%",
-                        toggleActions: "play none none none",
-                    },
-                });
+    //         const ctx = gsap.context(() => {
+    //             const tl = gsap.timeline({
+    //                 scrollTrigger: {
+    //                     trigger: container,
+    //                     start: "top 85%",
+    //                     toggleActions: "play none none none",
+    //                 },
+    //             });
 
-                tl.set(container, { autoAlpha: 1 });
+    //             tl.set(container, { autoAlpha: 1 });
 
-                tl.from(container, {
-                    xPercent: -100,
-                    duration: 1.5,
-                    ease: "power2.out",
-                });
+    //             tl.from(container, {
+    //                 xPercent: -100,
+    //                 duration: 1.5,
+    //                 ease: "power2.out",
+    //             });
 
-                if (desktopImg) {
-                    tl.from(
-                        desktopImg,
-                        {
-                            xPercent: 100,
-                            scale: 1.3,
-                            duration: 1.5,
-                            ease: "power2.out",
-                        },
-                        "<",
-                    );
-                }
+    //             if (desktopImg) {
+    //                 tl.from(
+    //                     desktopImg,
+    //                     {
+    //                         xPercent: 100,
+    //                         scale: 1.3,
+    //                         duration: 1.5,
+    //                         ease: "power2.out",
+    //                     },
+    //                     "<",
+    //                 );
+    //             }
 
-                if (mobileImg) {
-                    tl.from(
-                        mobileImg,
-                        {
-                            xPercent: 100,
-                            scale: 1.3,
-                            duration: 1.5,
-                            ease: "power2.out",
-                        },
-                        "<",
-                    );
-                }
-            }, container);
+    //             if (mobileImg) {
+    //                 tl.from(
+    //                     mobileImg,
+    //                     {
+    //                         xPercent: 100,
+    //                         scale: 1.3,
+    //                         duration: 1.5,
+    //                         ease: "power2.out",
+    //                     },
+    //                     "<",
+    //                 );
+    //             }
+    //         }, container);
 
-            return () => ctx.revert();
-        }, 150);
+    //         return () => ctx.revert();
+    //     }, 150);
 
-        return () => clearTimeout(timer);
-    }, []);
+    //     return () => clearTimeout(timer);
+    // }, []);
 
     return (
         <div className="max-w-full w-full h-68.5 sm:h-78 md:h-86 lg:h-125">
-            <figure ref={containerRef} className="invisible h-68.5 sm:h-78 md:h-86 lg:h-125 w-full overflow-hidden relative">
+            <figure ref={containerRef} className="h-68.5 sm:h-78 md:h-86 lg:h-125 w-full overflow-hidden relative">
                 {/* Desktop — uses resolvedDesktopSrc (falls back to thumbnail if banner_image is null) */}
-                <div ref={desktopWrapRef} className="block w-full h-full overflow-hidden">
-                    <Image
-                        src={resolvedDesktopSrc}
-                        alt={altText}
-                        width={1000}
-                        height={1000}
-                        priority
-                        className="h-full w-full object-cover will-change-transform"
-                        style={{ transformOrigin: "left center" }}
-                    />
+                <div className="block w-full h-full overflow-hidden">
+                    <Image src={resolvedDesktopSrc} alt={altText} width={1000} height={1000} priority className="h-full w-full object-cover will-change-transform" />
                 </div>
 
                 {/* Mobile — always uses thumbnail */}

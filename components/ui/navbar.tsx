@@ -1,3 +1,4 @@
+// components/ui/navbar.tsx
 import Link from "next/link";
 import { useState } from "react";
 import { motion, MotionConfig } from "framer-motion";

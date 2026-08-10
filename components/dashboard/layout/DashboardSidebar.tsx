@@ -109,8 +109,8 @@ const menuItems: MenuItem[] = [
         subItems: [
             { title: "All Blogs", icon: List, href: "/dashboard/blogs" },
             { title: "Add New Blog", icon: Plus, href: "/dashboard/blogs/new" },
-            { title: "Blog Categories", icon: List, href: "/dashboard/blog-categories" },
-            { title: "Authors", icon: List, href: "/dashboard/authors" },
+            // { title: "Blog Categories", icon: List, href: "/dashboard/blog-categories" },
+            // { title: "Authors", icon: List, href: "/dashboard/authors" },
         ],
     },
     {

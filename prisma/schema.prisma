@@ -163,7 +163,7 @@ model Author {
 
 model BlogCategory {
   id          Int     @id @default(autoincrement())
-  name        String
+  name        String  @default("Activations")
   description String?
   blogs       Blog[]
 }
@@ -179,7 +179,7 @@ model Blog {
   thumbnail       String
   banner_image    String
   canonical       String
-  timeToRead      String?
+  timeToRead      String?      @default("5 min read")
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   authorId        Int

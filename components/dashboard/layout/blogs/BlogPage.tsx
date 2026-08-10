@@ -262,7 +262,7 @@ export default function BlogPage() {
                         </DropdownMenu>
 
                         {/* Category Filter */}
-                        <DropdownMenu>
+                        {/* <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="h-9">
                                     <Filter className="mr-2 h-4 w-4" />
@@ -286,10 +286,10 @@ export default function BlogPage() {
                                     </DropdownMenuItem>
                                 ))}
                             </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DropdownMenu> */}
 
                         {/* Author Filter */}
-                        <DropdownMenu>
+                        {/* <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="h-9">
                                     <Filter className="mr-2 h-4 w-4" />
@@ -313,7 +313,7 @@ export default function BlogPage() {
                                     </DropdownMenuItem>
                                 ))}
                             </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DropdownMenu> */}
 
                         {/* Sort Filter */}
                         <DropdownMenu>

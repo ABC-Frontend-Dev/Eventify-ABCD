@@ -5,16 +5,22 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useToasts } from "@/components/ui/toast";
-import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, FileText, AlertCircle, CheckCircle2, Eye, Tag, Search, Link2, Code2, Hash, ChevronRight } from "lucide-react";
+import { ArrowLeft, Save, Loader2, X, AlertCircle, CheckCircle2, Eye, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import TiptapEditor from "@/components/Editor/TiptapEditor";
 import TableOfContents, { HeadingItem } from "@/components/Editor/TableOfContents";
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+const IMAGE_MAX_BYTES = 1 * 1024 * 1024; // 1 MB
+const IMAGE_MAX_MB = 1;
+
+const DEFAULT_AUTHOR_NAME = "Eventify";
+const DEFAULT_CATEGORY_NAME = "Activations";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 enum BlogStatus {
     DRAFT = "DRAFT",
     PUBLISHED = "PUBLISHED",
@@ -26,6 +32,7 @@ interface BlogCategory {
     name: string;
     description: string | null;
 }
+
 interface Author {
     id: number;
     name: string;
@@ -65,7 +72,7 @@ const NAV = [
     { id: "seo", label: "SEO" },
 ] as const;
 
-// ── tiny helpers ──────────────────────────────────────────
+// ─── Small UI helpers ─────────────────────────────────────────────────────────
 function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
     return (
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
@@ -85,6 +92,26 @@ function SectionHeading({ label }: { label: string }) {
     );
 }
 
+// ─── Client-side image size guard ─────────────────────────────────────────────
+function validateImageFile(file: File): string | null {
+    if (file.size > IMAGE_MAX_BYTES) {
+        return `"${file.name}" exceeds the 1 MB image limit.`;
+    }
+    return null;
+}
+
+function validateImageFiles(files: File[], toast: ReturnType<typeof useToasts>): File[] {
+    return files.filter((file) => {
+        const err = validateImageFile(file);
+        if (err) {
+            toast.error(err);
+            return false;
+        }
+        return true;
+    });
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     const router = useRouter();
     const toast = useToasts();
@@ -118,11 +145,14 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         bannerImageAlt: initialData?.bannerImageAlt || "",
         canonical: initialData?.canonical || "",
         schemaScript: initialData?.schemaScript || "",
-        timeToRead: initialData?.timeToRead || "",
+        // ✅ default to "5 min read"
+        timeToRead: initialData?.timeToRead || "5 min read",
+        // ✅ 0 means "not yet resolved from API" — will be set after fetch
         authorId: initialData?.authorId || 0,
         categoryId: initialData?.categoryId || 0,
     });
 
+    // ─── Completion checker ───────────────────────────────────────────────────
     const completion = useMemo(
         () => [
             { label: "Title", ok: !!formData.title.trim() },
@@ -131,22 +161,46 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
             { label: "Content", ok: !!formData.content.trim() },
             { label: "Thumbnail", ok: !!formData.thumbnail },
             { label: "Banner", ok: !!formData.banner_image },
-            { label: "Category", ok: formData.categoryId !== 0 },
-            { label: "Author", ok: formData.authorId !== 0 },
+            // ✅ Author and Category removed from completion checker
+            // { label: "Category", ok: formData.categoryId !== 0 },
+            // { label: "Author",   ok: formData.authorId   !== 0 },
         ],
         [formData],
     );
+
     const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
     const isFormValid = completion.every((c) => c.ok);
 
-    // ── fetch categories + authors ────────────────────────
+    // ─── Fetch categories + authors, then auto-select defaults ───────────────
     useEffect(() => {
         (async () => {
             try {
                 const [cRes, aRes] = await Promise.all([fetch("/api/blog-categories"), fetch("/api/authors")]);
                 const [cData, aData] = await Promise.all([cRes.json(), aRes.json()]);
-                if (cData.success) setCategories(cData.data);
-                if (aData.success) setAuthors(aData.data);
+
+                if (cData.success) {
+                    setCategories(cData.data);
+
+                    // ✅ Auto-select "Activations" for new blogs only
+                    if (mode === "create" && !initialData?.categoryId) {
+                        const defaultCat = (cData.data as BlogCategory[]).find((c) => c.name.toLowerCase() === DEFAULT_CATEGORY_NAME.toLowerCase());
+                        if (defaultCat) {
+                            setFormData((p) => ({ ...p, categoryId: defaultCat.id }));
+                        }
+                    }
+                }
+
+                if (aData.success) {
+                    setAuthors(aData.data);
+
+                    // ✅ Auto-select "Eventify" for new blogs only
+                    if (mode === "create" && !initialData?.authorId) {
+                        const defaultAuthor = (aData.data as Author[]).find((a) => a.name.toLowerCase() === DEFAULT_AUTHOR_NAME.toLowerCase());
+                        if (defaultAuthor) {
+                            setFormData((p) => ({ ...p, authorId: defaultAuthor.id }));
+                        }
+                    }
+                }
             } catch {
                 toast.error("Failed to load categories or authors");
             } finally {
@@ -157,7 +211,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // ── edit mode: load blog ──────────────────────────────
+    // ─── Edit mode: load existing blog ───────────────────────────────────────
     useEffect(() => {
         if (mode !== "edit" || !blogId) return;
         fetch(`/api/blogs/${blogId}`)
@@ -180,7 +234,8 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     bannerImageAlt: b.bannerImageAlt || "",
                     canonical: b.canonical,
                     schemaScript: b.schemaScript,
-                    timeToRead: b.timeToRead || "",
+                    // ✅ fall back to "5 min read" if stored value is null/empty
+                    timeToRead: b.timeToRead || "5 min read",
                     authorId: b.authorId,
                     categoryId: b.categoryId,
                 });
@@ -190,7 +245,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mode, blogId]);
 
-    // ── auto slug ─────────────────────────────────────────
+    // ─── Auto-generate slug from title (create mode) ──────────────────────────
     useEffect(() => {
         if (mode !== "create" || !formData.title) return;
         setFormData((p) => ({
@@ -203,42 +258,67 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.title]);
 
+    // ─── Generic field change ─────────────────────────────────────────────────
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((p) => ({ ...p, [name]: name === "categoryId" || name === "authorId" ? parseInt(value) : value }));
+        setFormData((p) => ({
+            ...p,
+            [name]: name === "categoryId" || name === "authorId" ? parseInt(value) : value,
+        }));
     };
 
-    // ── image upload helper ───────────────────────────────
+    // ─── Upload helpers ───────────────────────────────────────────────────────
+    /**
+     * Upload a single image to /api/upload?folder=blogs
+     * Server enforces 1 MB limit; we also guard client-side.
+     */
     const uploadImage = async (file: File): Promise<string | null> => {
         const fd = new FormData();
         fd.append("file", file);
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const res = await fetch("/api/upload?folder=blogs", { method: "POST", body: fd });
         const result = await res.json();
-        return result.success ? result.path : null;
+        if (!result.success) {
+            toast.error(result.error || "Upload failed");
+            return null;
+        }
+        return result.path;
     };
 
     const handleThumbnailUpload = async (files: File[]) => {
         if (!files.length) return;
+        const valid = validateImageFiles(files, toast);
+        if (!valid.length) return;
+
         setUploadingThumbnail(true);
-        const path = await uploadImage(files[0]).catch(() => null);
+        const path = await uploadImage(valid[0]).catch(() => null);
         setUploadingThumbnail(false);
+
         if (path) {
             setFormData((p) => ({ ...p, thumbnail: path }));
             toast.success("Thumbnail uploaded");
-        } else toast.error("Failed to upload thumbnail");
+        } else {
+            toast.error("Failed to upload thumbnail");
+        }
     };
 
     const handleBannerUpload = async (files: File[]) => {
         if (!files.length) return;
+        const valid = validateImageFiles(files, toast);
+        if (!valid.length) return;
+
         setUploadingBanner(true);
-        const path = await uploadImage(files[0]).catch(() => null);
+        const path = await uploadImage(valid[0]).catch(() => null);
         setUploadingBanner(false);
+
         if (path) {
             setFormData((p) => ({ ...p, banner_image: path }));
             toast.success("Banner uploaded");
-        } else toast.error("Failed to upload banner");
+        } else {
+            toast.error("Failed to upload banner");
+        }
     };
 
+    // ─── Keywords ─────────────────────────────────────────────────────────────
     const handleAddKeyword = () => {
         const kw = keywordInput.trim();
         if (kw && !formData.keywords.includes(kw)) {
@@ -247,7 +327,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         }
     };
 
-    // ── submit ────────────────────────────────────────────
+    // ─── Submit ───────────────────────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent, statusOverride?: BlogStatus) => {
         e.preventDefault();
         if (!isFormValid) {
@@ -277,7 +357,9 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     router.push("/dashboard/blogs");
                     router.refresh();
                 }, 800);
-            } else toast.error(result.error || "Failed to save blog");
+            } else {
+                toast.error(result.error || "Failed to save blog");
+            }
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
@@ -288,20 +370,23 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     const scrollTo = (id: string) => {
         const el = document.getElementById(id);
         if (!el) return;
-        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 130, behavior: "smooth" });
+        window.scrollTo({
+            top: el.getBoundingClientRect().top + window.scrollY - 130,
+            behavior: "smooth",
+        });
         setActiveSection(id);
     };
 
-    // ── common input class ────────────────────────────────
+    // ─── Styles ───────────────────────────────────────────────────────────────
     const inp = "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
     const sel = "w-full h-9 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 text-slate-700 disabled:opacity-50";
 
+    // ─── Render ───────────────────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-slate-50/60">
-            {/* ── sticky topbar ─────────────────────────── */}
+            {/* ── Sticky top bar ── */}
             <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
-                    {/* back */}
                     <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
                         <Link href="/dashboard/blogs">
                             <ArrowLeft className="h-4 w-4" />
@@ -310,12 +395,10 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
 
                     <div className="h-4 w-px bg-slate-200" />
 
-                    {/* breadcrumb */}
                     <span className="text-xs text-slate-400">Blogs</span>
                     <ChevronRight className="h-3 w-3 text-slate-300" />
                     <span className="text-xs font-medium text-slate-700 truncate max-w-[200px]">{mode === "create" ? "New post" : formData.title || "Edit post"}</span>
 
-                    {/* progress pill */}
                     <div className="hidden md:flex items-center gap-2 ml-3">
                         <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
                             <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
@@ -323,10 +406,8 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                         <span className="text-[11px] text-slate-400">{completionPct}%</span>
                     </div>
 
-                    {/* spacer */}
                     <div className="flex-1" />
 
-                    {/* actions */}
                     <Button
                         type="button"
                         variant="ghost"
@@ -338,6 +419,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                         <Save className="h-3.5 w-3.5 mr-1.5" />
                         Save draft
                     </Button>
+
                     <Button
                         type="button"
                         size="sm"
@@ -350,7 +432,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     </Button>
                 </div>
 
-                {/* section tabs */}
+                {/* Section tabs */}
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 flex items-center gap-0 border-t border-slate-100">
                     {NAV.map((s) => (
                         <button
@@ -367,16 +449,15 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                 </div>
             </div>
 
-            {/* ── body ──────────────────────────────────── */}
+            {/* ── Body ── */}
             <form onSubmit={handleSubmit} className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 flex flex-col xl:flex-row gap-5">
-                {/* ── left / main ───────────────────────── */}
                 <div className="flex-1 min-w-0 space-y-5">
-                    {/* BASIC INFO */}
+                    {/* ── BASIC INFO ── */}
                     <section id="basic" className="scroll-mt-32 bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Basic Info" />
 
                         <div className="space-y-4">
-                            {/* title */}
+                            {/* Title */}
                             <div>
                                 <FieldLabel required ok={!!formData.title}>
                                     Title
@@ -385,7 +466,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.title.length}/100</p>
                             </div>
 
-                            {/* slug */}
+                            {/* Slug */}
                             <div>
                                 <FieldLabel required ok={!!formData.slug}>
                                     URL Slug
@@ -396,7 +477,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 </div>
                             </div>
 
-                            {/* description */}
+                            {/* Description */}
                             <div>
                                 <FieldLabel required ok={!!formData.description}>
                                     Description
@@ -413,13 +494,25 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.description.length}/160</p>
                             </div>
 
-                            {/* category / author / read time */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {/* Reading time only — category & author are commented out */}
+                            <div className="grid grid-cols-1 gap-3">
+                                {/*
+                                ── COMMENTED OUT: Category & Author dropdowns ──
+                                Admin doesn't need to set these; they are auto-filled
+                                server-side ("Activations" + "Eventify").
+                                Un-comment the block below to restore the UI pickers.
+
                                 <div>
                                     <FieldLabel required ok={formData.categoryId !== 0}>
                                         Category
                                     </FieldLabel>
-                                    <select name="categoryId" value={formData.categoryId} onChange={handleChange} className={sel} disabled={loadingCategories}>
+                                    <select
+                                        name="categoryId"
+                                        value={formData.categoryId}
+                                        onChange={handleChange}
+                                        className={sel}
+                                        disabled={loadingCategories}
+                                    >
                                         <option value={0}>Select…</option>
                                         {categories.map((c) => (
                                             <option key={c.id} value={c.id}>
@@ -428,11 +521,18 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                         ))}
                                     </select>
                                 </div>
+
                                 <div>
                                     <FieldLabel required ok={formData.authorId !== 0}>
                                         Author
                                     </FieldLabel>
-                                    <select name="authorId" value={formData.authorId} onChange={handleChange} className={sel} disabled={loadingAuthors}>
+                                    <select
+                                        name="authorId"
+                                        value={formData.authorId}
+                                        onChange={handleChange}
+                                        className={sel}
+                                        disabled={loadingAuthors}
+                                    >
                                         <option value={0}>Select…</option>
                                         {authors.map((a) => (
                                             <option key={a.id} value={a.id}>
@@ -441,15 +541,18 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                         ))}
                                     </select>
                                 </div>
-                                <div>
+                                */}
+
+                                {/* Reading time — visible, defaults to "5 min read" */}
+                                {/* <div>
                                     <FieldLabel>Reading time</FieldLabel>
                                     <Input name="timeToRead" value={formData.timeToRead} onChange={handleChange} placeholder="5 min read" className={inp} />
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </section>
 
-                    {/* CONTENT */}
+                    {/* ── CONTENT ── */}
                     <section id="content" className="scroll-mt-32 bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Content" />
                         <TiptapEditor
@@ -462,12 +565,16 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                         />
                     </section>
 
-                    {/* MEDIA */}
+                    {/* ── MEDIA ── */}
                     <section id="media" className="scroll-mt-32">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {/* thumbnail */}
+                            {/* Thumbnail */}
                             <div className="bg-white border border-slate-200 rounded-xl p-5">
                                 <SectionHeading label="Thumbnail" />
+                                <p className="text-[11px] text-slate-400 mb-3">
+                                    Max size: <strong>1 MB</strong>
+                                </p>
+
                                 <ImageUploader
                                     files={thumbnailFiles}
                                     onChange={(f) => {
@@ -475,24 +582,35 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                         handleThumbnailUpload(f);
                                     }}
                                     maxFiles={1}
-                                    maxSize={4}
+                                    maxSize={IMAGE_MAX_MB}
                                     accept="image/*"
                                 />
+
                                 <div className="mt-3">
                                     <FieldLabel>Alt text (optional)</FieldLabel>
                                     <Input
                                         value={formData.thumbnailAlt}
-                                        onChange={(e) => setFormData((p) => ({ ...p, thumbnailAlt: e.target.value }))}
-                                        placeholder={`${formData.metaTitle || formData.title || "Thumbnail image"}`}
+                                        onChange={(e) =>
+                                            setFormData((p) => ({
+                                                ...p,
+                                                thumbnailAlt: e.target.value,
+                                            }))
+                                        }
+                                        placeholder={formData.metaTitle || formData.title || "Thumbnail image"}
                                         className={inp}
                                     />
-                                    <p className="mt-1 text-[11px] text-slate-400">Leave empty to use: "{formData.metaTitle || formData.title}"</p>
+                                    <p className="mt-1 text-[11px] text-slate-400">
+                                        Leave empty to use: &ldquo;
+                                        {formData.metaTitle || formData.title}&rdquo;
+                                    </p>
                                 </div>
+
                                 {uploadingThumbnail && (
                                     <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
                                         <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
                                     </div>
                                 )}
+
                                 {formData.thumbnail && !uploadingThumbnail && (
                                     <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100">
                                         <img src={formData.thumbnail} alt={formData.thumbnailAlt || formData.metaTitle || formData.title} className="w-full h-28 object-cover" />
@@ -510,9 +628,13 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 )}
                             </div>
 
-                            {/* banner */}
+                            {/* Banner */}
                             <div className="bg-white border border-slate-200 rounded-xl p-5">
                                 <SectionHeading label="Banner Image" />
+                                <p className="text-[11px] text-slate-400 mb-3">
+                                    Max size: <strong>1 MB</strong>
+                                </p>
+
                                 <ImageUploader
                                     files={bannerFiles}
                                     onChange={(f) => {
@@ -520,19 +642,27 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                         handleBannerUpload(f);
                                     }}
                                     maxFiles={1}
-                                    maxSize={4}
+                                    maxSize={IMAGE_MAX_MB}
                                     accept="image/*"
                                 />
-                                {/* NEW: Alt text input */}
+
                                 <div className="mt-3">
                                     <FieldLabel>Alt text (optional)</FieldLabel>
                                     <Input
                                         value={formData.bannerImageAlt}
-                                        onChange={(e) => setFormData((p) => ({ ...p, bannerImageAlt: e.target.value }))}
-                                        placeholder={`${formData.metaTitle || formData.title || "Banner image"}`}
+                                        onChange={(e) =>
+                                            setFormData((p) => ({
+                                                ...p,
+                                                bannerImageAlt: e.target.value,
+                                            }))
+                                        }
+                                        placeholder={formData.metaTitle || formData.title || "Banner image"}
                                         className={inp}
                                     />
-                                    <p className="mt-1 text-[11px] text-slate-400">Leave empty to use: "{formData.metaTitle || formData.title}"</p>
+                                    <p className="mt-1 text-[11px] text-slate-400">
+                                        Leave empty to use: &ldquo;
+                                        {formData.metaTitle || formData.title}&rdquo;
+                                    </p>
                                 </div>
 
                                 {uploadingBanner && (
@@ -540,13 +670,17 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                         <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
                                     </div>
                                 )}
+
                                 {formData.banner_image && !uploadingBanner && (
                                     <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100">
                                         <img src={formData.banner_image} alt={formData.bannerImageAlt || formData.metaTitle || formData.title} className="w-full h-28 object-cover" />
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                setFormData((p) => ({ ...p, banner_image: "" }));
+                                                setFormData((p) => ({
+                                                    ...p,
+                                                    banner_image: "",
+                                                }));
                                                 setBannerFiles([]);
                                             }}
                                             className="absolute top-1.5 right-1.5 p-1 rounded-md bg-white/90 shadow text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
@@ -559,12 +693,12 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                         </div>
                     </section>
 
-                    {/* SEO */}
+                    {/* ── SEO ── */}
                     <section id="seo" className="scroll-mt-32 bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="SEO" />
 
                         <div className="space-y-4">
-                            {/* meta title */}
+                            {/* Meta title */}
                             <div>
                                 <FieldLabel>Meta title</FieldLabel>
                                 <Input
@@ -578,7 +712,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.metaTitle.length}/60</p>
                             </div>
 
-                            {/* meta description */}
+                            {/* Meta description */}
                             <div>
                                 <FieldLabel>Meta description</FieldLabel>
                                 <Textarea
@@ -593,7 +727,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.metaDescription.length}/160</p>
                             </div>
 
-                            {/* keywords */}
+                            {/* Keywords */}
                             <div>
                                 <FieldLabel>Keywords</FieldLabel>
                                 <div className="flex gap-2">
@@ -620,7 +754,12 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                                 {kw}
                                                 <button
                                                     type="button"
-                                                    onClick={() => setFormData((p) => ({ ...p, keywords: p.keywords.filter((k) => k !== kw) }))}
+                                                    onClick={() =>
+                                                        setFormData((p) => ({
+                                                            ...p,
+                                                            keywords: p.keywords.filter((k) => k !== kw),
+                                                        }))
+                                                    }
                                                     className="hover:text-red-500 transition-colors"
                                                 >
                                                     <X className="h-2.5 w-2.5" />
@@ -631,7 +770,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 )}
                             </div>
 
-                            {/* canonical */}
+                            {/* Canonical */}
                             <div>
                                 <FieldLabel>Canonical URL</FieldLabel>
                                 <Input
@@ -643,7 +782,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 />
                             </div>
 
-                            {/* schema */}
+                            {/* Schema */}
                             <div>
                                 <FieldLabel>Schema markup (JSON-LD)</FieldLabel>
                                 <Textarea
@@ -658,7 +797,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                         </div>
                     </section>
 
-                    {/* mobile action footer */}
+                    {/* Mobile action footer */}
                     <div className="flex sm:hidden gap-2">
                         <Button type="button" variant="outline" size="sm" onClick={(e) => handleSubmit(e, BlogStatus.DRAFT)} disabled={loading || !isFormValid} className="flex-1 h-9 text-xs">
                             <Save className="h-3.5 w-3.5 mr-1.5" /> Save draft
@@ -676,10 +815,10 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     </div>
                 </div>
 
-                {/* ── right / sidebar ───────────────────── */}
+                {/* ── Sidebar ── */}
                 <aside className="w-full xl:w-64 shrink-0">
                     <div className="xl:sticky xl:top-[108px] space-y-4">
-                        {/* completion */}
+                        {/* Completion */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xs font-medium text-slate-600">Completion</span>
@@ -700,7 +839,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                             </div>
                         </div>
 
-                        {/* table of contents */}
+                        {/* Table of Contents */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <span className="text-xs font-medium text-slate-600 block mb-3">Table of Contents</span>
                             <div className="max-h-60 overflow-y-auto">
@@ -708,7 +847,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                             </div>
                         </div>
 
-                        {/* tips */}
+                        {/* Tips */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
                             <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
@@ -716,20 +855,15 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 <li>Use 2–5 targeted keywords.</li>
                                 <li>Banner: 1200×630 ideal for social.</li>
                                 <li>H2/H3 headings auto-build the TOC.</li>
+                                <li>
+                                    Images must be under <strong className="text-slate-500">1 MB</strong>.
+                                </li>
+                                <li>Author &amp; category are set automatically (Eventify / Activations).</li>
                             </ul>
                         </div>
                     </div>
                 </aside>
             </form>
         </div>
-    );
-}
-
-export function DashboardHeader({ title, description }: { title: string; description?: string }) {
-    return (
-        <>
-            <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
-            <p className="text-muted-foreground">{description}</p>
-        </>
     );
 }

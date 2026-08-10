@@ -12,6 +12,34 @@ import { useToasts } from "@/components/ui/toast";
 import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, AlertCircle, CheckCircle2, Plus, Edit, Trash2, Layers, ChevronRight, Eye } from "lucide-react";
 import Link from "next/link";
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+const IMAGE_MAX_BYTES = 1 * 1024 * 1024; // 1 MB
+const VIDEO_MAX_BYTES = 1 * 1024 * 1024 * 1024; // 1 GB
+
+const IMAGE_MAX_MB = 1; // passed to ImageUploader (in MB)
+const VIDEO_MAX_MB = 1024; // 1 GB in MB
+
+const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg", "video/quicktime", "video/x-msvideo"];
+
+function isVideoFile(file: File) {
+    return ALLOWED_VIDEO_TYPES.includes(file.type);
+}
+
+/** Client-side guard: returns an error string or null */
+function validateFileSize(file: File): string | null {
+    if (isVideoFile(file)) {
+        if (file.size > VIDEO_MAX_BYTES) {
+            return `"${file.name}" exceeds the 1 GB video limit.`;
+        }
+    } else {
+        if (file.size > IMAGE_MAX_BYTES) {
+            return `"${file.name}" exceeds the 1 MB image limit.`;
+        }
+    }
+    return null;
+}
+
+// ─── Interfaces ──────────────────────────────────────────────────────────────
 interface ProjectCategory {
     id: number;
     name: string;
@@ -38,8 +66,8 @@ interface ProjectFormProps {
         bannerImage: string;
         images: string[];
         categoryId: number;
-        clientId: number | null; // ✅ NEW
-        projectClientLogo: string | null; // ✅ NEW
+        clientId: number | null;
+        projectClientLogo: string | null;
         hasTabs: boolean;
         tabs: Array<{ id: number; name: string; images: string[]; order: number }>;
     };
@@ -47,6 +75,7 @@ interface ProjectFormProps {
     mode: "create" | "edit";
 }
 
+// ─── Small UI helpers ─────────────────────────────────────────────────────────
 function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
     return (
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
@@ -66,6 +95,7 @@ function SectionHeading({ label }: { label: string }) {
     );
 }
 
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function ProjectForm({ initialData, projectId, mode }: ProjectFormProps) {
     const router = useRouter();
     const toast = useToasts();
@@ -73,14 +103,14 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     const [loading, setLoading] = useState(false);
     const [uploadingBanner, setUploadingBanner] = useState(false);
     const [uploadingImages, setUploadingImages] = useState(false);
-    const [uploadingProjectLogo, setUploadingProjectLogo] = useState(false); // ✅ NEW
+    const [uploadingProjectLogo, setUploadingProjectLogo] = useState(false);
     const [categories, setCategories] = useState<ProjectCategory[]>([]);
-    const [clients, setClients] = useState<Client[]>([]); // ✅ NEW
+    const [clients, setClients] = useState<Client[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
-    const [loadingClients, setLoadingClients] = useState(true); // ✅ NEW
+    const [loadingClients, setLoadingClients] = useState(true);
     const [bannerFiles, setBannerFiles] = useState<File[]>([]);
     const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-    const [projectLogoFiles, setProjectLogoFiles] = useState<File[]>([]); // ✅ NEW
+    const [projectLogoFiles, setProjectLogoFiles] = useState<File[]>([]);
     const [isTabModalOpen, setIsTabModalOpen] = useState(false);
     const [currentTab, setCurrentTab] = useState<ProjectTab | null>(null);
     const [tabImageFiles, setTabImageFiles] = useState<File[]>([]);
@@ -92,13 +122,21 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         bannerImage: initialData?.bannerImage || "",
         images: initialData?.images || [],
         categoryId: initialData?.categoryId || 0,
-        clientId: initialData?.clientId || null, // ✅ NEW
-        projectClientLogo: initialData?.projectClientLogo || null, // ✅ NEW
+        clientId: initialData?.clientId || (null as number | null),
+        projectClientLogo: initialData?.projectClientLogo || (null as string | null),
         hasTabs: initialData?.hasTabs || false,
     });
 
-    const [tabs, setTabs] = useState<ProjectTab[]>(initialData?.tabs?.map((t) => ({ id: t.id, tempId: `tab-${t.id}`, name: t.name, images: t.images })) || []);
+    const [tabs, setTabs] = useState<ProjectTab[]>(
+        initialData?.tabs?.map((t) => ({
+            id: t.id,
+            tempId: `tab-${t.id}`,
+            name: t.name,
+            images: t.images,
+        })) || [],
+    );
 
+    // ─── Completion tracker ───────────────────────────────────────────────────
     const completion = useMemo(
         () => [
             { label: "Title", ok: !!formData.title.trim() },
@@ -115,8 +153,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
     const isFormValid = completion.every((c) => c.ok);
 
+    // ─── Data fetching ────────────────────────────────────────────────────────
     useEffect(() => {
-        // Fetch categories
         fetch("/api/project-categories")
             .then((r) => r.json())
             .then((d) => {
@@ -127,7 +165,6 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
             .finally(() => setLoadingCategories(false));
     }, []);
 
-    // ✅ NEW: Fetch clients
     useEffect(() => {
         fetch("/api/clients")
             .then((r) => r.json())
@@ -152,17 +189,25 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     bannerImage: d.bannerImage,
                     images: d.images || [],
                     categoryId: d.categoryId,
-                    clientId: d.clientId || null, // ✅ NEW
-                    projectClientLogo: d.projectClientLogo || null, // ✅ NEW
+                    clientId: d.clientId || null,
+                    projectClientLogo: d.projectClientLogo || null,
                     hasTabs: d.hasTabs || false,
                 });
                 if (d.tabs?.length) {
-                    setTabs(d.tabs.map((t: any) => ({ id: t.id, tempId: `tab-${t.id}`, name: t.name, images: t.images })));
+                    setTabs(
+                        d.tabs.map((t: any) => ({
+                            id: t.id,
+                            tempId: `tab-${t.id}`,
+                            name: t.name,
+                            images: t.images,
+                        })),
+                    );
                 }
             })
             .catch(() => toast.error("Failed to load project data"));
     }, [mode, projectId]);
 
+    // ─── Form helpers ─────────────────────────────────────────────────────────
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((p) => ({
@@ -171,63 +216,115 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         }));
     };
 
+    // ─── Upload helpers ───────────────────────────────────────────────────────
+    /**
+     * Upload a single file to /api/upload?folder=projects
+     * The server will apply the correct size limit (1 MB image / 1 GB video).
+     */
     const uploadFile = async (file: File): Promise<string | null> => {
         const fd = new FormData();
         fd.append("file", file);
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const res = await fetch("/api/upload?folder=projects", {
+            method: "POST",
+            body: fd,
+        });
         const result = await res.json();
         return result.success ? result.path : null;
     };
 
+    /**
+     * Client-side validation before hitting the server.
+     * Returns only the valid files and shows a toast for each rejected one.
+     */
+    const validateFiles = (files: File[]): File[] => {
+        return files.filter((file) => {
+            const err = validateFileSize(file);
+            if (err) {
+                toast.error(err);
+                return false;
+            }
+            return true;
+        });
+    };
+
+    // ─── Banner ───────────────────────────────────────────────────────────────
     const handleBannerUpload = async (files: File[]) => {
         if (!files.length) return;
+
+        const valid = validateFiles(files);
+        if (!valid.length) return;
+
         setUploadingBanner(true);
-        const path = await uploadFile(files[0]).catch(() => null);
+        const path = await uploadFile(valid[0]).catch(() => null);
         setUploadingBanner(false);
+
         if (path) {
             setFormData((p) => ({ ...p, bannerImage: path }));
             toast.success("Banner uploaded");
-        } else toast.error("Failed to upload banner");
+        } else {
+            toast.error("Failed to upload banner");
+        }
     };
 
+    // ─── Gallery ──────────────────────────────────────────────────────────────
     const handleGalleryUpload = async (files: File[]) => {
         if (!files.length) return;
+
+        const valid = validateFiles(files);
+        if (!valid.length) return;
+
         setUploadingImages(true);
-        const paths = (await Promise.all(files.map(uploadFile))).filter(Boolean) as string[];
+        const paths = (await Promise.all(valid.map(uploadFile))).filter(Boolean) as string[];
         setUploadingImages(false);
         setGalleryFiles([]);
+
         if (paths.length) {
             setFormData((p) => ({ ...p, images: [...p.images, ...paths] }));
             toast.success(`${paths.length} image(s) uploaded`);
         }
-        if (paths.length < files.length) toast.warning("Some images failed to upload");
+        if (paths.length < valid.length) toast.warning("Some images failed to upload");
     };
 
-    // ✅ NEW: Handle project client logo upload
+    // ─── Custom client logo ───────────────────────────────────────────────────
     const handleProjectLogoUpload = async (files: File[]) => {
         if (!files.length) return;
+
+        const valid = validateFiles(files);
+        if (!valid.length) return;
+
         setUploadingProjectLogo(true);
-        const path = await uploadFile(files[0]).catch(() => null);
+        const path = await uploadFile(valid[0]).catch(() => null);
         setUploadingProjectLogo(false);
         setProjectLogoFiles([]);
+
         if (path) {
             setFormData((p) => ({ ...p, projectClientLogo: path }));
             toast.success("Client logo uploaded");
-        } else toast.error("Failed to upload logo");
+        } else {
+            toast.error("Failed to upload logo");
+        }
     };
 
+    // ─── Tab images ───────────────────────────────────────────────────────────
     const handleTabImageUpload = async (files: File[]) => {
         if (!files.length || !currentTab) return;
+
+        const valid = validateFiles(files);
+        if (!valid.length) return;
+
         setUploadingTabImages(true);
-        const paths = (await Promise.all(files.map(uploadFile))).filter(Boolean) as string[];
+        const paths = (await Promise.all(valid.map(uploadFile))).filter(Boolean) as string[];
         setUploadingTabImages(false);
         setTabImageFiles([]);
+
         if (paths.length) {
             setCurrentTab((t) => (t ? { ...t, images: [...t.images, ...paths] } : t));
             toast.success(`${paths.length} image(s) uploaded`);
         }
+        if (paths.length < valid.length) toast.warning("Some images failed to upload");
     };
 
+    // ─── Tab CRUD ─────────────────────────────────────────────────────────────
     const openAddTab = () => {
         setCurrentTab({ tempId: `temp-${Date.now()}`, name: "", images: [] });
         setIsTabModalOpen(true);
@@ -271,6 +368,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         closeModal();
     };
 
+    // ─── Submit ───────────────────────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isFormValid) {
@@ -285,8 +383,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 body: JSON.stringify({
                     ...formData,
                     description: formData.description.trim() || null,
-                    clientId: formData.clientId || null, // ✅ NEW
-                    projectClientLogo: formData.projectClientLogo || null, // ✅ NEW
+                    clientId: formData.clientId || null,
+                    projectClientLogo: formData.projectClientLogo || null,
                     tabs: formData.hasTabs ? tabs.map(({ name, images }) => ({ name, images })) : undefined,
                 }),
             });
@@ -297,7 +395,9 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     router.push("/dashboard/projects");
                     router.refresh();
                 }, 800);
-            } else toast.error(result.message || result.error || "Failed to save project");
+            } else {
+                toast.error(result.message || result.error || "Failed to save project");
+            }
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
@@ -305,11 +405,14 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         }
     };
 
+    // ─── Styles ───────────────────────────────────────────────────────────────
     const inp = "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
     const sel = "w-full h-9 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 text-slate-700 disabled:opacity-50";
 
+    // ─── Render ───────────────────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-slate-50/60">
+            {/* ── Top bar ── */}
             <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
                     <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
@@ -348,6 +451,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
 
             <form id="project-form" onSubmit={handleSubmit} className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 flex flex-col xl:flex-row gap-5">
                 <div className="flex-1 min-w-0 space-y-5">
+                    {/* ── Basic Info ── */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Basic Info" />
                         <div className="space-y-4">
@@ -389,7 +493,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </div>
                     </section>
 
-                    {/* ✅ NEW: Client Selection Section */}
+                    {/* ── Client ── */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Client (Optional)" />
                         <div className="space-y-4">
@@ -406,7 +510,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 <p className="mt-1 text-[11px] text-slate-400">Select an existing client or upload a custom logo below</p>
                             </div>
 
-                            {/* Client preview */}
+                            {/* Selected client preview */}
                             {formData.clientId && clients.find((c) => c.id === formData.clientId) && (
                                 <div className="p-3 rounded-lg border border-slate-100 bg-slate-50">
                                     <p className="text-[11px] text-slate-500 mb-2">Selected Client:</p>
@@ -420,12 +524,14 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 </div>
                             )}
 
-                            {/* Custom logo upload */}
+                            {/* Custom logo upload — images only, 1 MB max */}
                             <div>
                                 <FieldLabel ok={!!formData.projectClientLogo}>
                                     Custom Client Logo <span className="text-slate-400 text-[10px]">(Optional - Not visible to clients)</span>
                                 </FieldLabel>
-                                <p className="text-[11px] text-slate-400 mb-2">Upload a custom logo if the client doesn't exist in the list above</p>
+                                <p className="text-[11px] text-slate-400 mb-2">
+                                    Upload a custom logo if the client doesn't exist in the list above. Max size: <strong>1 MB</strong>.
+                                </p>
 
                                 <ImageUploader
                                     files={projectLogoFiles}
@@ -434,7 +540,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                         handleProjectLogoUpload(f);
                                     }}
                                     maxFiles={1}
-                                    maxSize={5}
+                                    maxSize={IMAGE_MAX_MB}
                                     accept="image/*"
                                 />
 
@@ -450,7 +556,10 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                setFormData((p) => ({ ...p, projectClientLogo: null }));
+                                                setFormData((p) => ({
+                                                    ...p,
+                                                    projectClientLogo: null,
+                                                }));
                                                 setProjectLogoFiles([]);
                                             }}
                                             className="absolute top-1 right-1 p-1 rounded-md bg-white/90 shadow text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
@@ -463,8 +572,12 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </div>
                     </section>
 
+                    {/* ── Banner Image ── */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Banner Image" />
+                        <p className="text-[11px] text-slate-400 mb-3">
+                            Images: max <strong>1 MB</strong> · Videos: max <strong>1 GB</strong>
+                        </p>
 
                         <ImageUploader
                             files={bannerFiles}
@@ -473,7 +586,9 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 handleBannerUpload(f);
                             }}
                             maxFiles={1}
-                            maxSize={10}
+                            // For the uploader hint we show the image limit;
+                            // video limit is enforced server-side and in validateFileSize
+                            maxSize={IMAGE_MAX_MB}
                             accept="image/*,video/*"
                         />
 
@@ -500,6 +615,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         )}
                     </section>
 
+                    {/* ── Tabs toggle ── */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <div className="flex items-center justify-between">
                             <div>
@@ -516,6 +632,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </div>
                     </section>
 
+                    {/* ── Tabs list OR Gallery ── */}
                     {formData.hasTabs ? (
                         <section className="bg-white border border-slate-200 rounded-xl p-5">
                             <div className="flex items-center justify-between mb-4">
@@ -544,7 +661,8 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                                 <div>
                                                     <p className="text-xs font-semibold text-slate-800">{tab.name}</p>
                                                     <p className="text-[11px] text-slate-400">
-                                                        {tab.images.length} image{tab.images.length !== 1 ? "s" : ""}
+                                                        {tab.images.length} image
+                                                        {tab.images.length !== 1 ? "s" : ""}
                                                     </p>
                                                 </div>
                                             </div>
@@ -572,6 +690,9 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     ) : (
                         <section className="bg-white border border-slate-200 rounded-xl p-5">
                             <SectionHeading label="Project Gallery" />
+                            <p className="text-[11px] text-slate-400 mb-3">
+                                Images: max <strong>1 MB</strong> each · Videos: max <strong>1 GB</strong> each
+                            </p>
 
                             <ImageUploader
                                 files={galleryFiles}
@@ -580,7 +701,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                     handleGalleryUpload(f);
                                 }}
                                 maxFiles={10 - formData.images.length}
-                                maxSize={10}
+                                maxSize={IMAGE_MAX_MB}
                                 accept="image/*,video/*"
                             />
 
@@ -602,7 +723,12 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <button
                                                         type="button"
-                                                        onClick={() => setFormData((p) => ({ ...p, images: p.images.filter((_, idx) => idx !== i) }))}
+                                                        onClick={() =>
+                                                            setFormData((p) => ({
+                                                                ...p,
+                                                                images: p.images.filter((_, idx) => idx !== i),
+                                                            }))
+                                                        }
                                                         className="p-1 rounded-md bg-white/90 text-red-500 shadow"
                                                     >
                                                         <X className="h-3.5 w-3.5" />
@@ -624,6 +750,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </section>
                     )}
 
+                    {/* Mobile submit */}
                     <div className="flex sm:hidden gap-2">
                         <Button
                             type="submit"
@@ -638,8 +765,10 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     </div>
                 </div>
 
+                {/* ── Sidebar ── */}
                 <aside className="w-full xl:w-64 shrink-0">
                     <div className="xl:sticky xl:top-[108px] space-y-4">
+                        {/* Completion */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xs font-medium text-slate-600">Completion</span>
@@ -660,12 +789,18 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                             </div>
                         </div>
 
+                        {/* Tips */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
                             <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                 <li>Banner: 1200×630 works great for all viewports.</li>
                                 <li>Use tabs to split images by room, area, or phase.</li>
-                                <li>Keep gallery images under 1 MB each for fast load.</li>
+                                <li>
+                                    Images must be under <strong className="text-slate-500">1 MB</strong> each.
+                                </li>
+                                <li>
+                                    Videos must be under <strong className="text-slate-500">1 GB</strong> each.
+                                </li>
                                 <li>Client logo is optional and admin-only.</li>
                             </ul>
                         </div>
@@ -673,13 +808,16 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                 </aside>
             </form>
 
+            {/* ── Tab Modal ── */}
             {isTabModalOpen && currentTab && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
                         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
                             <div>
                                 <p className="text-sm font-semibold text-slate-800">{tabs.find((t) => t.tempId === currentTab.tempId) ? "Edit Tab" : "Add Tab"}</p>
-                                <p className="text-[11px] text-slate-400 mt-0.5">Name this section and upload its images</p>
+                                <p className="text-[11px] text-slate-400 mt-0.5">
+                                    Name this section and upload its images (max <strong>1 MB</strong> each)
+                                </p>
                             </div>
                             <button type="button" onClick={closeModal} className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
                                 <X className="h-4 w-4" />
@@ -704,6 +842,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                     Images ({currentTab.images.length})
                                 </FieldLabel>
 
+                                {/* Tab images are images-only → 1 MB cap */}
                                 <ImageUploader
                                     files={tabImageFiles}
                                     onChange={(f) => {
@@ -711,7 +850,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                         handleTabImageUpload(f);
                                     }}
                                     maxFiles={20 - currentTab.images.length}
-                                    maxSize={4}
+                                    maxSize={IMAGE_MAX_MB}
                                     accept="image/*"
                                 />
 
@@ -729,7 +868,16 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <button
                                                         type="button"
-                                                        onClick={() => setCurrentTab((t) => (t ? { ...t, images: t.images.filter((_, idx) => idx !== i) } : t))}
+                                                        onClick={() =>
+                                                            setCurrentTab((t) =>
+                                                                t
+                                                                    ? {
+                                                                          ...t,
+                                                                          images: t.images.filter((_, idx) => idx !== i),
+                                                                      }
+                                                                    : t,
+                                                            )
+                                                        }
                                                         className="p-1 rounded-md bg-white/90 text-red-500 shadow"
                                                     >
                                                         <X className="h-3.5 w-3.5" />

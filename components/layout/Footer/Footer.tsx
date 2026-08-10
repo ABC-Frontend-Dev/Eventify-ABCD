@@ -18,8 +18,9 @@ export default function Footer() {
                         <p className="text-xl lg:text-2xl font-helvetica leading-7.5 uppercase">OUR OFFICES</p>
                         <p className="hidden sm:block ml-4.75 font-helvetica-neue-roman text-sm lg:text-xl leading-7 tracking-wider">
                             {/* <span className="capitalize">Email ID: </span> */}
-                            <Link href="#" className="lowercase">
-                                <GoesOutComesInUnderline label="connect@eventifyentertainment.com" direction="right" />
+                            <Link href="mailto:connect@eventifyentertainment.com" className="lowercase hover:text-slate-200 transition-colors">
+                                connect@eventifyentertainment.com
+                                {/* <GoesOutComesInUnderline label="" direction="right" /> */}
                             </Link>
                         </p>
                     </div>
@@ -44,13 +45,13 @@ export default function Footer() {
                         <div className="flex gap-0 md:gap-5 w-full justify-between lg:justify-end">
                             <p className="block sm:hidden font-helvetica-neue-roman text-xs lg:text-xl leading-7 tracking-wider">
                                 {/* <span className="capitalize">Email ID: </span> */}
-                                <Link href="#" className="lowercase">
-                                    <GoesOutComesInUnderline label="connect@eventifyentertainment.com" direction="right" />
+                                <Link href="mailto:connect@eventifyentertainment.com" className="lowercase hover:text-slate-200 transition-colors">
+                                    connect@eventifyentertainment
                                 </Link>
                             </p>
                             <div className="flex items-center gap-1.5 md:gap-5">
-                                <SocialIcon href="https://www.instagram.com/eventifyentertainment/" label="Instagram">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" className="w-5 sm:w-8.5 h-5 sm:h-8.5" fill="none">
+                                <Link href="https://www.instagram.com/eventifyentertainment/">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" className="w-5 sm:w-8.5 h-5 sm:h-8.5 hover:opacity-85 transition-opacity" fill="none">
                                         <g clipPath="url(#clip0_1_2400)">
                                             <path
                                                 d="M25.5 -0.000976562H8.49967C3.80758 -0.000976562 -0.000488281 3.8071 -0.000488281 8.49919V25.4995C-0.000488281 30.1916 3.80758 33.9997 8.49967 33.9997H25.5C30.1921 33.9997 34.0002 30.1916 34.0002 25.4995V8.49919C34.0002 3.8071 30.1921 -0.000976562 25.5 -0.000976562ZM16.9998 25.4995C12.3077 25.4995 8.49967 21.6914 8.49967 16.9993C8.49967 12.3073 12.3077 8.49919 16.9998 8.49919C21.6919 8.49919 25.5 12.3073 25.5 16.9993C25.5 21.6914 21.6919 25.4995 16.9998 25.4995ZM26.095 9.55321C25.16 9.55321 24.395 8.78819 24.395 7.85317C24.395 6.91816 25.16 6.15314 26.095 6.15314C27.03 6.15314 27.795 6.91816 27.795 7.85317C27.795 8.78819 27.03 9.55321 26.095 9.55321Z"
@@ -67,8 +68,8 @@ export default function Footer() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </SocialIcon>
-                                <SocialIcon href="https://www.linkedin.com/company/eventifyentertainment/" label="LinkedIn">
+                                </Link>
+                                <Link href="https://www.linkedin.com/company/eventifyentertainment/" className="hover:opacity-85 transition-opacity">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 sm:w-8.5 h-5 sm:h-8.5" viewBox="0 0 34 34" fill="none">
                                         <g clipPath="url(#clip0_1_2404)">
                                             <path
@@ -82,7 +83,7 @@ export default function Footer() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </SocialIcon>
+                                </Link>
                             </div>
                         </div>
                     </div>

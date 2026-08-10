@@ -5,7 +5,7 @@ import { useToasts } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Users, Send, Trash2, History, ChevronDown, ChevronUp, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Mail, Users, Send, Trash2, History, ChevronDown, ChevronUp, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff, Download } from "lucide-react";
 import DashboardHeader from "../common/Header";
 import { TEMPLATES, type TemplateDefinition, type TemplateId } from "@/lib/newsletter-templates";
 
@@ -233,6 +233,15 @@ export default function NewsletterPage() {
         });
     };
 
+    const handleExport = (format: "csv" | "xlsx") => {
+        const params = new URLSearchParams({
+            format,
+            all: showInactive ? "true" : "false",
+        });
+        // Trigger browser download directly
+        window.open(`/api/newsletter/subscribers/export?${params.toString()}`, "_blank");
+    };
+
     const activeSubscribers = subscribers.filter((s) => s.isActive);
 
     return (
@@ -431,13 +440,37 @@ export default function NewsletterPage() {
             {/* ── Subscribers tab ──────────────────────────────────────────── */}
             {tab === "subscribers" && (
                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-slate-100">
                         <p className="text-sm font-semibold text-slate-800">
                             {showInactive ? "All" : "Active"} Subscribers ({subscribers.length})
                         </p>
-                        <button type="button" onClick={() => setShowInactive((v) => !v)} className="text-[11px] text-slate-500 hover:text-slate-700 underline underline-offset-2">
-                            {showInactive ? "Show active only" : "Show all (incl. unsubscribed)"}
-                        </button>
+
+                        <div className="flex items-center gap-2 flex-wrap">
+                            {/* Export buttons */}
+                            <button
+                                type="button"
+                                onClick={() => handleExport("csv")}
+                                className="flex items-center gap-1.5 h-7 px-3 text-[11px] font-medium rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                            >
+                                <Download className="h-3 w-3" />
+                                CSV
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleExport("xlsx")}
+                                className="flex items-center gap-1.5 h-7 px-3 text-[11px] font-medium rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                            >
+                                <Download className="h-3 w-3" />
+                                Excel
+                            </button>
+
+                            <div className="h-4 w-px bg-slate-200" />
+
+                            {/* Toggle inactive */}
+                            <button type="button" onClick={() => setShowInactive((v) => !v)} className="text-[11px] text-slate-500 hover:text-slate-700 underline underline-offset-2">
+                                {showInactive ? "Show active only" : "Show all (incl. unsubscribed)"}
+                            </button>
+                        </div>
                     </div>
 
                     {loadingSubscribers ? (

@@ -1,3 +1,4 @@
+// app/(frontend)/layout.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -7,7 +8,7 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import Navbar from "@/components/layout/navbar/Navbar";
 import Footer from "@/components/layout/Footer/Footer";
-import { LenisHashHandler } from "@/components/layout/LenisHashHandler";
+import { LenisHashHandler } from "@/components/layout/LenisHashHandler/LenisHashHandler";
 
 // Window globals (__lenis, __pendingHash) are declared in /types/global.d.ts
 

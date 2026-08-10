@@ -2,6 +2,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+// ── Default fallback names ────────────────────────────────────────────────────
+const DEFAULT_AUTHOR_NAME = "Eventify";
+const DEFAULT_CATEGORY_NAME = "Activations";
+
 enum BlogStatus {
     DRAFT = "DRAFT",
     PUBLISHED = "PUBLISHED",
@@ -19,27 +23,18 @@ type BlogBody = {
     metaDescription: string;
     keywords: string[];
     thumbnail: string;
-    thumbnailAlt?: string; // NEW
+    thumbnailAlt?: string;
     banner_image: string;
-    bannerImageAlt?: string; // NEW
+    bannerImageAlt?: string;
     canonical: string;
     schemaScript: string;
     timeToRead?: string;
-    authorId: number;
-    categoryId: number;
+    authorId?: number | null; // ✅ now optional
+    categoryId?: number | null; // ✅ now optional
 };
 
 function isValidSlug(slug: string): boolean {
     return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
-}
-
-function formatSlug(slug: string): string {
-    return slug
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9-_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-+|-+$/g, "");
 }
 
 export async function GET(request: NextRequest) {
@@ -58,14 +53,7 @@ export async function GET(request: NextRequest) {
 
         if (slug) {
             if (!isValidSlug(slug)) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: "Invalid slug format",
-                        data: null,
-                    },
-                    { status: 400 },
-                );
+                return NextResponse.json({ success: false, error: "Invalid slug format", data: null }, { status: 400 });
             }
             where.slug = slug;
         }
@@ -78,13 +66,8 @@ export async function GET(request: NextRequest) {
             where.status = status;
         }
 
-        if (categoryId) {
-            where.categoryId = parseInt(categoryId);
-        }
-
-        if (authorId) {
-            where.authorId = parseInt(authorId);
-        }
+        if (categoryId) where.categoryId = parseInt(categoryId);
+        if (authorId) where.authorId = parseInt(authorId);
 
         let orderBy: any = {};
         switch (sortBy) {
@@ -108,42 +91,17 @@ export async function GET(request: NextRequest) {
             where,
             orderBy,
             take: limit,
-            include: {
-                author: true,
-                category: true,
-            },
+            include: { author: true, category: true },
         });
 
         if (slug && blogs.length === 0) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Blog not found",
-                    data: null,
-                },
-                { status: 404 },
-            );
+            return NextResponse.json({ success: false, error: "Blog not found", data: null }, { status: 404 });
         }
 
-        return NextResponse.json(
-            {
-                success: true,
-                data: blogs,
-                count: blogs.length,
-            },
-            {
-                status: 200,
-            },
-        );
+        return NextResponse.json({ success: true, data: blogs, count: blogs.length }, { status: 200 });
     } catch (error) {
         console.error("GET /api/blogs error:", error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: "Failed to fetch blogs.",
-            },
-            { status: 500 },
-        );
+        return NextResponse.json({ success: false, error: "Failed to fetch blogs." }, { status: 500 });
     }
 }
 
@@ -151,21 +109,12 @@ export async function POST(request: NextRequest) {
     try {
         const body: BlogBody = await request.json();
 
+        // ── Core content validation ───────────────────────────────────────────
         if (!body.title || !body.slug || !body.description || !body.content) {
             return NextResponse.json(
                 {
                     success: false,
                     error: "Title, slug, description, and content are required.",
-                },
-                { status: 400 },
-            );
-        }
-
-        if (!body.authorId || !body.categoryId) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Author and category are required.",
                 },
                 { status: 400 },
             );
@@ -181,48 +130,69 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const existingBlog = await prisma.blog.findUnique({
-            where: { slug: body.slug },
-        });
-
+        // ── Slug uniqueness ───────────────────────────────────────────────────
+        const existingBlog = await prisma.blog.findUnique({ where: { slug: body.slug } });
         if (existingBlog) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "A blog with this slug already exists.",
-                },
-                { status: 400 },
-            );
+            return NextResponse.json({ success: false, error: "A blog with this slug already exists." }, { status: 400 });
         }
 
-        const authorExists = await prisma.author.findUnique({
-            where: { id: body.authorId },
-        });
+        // ── Resolve author (use provided ID → fallback to "Eventify") ────────
+        let resolvedAuthorId: number;
 
-        if (!authorExists) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Author not found.",
-                },
-                { status: 404 },
-            );
+        if (body.authorId) {
+            const authorExists = await prisma.author.findUnique({
+                where: { id: body.authorId },
+            });
+            if (!authorExists) {
+                return NextResponse.json({ success: false, error: "Author not found." }, { status: 404 });
+            }
+            resolvedAuthorId = body.authorId;
+        } else {
+            // fallback: find by name
+            const defaultAuthor = await prisma.author.findFirst({
+                where: { name: { equals: DEFAULT_AUTHOR_NAME, mode: "insensitive" } },
+            });
+            if (!defaultAuthor) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: `Default author "${DEFAULT_AUTHOR_NAME}" not found. Please create it first.`,
+                    },
+                    { status: 404 },
+                );
+            }
+            resolvedAuthorId = defaultAuthor.id;
         }
 
-        const categoryExists = await prisma.blogCategory.findUnique({
-            where: { id: body.categoryId },
-        });
+        // ── Resolve category (use provided ID → fallback to "Activations") ───
+        let resolvedCategoryId: number;
 
-        if (!categoryExists) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Category not found.",
-                },
-                { status: 404 },
-            );
+        if (body.categoryId) {
+            const categoryExists = await prisma.blogCategory.findUnique({
+                where: { id: body.categoryId },
+            });
+            if (!categoryExists) {
+                return NextResponse.json({ success: false, error: "Category not found." }, { status: 404 });
+            }
+            resolvedCategoryId = body.categoryId;
+        } else {
+            // fallback: find by name
+            const defaultCategory = await prisma.blogCategory.findFirst({
+                where: { name: { equals: DEFAULT_CATEGORY_NAME, mode: "insensitive" } },
+            });
+            if (!defaultCategory) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: `Default category "${DEFAULT_CATEGORY_NAME}" not found. Please create it first.`,
+                    },
+                    { status: 404 },
+                );
+            }
+            resolvedCategoryId = defaultCategory.id;
         }
 
+        // ── Create ────────────────────────────────────────────────────────────
         const newBlog = await prisma.blog.create({
             data: {
                 title: body.title,
@@ -235,39 +205,22 @@ export async function POST(request: NextRequest) {
                 metaDescription: body.metaDescription || body.description,
                 keywords: body.keywords || [],
                 thumbnail: body.thumbnail,
-                thumbnailAlt: body.thumbnailAlt || body.metaTitle || body.title, // NEW: Fallback to metaTitle
+                thumbnailAlt: body.thumbnailAlt || body.metaTitle || body.title,
                 banner_image: body.banner_image,
-                bannerImageAlt: body.bannerImageAlt || body.metaTitle || body.title, // NEW: Fallback to metaTitle
+                bannerImageAlt: body.bannerImageAlt || body.metaTitle || body.title,
                 canonical: body.canonical,
                 schemaScript: body.schemaScript || "",
-                timeToRead: body.timeToRead,
-                authorId: body.authorId,
-                categoryId: body.categoryId,
+                // ✅ default to "5 min read" if not provided
+                timeToRead: body.timeToRead || "5 min read",
+                authorId: resolvedAuthorId,
+                categoryId: resolvedCategoryId,
             },
-            include: {
-                author: true,
-                category: true,
-            },
+            include: { author: true, category: true },
         });
 
-        return NextResponse.json(
-            {
-                success: true,
-                data: newBlog,
-                message: "Blog created successfully.",
-            },
-            {
-                status: 201,
-            },
-        );
+        return NextResponse.json({ success: true, data: newBlog, message: "Blog created successfully." }, { status: 201 });
     } catch (error) {
         console.error("POST /api/blogs error:", error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: "Failed to create blog.",
-            },
-            { status: 500 },
-        );
+        return NextResponse.json({ success: false, error: "Failed to create blog." }, { status: 500 });
     }
 }
