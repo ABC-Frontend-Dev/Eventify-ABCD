@@ -2,20 +2,18 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToasts } from "@/components/ui/toast";
-import { ArrowLeft, Eye, Loader2, X, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
+import { ArrowLeft, Eye, Loader2, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import axios from "axios";
 
 interface TeamMember {
     id: number;
-    position: number;
     name: string;
     role: string;
     image: string;
@@ -26,8 +24,6 @@ interface TeamFormProps {
     memberId?: number;
     mode: "create" | "edit";
 }
-
-const COLLAGE_MAX_POSITION = 35;
 
 function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
     return (
@@ -55,14 +51,10 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
-    const [takenPositions, setTakenPositions] = useState<number[]>([]);
-
-    const [placementMode, setPlacementMode] = useState<"collage" | "overflow">(initialData && initialData.position > COLLAGE_MAX_POSITION ? "overflow" : "collage");
 
     const [formData, setFormData] = useState({
         name: initialData?.name || "",
         role: initialData?.role || "",
-        position: initialData?.position || ("" as number | ""),
         image: initialData?.image || "",
     });
 
@@ -70,31 +62,15 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
         () => [
             { label: "Member Name", ok: !!formData.name.trim() },
             { label: "Role", ok: !!formData.role.trim() },
-            { label: "Placement", ok: placementMode === "overflow" || !!formData.position },
             { label: "Photo", ok: !!formData.image },
         ],
-        [formData, placementMode],
+        [formData],
     );
 
     const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
     const isFormValid = completion.every((c) => c.ok);
 
-    // Load taken positions and edit data
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get("/api/team");
-                if (response.data.success) {
-                    const taken = response.data.data.filter((m: TeamMember) => m.id !== memberId).map((m: TeamMember) => m.position);
-                    setTakenPositions(taken);
-                }
-            } catch (error) {
-                console.error("Error fetching team:", error);
-            }
-        };
-
-        fetchData();
-
         if (mode === "edit" && memberId) {
             const loadMember = async () => {
                 try {
@@ -103,10 +79,8 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                         setFormData({
                             name: response.data.data.name,
                             role: response.data.data.role,
-                            position: response.data.data.position,
                             image: response.data.data.image,
                         });
-                        setPlacementMode(response.data.data.position > COLLAGE_MAX_POSITION ? "overflow" : "collage");
                     }
                 } catch (error) {
                     console.error("Error loading member:", error);
@@ -120,24 +94,19 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        if (name === "position") {
-            setFormData((p) => ({
-                ...p,
-                [name]: value ? parseInt(value) : "",
-            }));
-        } else {
-            setFormData((p) => ({ ...p, [name]: value }));
-        }
+        setFormData((p) => ({ ...p, [name]: value }));
     };
 
-    // Upload handler
     const handleFileUpload = async (uploadedFiles: File[]) => {
         if (!uploadedFiles.length) return;
         setUploading(true);
         try {
             const fd = new FormData();
             fd.append("file", uploadedFiles[0]);
-            const res = await fetch("/api/upload", { method: "POST", body: fd });
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: fd,
+            });
             const result = await res.json();
             if (result.success) {
                 setFormData((p) => ({ ...p, image: result.path }));
@@ -152,9 +121,8 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
         }
     };
 
-    // Submit handler
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (e?: React.FormEvent) => {
+        e?.preventDefault();
 
         if (!formData.name.trim()) {
             toast.warning("Please enter a member name");
@@ -162,10 +130,6 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
         }
         if (!formData.role.trim()) {
             toast.warning("Please enter a role");
-            return;
-        }
-        if (placementMode === "collage" && !formData.position) {
-            toast.warning("Please select a collage slot");
             return;
         }
         if (!formData.image.trim()) {
@@ -178,18 +142,16 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
             const url = mode === "create" ? "/api/team" : `/api/team/${memberId}`;
             const method = mode === "create" ? "POST" : "PUT";
 
-            const payload = placementMode === "collage" ? formData : { name: formData.name, role: formData.role, image: formData.image }; // no position -> backend auto-appends / keeps existing
-
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(formData),
             });
 
             const result = await res.json();
 
             if (result.success) {
-                toast.success(mode === "create" ? "Team member created!" : "Team member updated!");
+                toast.success(mode === "create" ? "Team member created! You can now arrange their position in the grid from the Team page." : "Team member updated!");
                 setTimeout(() => {
                     router.push("/dashboard/team");
                     router.refresh();
@@ -233,7 +195,6 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
 
                     <div className="flex-1" />
 
-                    {/* Cancel */}
                     <Button
                         type="button"
                         variant="ghost"
@@ -245,8 +206,7 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                         Cancel
                     </Button>
 
-                    {/* Save */}
-                    <Button type="button" size="sm" onClick={handleSubmit} disabled={loading || uploading || !isFormValid} className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white">
+                    <Button type="button" size="sm" onClick={() => handleSubmit()} disabled={loading || uploading || !isFormValid} className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white">
                         {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
                         {mode === "create" ? "Create" : "Update"}
                     </Button>
@@ -273,59 +233,10 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                             {/* Role */}
                             <div>
                                 <FieldLabel required ok={!!formData.role}>
-                                    Role/Position
+                                    Role / Position
                                 </FieldLabel>
                                 <Input name="role" value={formData.role} onChange={handleChange} placeholder="e.g. ACCOUNTS EXECUTIVE" className={inp} maxLength={100} />
                                 <p className="mt-1 text-[11px] text-slate-400 text-right">{formData.role.length}/100</p>
-                            </div>
-
-                            {/* Placement */}
-                            <div>
-                                <FieldLabel required ok={placementMode === "overflow" || !!formData.position}>
-                                    Placement
-                                </FieldLabel>
-
-                                <div className="flex gap-2 mb-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setPlacementMode("collage")}
-                                        className={`flex-1 h-9 text-xs rounded-md border transition-colors ${
-                                            placementMode === "collage" ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
-                                        }`}
-                                    >
-                                        Fixed Collage Slot
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setPlacementMode("overflow");
-                                            setFormData((p) => ({ ...p, position: "" }));
-                                        }}
-                                        className={`flex-1 h-9 text-xs rounded-md border transition-colors ${
-                                            placementMode === "overflow" ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
-                                        }`}
-                                    >
-                                        Team List
-                                    </button>
-                                </div>
-
-                                {placementMode === "collage" ? (
-                                    <>
-                                        <select name="position" value={formData.position} onChange={handleChange} className={`w-full border rounded-md px-3 ${inp}`}>
-                                            <option value="">Select a slot...</option>
-                                            {Array.from({ length: COLLAGE_MAX_POSITION }, (_, i) => i + 1).map((num) => (
-                                                <option key={num} value={num} disabled={takenPositions.includes(num) && formData.position !== num}>
-                                                    Slot {num} {takenPositions.includes(num) && formData.position !== num ? "(taken)" : ""}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <p className="text-xs text-muted-foreground mt-1">This decides exactly where this person appears in the fixed collage layout on the site.</p>
-                                    </>
-                                ) : (
-                                    <p className="text-xs text-muted-foreground bg-slate-50 border border-slate-200 rounded-md px-3 py-2">
-                                        This member will be automatically added to the end of the team list below the collage — no slot number needed.
-                                    </p>
-                                )}
                             </div>
                         </div>
                     </section>
@@ -351,7 +262,6 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                             </div>
                         )}
 
-                        {/* Readonly path */}
                         <div className="mt-4">
                             <FieldLabel>Stored path</FieldLabel>
                             <Input name="imagePath" value={formData.image} readOnly className={`${inp} font-mono text-[11px] bg-slate-50`} />
@@ -395,14 +305,25 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                             </div>
                         </div>
 
+                        {/* Grid placement info */}
+                        {mode === "create" && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                <span className="text-xs font-medium text-blue-700 block mb-2">Grid Placement</span>
+                                <p className="text-[11px] text-blue-600 leading-relaxed">
+                                    After creating this member, they'll be automatically placed in the next available grid slot. You can rearrange all members from the Team page using the{" "}
+                                    <strong>Arrange Layout</strong> button.
+                                </p>
+                            </div>
+                        )}
+
                         {/* Tips */}
                         <div className="bg-white border border-slate-200 rounded-xl p-4">
                             <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
                             <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                 <li>Use square photos for best grid display.</li>
                                 <li>Keep photos under 200 KB for fast load.</li>
-                                <li>Collage slots 1-35 are fixed layout positions.</li>
-                                <li>Team List members are auto-added below the collage in order.</li>
+                                <li>Use uppercase names to match the team style.</li>
+                                <li>Rearrange positions from the Team overview page.</li>
                             </ul>
                         </div>
                     </div>

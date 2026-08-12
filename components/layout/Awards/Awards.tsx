@@ -44,7 +44,7 @@ export default function Awards() {
 
     if (loading) {
         return (
-            <section id="awards" className="hidden lg:block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-14">
+            <section id="awards" className="block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-14">
                 <header className="flex items-end justify-between">
                     <div>
                         <HeadingWithoutLogo title="Awards" />
@@ -61,9 +61,9 @@ export default function Awards() {
     if (awards.length === 0) return null;
 
     return (
-        <section id="awards" className="hidden lg:block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-14">
+        <section id="awards" className="block max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
             <Tabs defaultValue={`tab-${awards[0]?.id}`}>
-                <header className="flex items-end justify-between">
+                <header className="flex items-start md:items-start lg:items-end lg:justify-between flex-col lg:flex-row gap-y-5 lg:gap-x-5">
                     <div>
                         <HeadingWithoutLogo title="Awards" />
                         <SubHeading sectionType="AWARD" showDescription />
@@ -71,7 +71,7 @@ export default function Awards() {
 
                     <TabsList className="p-1.25 rounded-none bg-slate-100 gap-2.5">
                         {awards.map((award) => (
-                            <TabsTab key={award.id} value={`tab-${award.id}`} className="rounded-none text-sm py-4 px-6.75">
+                            <TabsTab key={award.id} value={`tab-${award.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                                 {award.year}
                             </TabsTab>
                         ))}

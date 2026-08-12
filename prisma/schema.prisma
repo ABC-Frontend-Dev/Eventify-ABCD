@@ -318,14 +318,25 @@ model Comparison {
 
 model TeamMember {
   id        Int      @id @default(autoincrement())
-  position  Int      @unique
   name      String
   role      String
   image     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([position])
+  gridLayout TeamsGridLayout?
+}
+
+model TeamsGridLayout {
+  id           Int        @id @default(autoincrement())
+  x            Int
+  y            Int
+  width        Int
+  height       Int
+  teamMemberId Int        @unique
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([x, y])
 }
 
 enum BlogStatus {

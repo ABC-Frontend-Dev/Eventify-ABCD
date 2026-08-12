@@ -17,7 +17,7 @@ function AwardYearPanel({ carouselImages, items, gradientWidthClass }: AwardYear
                 <Carousel.ItemGroup className="overflow-hidden">
                     {carouselImages.map((image, index) => (
                         <Carousel.Item key={index} index={index}>
-                            <Image src={image} alt={`Award slide ${index + 1}`} width={1920} height={1080} className="w-full h-175 object-cover" priority={index === 0} />
+                            <Image src={image} alt={`Award slide ${index + 1}`} width={1920} height={1080} className="w-full h-full lg:h-175 object-cover" priority={index === 0} />
                         </Carousel.Item>
                     ))}
                 </Carousel.ItemGroup>

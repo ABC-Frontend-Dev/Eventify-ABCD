@@ -1,4 +1,3 @@
-// components/Editor/TiptapEditor.tsx
 "use client";
 
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
@@ -45,9 +44,12 @@ export interface HeadingItem {
 export default function TiptapEditor({ content, onChange, onHeadingsChange, placeholder = "Start writing your blog post...", editable = true, className }: TiptapEditorProps) {
     const [isCodeView, setIsCodeView] = useState(false);
     const [htmlCode, setHtmlCode] = useState(content || "");
-    const [editorReady, setEditorReady] = useState(false);
 
-    // 👇 Stable ref so extractHeadings never changes identity
+    // Track what content we last pushed INTO the editor
+    // so we don't re-push content that the editor itself just emitted
+    const lastSyncedContentRef = useRef<string>("");
+
+    // Stable ref for the headings callback
     const onHeadingsChangeRef = useRef(onHeadingsChange);
     useEffect(() => {
         onHeadingsChangeRef.current = onHeadingsChange;
@@ -118,7 +120,9 @@ export default function TiptapEditor({ content, onChange, onHeadingsChange, plac
                 },
             }),
         ],
-        content: content || "",
+        // Start empty — content will be synced by the effect below
+        // This avoids a double-render issue when content prop arrives late
+        content: "",
         editable,
         editorProps: {
             attributes: {
@@ -133,49 +137,53 @@ export default function TiptapEditor({ content, onChange, onHeadingsChange, plac
         },
         onUpdate: ({ editor }) => {
             const html = editor.getHTML();
+            // Record what the editor emitted so we don't echo it back
+            lastSyncedContentRef.current = html;
             onChange(html);
             setHtmlCode(html);
             extractHeadings(editor);
         },
     });
 
-    // 👇 Load content when editor is ready (for edit mode)
+    // ─── Sync incoming content prop → editor ─────────────────────────────────
+    // Runs whenever `content` prop changes (including the async fetch in edit mode).
+    // Skips if:
+    //   1. Editor not ready yet
+    //   2. content is empty
+    //   3. content is identical to what the editor last emitted (avoid echo loop)
     useEffect(() => {
-        if (!editor || editorReady) return;
+        if (!editor) return;
+        if (!content || !content.trim()) return;
+        // If this content is the same string the editor just told us about,
+        // don't push it back — that would reset cursor position unnecessarily.
+        if (content === lastSyncedContentRef.current) return;
 
-        // Set content and extract headings
-        if (content && content.trim()) {
-            // pass an empty options object to satisfy SetContentOptions type
-            editor.commands.setContent(content, {});
-            setHtmlCode(content);
-            extractHeadings(editor);
-        }
+        // Content arrived from outside (API fetch / prop change) — push it in
+        editor.commands.setContent(content, { emitUpdate: false }); // false = don't emit onUpdate
+        // Type 'false' has no properties in common with type 'SetContentOptions'.
+        lastSyncedContentRef.current = content;
+        setHtmlCode(content);
+        extractHeadings(editor);
+    }, [editor, content, extractHeadings]);
 
-        setEditorReady(true);
-    }, [editor, content, editorReady, extractHeadings]);
-
-    // 👇 Update htmlCode when content prop changes
-    useEffect(() => {
-        if (content && !isCodeView) {
-            setHtmlCode(content);
-        }
-    }, [content, isCodeView]);
-
+    // ─── Code view toggle ─────────────────────────────────────────────────────
     const toggleCodeView = () => {
         if (!editor) return;
 
         if (!isCodeView) {
-            // Switching TO code view - get current editor content
-            const currentContent = editor.getHTML();
-            setHtmlCode(currentContent);
+            // Switching TO code view — capture current visual content
+            setHtmlCode(editor.getHTML());
         } else {
-            // Switching FROM code view - update editor with code
+            // Switching FROM code view — push raw HTML back into editor
             if (htmlCode.trim()) {
-                // pass an empty options object to satisfy SetContentOptions type
-                editor.commands.setContent(htmlCode, {});
+                editor.commands.setContent(htmlCode, { emitUpdate: false });
+                // Type 'false' has no properties in common with type 'SetContentOptions'.
+                lastSyncedContentRef.current = htmlCode;
+                onChange(htmlCode);
+                extractHeadings(editor);
             }
         }
-        setIsCodeView(!isCodeView);
+        setIsCodeView((prev) => !prev);
     };
 
     const handleCodeChange = (value: string) => {

@@ -41,7 +41,7 @@ function AwardYearPanel({ images }: { images: AwardImage[] }) {
                 <Carousel.ItemGroup className="overflow-hidden">
                     {images.map((image, index) => (
                         <Carousel.Item key={image.id} index={index}>
-                            <Image src={image.url} alt={image.imageAlt || image.title} width={1920} height={1080} className="w-full h-175 object-cover" priority={index === 0} />
+                            <Image src={image.url} alt={image.imageAlt || image.title} width={1920} height={1080} className="w-full h-full lg:h-175 object-cover" priority={index === 0} />
                         </Carousel.Item>
                     ))}
                 </Carousel.ItemGroup>
@@ -57,11 +57,15 @@ function AwardYearPanel({ images }: { images: AwardImage[] }) {
 
             {/* ── Title + Description (synced with current slide) ── */}
             {currentImage && (currentImage.title || currentImage.description) && (
-                <div className="absolute left-5 bottom-5 z-20 max-w-120 min-w-61.25">
+                <div className="absolute left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-2.5 lg:left-5 top-1 sm:top-auto sm:bottom-2.5 lg:bottom-5 z-20 max-w-full w-[98%] sm:max-w-120 min-w-61.25">
                     {/* w-51.25 */}
-                    <div key={currentImage.id} className="p-3 bg-white/10 backdrop-blur-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-all duration-500">
-                        {currentImage.title && <h3 className="font-helvetica-neue-roman text-4xl leading-10 text-white">{currentImage.title}</h3>}
-                        {currentImage.description && <p className="mt-0.75 font-helvetica text-lg leading-7 text-[#E2E8F0] tracking-wide">{currentImage.description}</p>}
+                    <div key={currentImage.id} className="p-1 sm:p-2 lg:p-3 bg-white/10 backdrop-blur-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-all duration-500">
+                        {currentImage.title && <h3 className="font-helvetica-neue-roman text-sm sm:text-xl lg:text-4xl leading-4 sm:leading-6 lg:leading-10 text-white">{currentImage.title}</h3>}
+                        {currentImage.description && (
+                            <p className="mt-0.75 sm:mt-0 lg:mt-0.75 font-helvetica-thin sm:font-helvetica text-xs sm:text-base lg:text-lg leading-3.5 sm:leading-7 text-[#E2E8F0] tracking-wide">
+                                {currentImage.description}
+                            </p>
+                        )}
                     </div>
                 </div>
             )}
@@ -89,7 +93,7 @@ export default function AwardsYearTabContent({ categories }: AwardsYearTabConten
                 <AwardsTabsList variant="underline">
                     {categories.map((category) => (
                         <TabsTrigger key={category.id} value={category.id.toString()}>
-                            <Image src={category.icon} alt={category.iconAlt} width={1000} height={1000} className="h-8 w-auto object-contain" />
+                            <Image src={category.icon} alt={category.iconAlt} width={1000} height={1000} className="h-4 sm:h-5 lg:h-8 w-auto object-contain" />
                         </TabsTrigger>
                     ))}
                 </AwardsTabsList>

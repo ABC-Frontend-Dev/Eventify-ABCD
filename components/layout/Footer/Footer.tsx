@@ -2,15 +2,17 @@ import { GoesOutComesInUnderline } from "@/components/ui/underline-animation";
 import Image from "next/image";
 import Link from "next/link";
 import SocialIcon from "@/components/ui/SocialIcon";
+import NewsLetter from "../NewsLetter/NewsLetter";
 
 export default function Footer() {
     return (
         <footer className="bg-footer-bg">
             <div className="max-w-360 w-full mx-auto px-5 lg:px-20 py-4.5 lg:py-9">
-                <div>
+                <div className="flex items-center justify-between">
                     <figure className="w-56 h-9">
                         <Image src="/images/logo-light.png" alt="Eventify light logo" width={1000} height={1000} className="w-full h-full object-contain" />
                     </figure>
+                    <NewsLetter />
                 </div>
 
                 <div className="mt-8 lg:mt-20.75 text-white">

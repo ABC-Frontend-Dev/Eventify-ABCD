@@ -24,7 +24,9 @@ export function AwardsTabsList({
             className={cn(
                 "relative z-0 flex w-fit items-center justify-center gap-x-0.5",
                 "data-[orientation=vertical]:flex-col",
-                variant === "default" ? "rounded-lg bg-muted p-0.5 " : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-6",
+                variant === "default"
+                    ? "rounded-lg bg-muted p-0.5 "
+                    : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 sm:data-[orientation=horizontal]:py-1.5 lg:data-[orientation=horizontal]:py-6",
                 className,
             )}
             data-slot="tabs-list"
