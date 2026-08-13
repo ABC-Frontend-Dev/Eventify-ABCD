@@ -1,4 +1,3 @@
-// types/next-auth.d.ts
 import "next-auth";
 
 declare module "next-auth" {
@@ -6,12 +5,15 @@ declare module "next-auth" {
         id: string;
         email: string;
         name: string;
+        role: "SUPER_ADMIN" | "ADMIN";
         firstName?: string;
         lastName?: string;
     }
 
     interface Session {
-        user: User;
+        user: User & {
+            role: "SUPER_ADMIN" | "ADMIN";
+        };
     }
 }
 
@@ -20,5 +22,6 @@ declare module "next-auth/jwt" {
         id: string;
         email: string;
         name: string;
+        role: "SUPER_ADMIN" | "ADMIN";
     }
 }

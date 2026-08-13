@@ -1,3 +1,4 @@
+// components/dashboard/layout/DashboardSidebar.tsx
 "use client";
 
 import {
@@ -14,12 +15,34 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Home, Image, Users, FolderKanban, Newspaper, Settings, Plus, ChevronRight, List, Mail, LogOut, Trophy, BriefcaseBusiness, Layers, type LucideIcon, User2, Text, Send } from "lucide-react";
+import {
+    Home,
+    Image,
+    Users,
+    FolderKanban,
+    Newspaper,
+    Settings,
+    Plus,
+    ChevronRight,
+    List,
+    Mail,
+    LogOut,
+    Trophy,
+    BriefcaseBusiness,
+    Layers,
+    type LucideIcon,
+    User2,
+    Text,
+    Send,
+    Crown,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { signOut } from "next-auth/react";
 import NextImage from "next/image";
+import { useSession } from "next-auth/react";
+
 type SubMenuItem = {
     title: string;
     icon: LucideIcon;
@@ -137,9 +160,9 @@ const menuItems: MenuItem[] = [
         ],
     },
     {
-        title: "Profile",
+        title: "Admins",
         icon: User2,
-        href: "/dashboard/profile",
+        href: "/dashboard/admins",
     },
     // {
     //     title: "Settings",
@@ -150,6 +173,17 @@ const menuItems: MenuItem[] = [
 
 export function DashboardSidebar() {
     const pathname = usePathname();
+
+    const { data: session } = useSession();
+    const userName = session?.user?.name ?? "Admin";
+    const userEmail = session?.user?.email ?? "";
+    const initials = userName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+    const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
 
     return (
         <Sidebar className="border-r border-slate-200/80 bg-white">
@@ -269,13 +303,16 @@ export function DashboardSidebar() {
             {/* ── Footer / user ─────────────────────────── */}
             <SidebarFooter className="border-t border-slate-100 p-3">
                 <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5 hover:bg-slate-50 transition-colors">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">A</div>
-
-                    <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-slate-800">Admin User</p>
-                        <p className="truncate text-[10px] text-slate-400">admin@eventify.com</p>
+                    <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white ${isSuperAdmin ? "bg-purple-600" : "bg-slate-900"}`}>
+                        {initials}
                     </div>
-
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                            <p className="truncate text-xs font-semibold text-slate-800">{userName}</p>
+                            {isSuperAdmin && <Crown className="h-2.5 w-2.5 text-purple-500 shrink-0" />}
+                        </div>
+                        <p className="truncate text-[10px] text-slate-400">{userEmail}</p>
+                    </div>
                     <button
                         type="button"
                         onClick={() => signOut({ callbackUrl: "/login" })}

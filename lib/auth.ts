@@ -13,53 +13,40 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials) {
                 try {
-                    console.log("🔐 LOGIN ATTEMPT:", credentials?.email);
-
                     if (!credentials?.email || !credentials?.password) {
-                        console.error("❌ Missing credentials");
                         return null;
                     }
 
                     const user = await prisma.user.findUnique({
-                        where: {
-                            email: credentials.email,
-                        },
+                        where: { email: credentials.email },
                     });
 
-                    if (!user) {
-                        console.error("❌ No user found with email:", credentials.email);
-                        return null;
-                    }
-
-                    console.log("✅ User found:", user.email);
+                    if (!user) return null;
 
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
-                    if (!isPasswordValid) {
-                        console.error("❌ Invalid password for:", credentials.email);
-                        return null;
-                    }
-
-                    console.log("✅ Login successful:", user.email);
+                    if (!isPasswordValid) return null;
 
                     return {
                         id: user.id.toString(),
                         email: user.email,
                         name: `${user.firstName} ${user.lastName}`,
+                        role: user.role,
                     };
                 } catch (error) {
-                    console.error("🔥 Auth error:", error);
+                    console.error("Auth error:", error);
                     return null;
                 }
             },
         }),
     ],
     callbacks: {
-        async jwt({ token, user, trigger }) {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
                 token.name = user.name;
+                token.role = user.role;
             }
             return token;
         },
@@ -68,17 +55,18 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id as string;
                 session.user.email = token.email as string;
                 session.user.name = token.name as string;
+                session.user.role = token.role as "SUPER_ADMIN" | "ADMIN";
             }
             return session;
         },
     },
     pages: {
-        signIn: "/dashboard/login",
-        error: "/dashboard/login",
+        signIn: "/login",
+        error: "/login",
     },
     session: {
         strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60,
     },
     secret: process.env.NEXTAUTH_SECRET,
     debug: process.env.NODE_ENV === "development",

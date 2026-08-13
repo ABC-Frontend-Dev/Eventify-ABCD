@@ -324,3 +324,185 @@ export async function sendWelcomeEmail(email: string): Promise<boolean> {
         return false;
     }
 }
+
+// ── Admin welcome email (sent when super admin creates a new admin) ────────────
+export async function sendAdminWelcomeEmail(email: string, firstName: string, lastName: string, plainPassword: string): Promise<boolean> {
+    try {
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
+<body style="margin:0;padding:0;background-color:#F4F4F4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F4F4F4;padding:32px 16px;">
+  <tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+      <tr>
+        <td style="background-color:#7E0ACB;border-radius:10px 10px 0 0;padding:28px 32px;text-align:center;">
+          <img src="https://res.cloudinary.com/afdhm38k/image/upload/v1785845462/logo_liluod.png"
+               alt="Eventify" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;"/>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#ffffff;padding:40px 32px;border-left:1px solid #E2E8F0;border-right:1px solid #E2E8F0;">
+          <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:800;color:#0F172A;">
+            Welcome to the Team, ${firstName}! 👋
+          </h1>
+          <p style="margin:0 0 24px 0;font-size:15px;color:#475569;line-height:1.75;">
+            You've been added as an admin to the <strong>Eventify</strong> dashboard. 
+            Here are your login credentials:
+          </p>
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                 style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:24px;">
+            <tr>
+              <td style="padding:16px 20px;border-bottom:1px solid #E2E8F0;">
+                <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7E0ACB;">
+                  Full Name
+                </p>
+                <p style="margin:0;font-size:15px;color:#1E293B;font-weight:600;">
+                  ${firstName} ${lastName}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 20px;border-bottom:1px solid #E2E8F0;">
+                <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7E0ACB;">
+                  Email (Login)
+                </p>
+                <p style="margin:0;font-size:15px;color:#1E293B;font-weight:600;">
+                  ${email}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 20px;">
+                <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7E0ACB;">
+                  Temporary Password
+                </p>
+                <p style="margin:0;font-size:18px;color:#1E293B;font-weight:800;letter-spacing:2px;font-family:monospace;">
+                  ${plainPassword}
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:16px 20px;margin-bottom:24px;">
+            <p style="margin:0;font-size:13px;color:#92400E;line-height:1.6;">
+              ⚠️ <strong>Important:</strong> Please log in and change your password immediately 
+              from the <strong>Profile</strong> section in the dashboard.
+            </p>
+          </div>
+
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+            <tr>
+              <td align="center" style="border-radius:6px;background-color:#7E0ACB;">
+                <a href="${process.env.NEXTAUTH_URL || "https://eventifyentertainment.com"}/login"
+                   style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;">
+                  Login to Dashboard
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#272727;border-radius:0 0 10px 10px;padding:24px 32px;text-align:center;">
+          <p style="margin:0 0 8px 0;font-size:12px;color:#64748B;">
+            Eventify &copy; ${new Date().getFullYear()} &middot; All rights reserved
+          </p>
+          <p style="margin:0;font-size:11px;color:#475569;">
+            This email was sent because you were added as an admin. Do not share your credentials.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+
+        await transporter.sendMail({
+            from: `"Eventify" <${process.env.GMAIL_EMAIL}>`,
+            to: email,
+            subject: "You've been added as an Eventify Admin",
+            html,
+        });
+        return true;
+    } catch (error) {
+        console.error("Failed to send admin welcome email:", error);
+        return false;
+    }
+}
+
+// ── Super admin handover email ────────────────────────────────────────────────
+export async function sendHandoverEmail(newSuperAdminEmail: string, newSuperAdminFirstName: string, previousSuperAdminName: string): Promise<boolean> {
+    try {
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
+<body style="margin:0;padding:0;background-color:#F4F4F4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F4F4F4;padding:32px 16px;">
+  <tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+      <tr>
+        <td style="background-color:#7E0ACB;border-radius:10px 10px 0 0;padding:28px 32px;text-align:center;">
+          <img src="https://res.cloudinary.com/afdhm38k/image/upload/v1785845462/logo_liluod.png"
+               alt="Eventify" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;"/>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#ffffff;padding:40px 32px;border-left:1px solid #E2E8F0;border-right:1px solid #E2E8F0;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <span style="font-size:48px;">👑</span>
+          </div>
+          <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:800;color:#0F172A;text-align:center;">
+            You're now the Super Admin!
+          </h1>
+          <p style="margin:0 0 24px 0;font-size:15px;color:#475569;line-height:1.75;text-align:center;">
+            Hi <strong>${newSuperAdminFirstName}</strong>, <strong>${previousSuperAdminName}</strong> has 
+            handed over the Super Admin role to you on the Eventify dashboard.
+          </p>
+
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:16px 20px;margin-bottom:24px;">
+            <p style="margin:0;font-size:13px;color:#166534;line-height:1.6;">
+              ✅ You now have full control over the Eventify admin panel, including managing 
+              other admins and handing over the Super Admin role.
+            </p>
+          </div>
+
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+            <tr>
+              <td align="center" style="border-radius:6px;background-color:#7E0ACB;">
+                <a href="${process.env.NEXTAUTH_URL || "https://eventifyentertainment.com"}/dashboard/admins"
+                   style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;">
+                  Go to Dashboard
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#272727;border-radius:0 0 10px 10px;padding:24px 32px;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#64748B;">
+            Eventify &copy; ${new Date().getFullYear()} &middot; All rights reserved
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+
+        await transporter.sendMail({
+            from: `"Eventify" <${process.env.GMAIL_EMAIL}>`,
+            to: newSuperAdminEmail,
+            subject: "You are now the Eventify Super Admin 👑",
+            html,
+        });
+        return true;
+    } catch (error) {
+        console.error("Failed to send handover email:", error);
+        return false;
+    }
+}

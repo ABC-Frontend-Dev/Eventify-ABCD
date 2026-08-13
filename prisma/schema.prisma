@@ -214,12 +214,18 @@ model BlogView {
   @@index([viewedAt])
 }
 
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   firstName String
   lastName  String
   email     String   @unique
   password  String
+  role      UserRole @default(ADMIN)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

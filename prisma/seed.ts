@@ -11,38 +11,32 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-    console.log("🚀 Seeding users...");
+    console.log("🚀 Seeding super admin...");
 
-    const passwordHash = await bcrypt.hash("password123", 10);
+    const plainPassword = "123456";
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
 
-    const users = [
-        {
+    const superAdmin = await prisma.user.upsert({
+        where: { email: "prince@example.com" },
+        update: {},
+        create: {
             firstName: "Prince",
             lastName: "Vishwakarma",
             email: "prince@example.com",
             password: passwordHash,
+            role: "SUPER_ADMIN",
         },
-    ];
-
-    const result = await prisma.user.createMany({
-        data: users,
-        skipDuplicates: true,
     });
 
-    console.log(`✅ Successfully created ${result.count} users`);
+    console.log(`✅ Super admin ready: ${superAdmin.email} (id: ${superAdmin.id})`);
 
     console.log(`
 =================================
-Login Credentials
+ Super Admin Login Credentials
 =================================
-Email: prince@example.com
-Password: password123
-
-Email: john@example.com
-Password: password123
-
-Email: jane@example.com
-Password: password123
+ Email:    prince@example.com
+ Password: ${plainPassword}
+ Role:     SUPER_ADMIN
 =================================
 `);
 }
