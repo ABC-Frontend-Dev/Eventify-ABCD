@@ -1,3 +1,4 @@
+// types/global.d.ts
 import type Lenis from "lenis";
 
 declare global {

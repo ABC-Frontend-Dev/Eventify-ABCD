@@ -10,7 +10,13 @@ export default function Footer() {
             <div className="max-w-360 w-full mx-auto px-5 lg:px-20 py-4.5 lg:py-9">
                 <div className="flex items-start lg:items-center justify-between md:justify-between flex-col md:flex-row gap-y-2.5">
                     <figure className="shrink-0 w-56 h-9">
-                        <Image src="/images/logo-light.png" alt="Eventify light logo" width={1000} height={1000} className="w-full h-full object-contain" />
+                        <Image
+                            src="https://res.cloudinary.com/afdhm38k/image/upload/v1786690266/eventify-light-logo-with-uae-ksa_c6yag2.png"
+                            alt="Eventify light logo"
+                            width={1000}
+                            height={1000}
+                            className="w-full h-full object-contain"
+                        />
                     </figure>
                     <NewsLetter />
                 </div>

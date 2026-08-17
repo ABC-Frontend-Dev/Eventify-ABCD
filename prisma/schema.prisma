@@ -376,3 +376,16 @@ model NewsletterSend {
   sentAt       DateTime @default(now())
   recipientCount Int    @default(0)
 }
+
+model InstagramPost {
+  id        Int      @id @default(autoincrement())
+  url       String   @unique
+  imageWidth  Int?
+  imageHeight Int?
+  image     String?
+  title     String?
+  isEnabled Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

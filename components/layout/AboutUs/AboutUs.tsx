@@ -112,8 +112,10 @@ export default function AboutUs() {
     useEffect(() => {
         if (!data) return;
 
+        let ctx: gsap.Context | undefined;
+
         const timer = setTimeout(() => {
-            const ctx = gsap.context(() => {
+            ctx = gsap.context(() => {
                 // Header fade-up
                 const header = sectionRef.current?.querySelector("header");
                 if (header) {
@@ -169,35 +171,23 @@ export default function AboutUs() {
                     });
 
                     tl.set(revealContainer, { autoAlpha: 1 });
-                    tl.from(revealContainer, {
-                        xPercent: -100,
-                        duration: 1.5,
-                        ease: "power2.out",
-                    });
-                    tl.from(
-                        revealImage,
-                        {
-                            xPercent: 100,
-                            scale: 1.3,
-                            duration: 1.5,
-                            ease: "power2.out",
-                        },
-                        "<",
-                    );
+                    tl.from(revealContainer, { xPercent: -100, duration: 1.5, ease: "power2.out" });
+                    tl.from(revealImage, { xPercent: 100, scale: 1.3, duration: 1.5, ease: "power2.out" }, "<");
                 }
             }, sectionRef);
-
-            return () => ctx.revert();
         }, 150);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            // Kills the ScrollTriggers whether or not the timeout already fired.
+            ctx?.revert();
+        };
     }, [data]);
-
     // ── Loading ───────────────────────────────────────────────────────────────
 
     if (loading) {
         return (
-            <section id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14 flex items-center justify-center py-20">
+            <section id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-1 flex items-center justify-center py-20">
                 <Loader2 className="h-8 w-8 animate-spin text-slate-300" />
             </section>
         );
@@ -208,7 +198,7 @@ export default function AboutUs() {
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
+        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-1">
             <header className="grid lg:grid-cols-[380px_1fr] gap-y-1 gap-x-10 items-start">
                 <h1 className="hidden">Eventify Entertainment</h1>
                 <SubHeading part1={data.titlePartOne} part2={data.titlePartTwo} />
@@ -231,7 +221,7 @@ export default function AboutUs() {
                 </div>
 
                 {/* Right — Image with wipe-reveal */}
-                <div className="w-full lg:w-245.5 md:h-100 lg:h-158.75 shrink-0">
+                <div className="w-full lg:w-200 xl:w-245.5 md:h-100 lg:h-158.75 shrink-0">
                     <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-158.75 overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img

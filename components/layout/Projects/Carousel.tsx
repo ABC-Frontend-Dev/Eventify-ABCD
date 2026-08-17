@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface EmblaCarouselProps {
     media?: string[];
@@ -45,6 +46,14 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
         },
         [emblaApi],
     );
+
+    const scrollPrev = useCallback(() => {
+        emblaApi?.scrollPrev();
+    }, [emblaApi]);
+
+    const scrollNext = useCallback(() => {
+        emblaApi?.scrollNext();
+    }, [emblaApi]);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -118,22 +127,40 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
                 </div>
             </div>
 
-            {/* Dots */}
+            {/* Arrows + Dots — grouped together, arrows flank the dots */}
             {displayMedia.length > 1 && (
-                <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(97%+0px)] h-full flex items-center justify-between gap-4 pointer-events-none">
-                    <div className="absolute bottom-2.5 sm:bottom-5 left-1/2 -translate-x-1/2 z-10">
+                <div className="absolute bottom-2.5 sm:bottom-5 left-1/2 -translate-x-1/2 z-10">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <button
+                            type="button"
+                            onClick={scrollPrev}
+                            aria-label="Previous slide"
+                            className="flex h-4 w-4 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-transparent hover:bg-white/80 text-slate-800 shadow-md transition-colors"
+                        >
+                            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-slate-300 hover:text-primary transition-colors" />
+                        </button>
+
                         <div className="flex gap-1 sm:gap-2">
                             {displayMedia.map((_, index) => (
                                 <button
                                     key={`dot-${index}`}
                                     onClick={() => scrollTo(index)}
-                                    className={`pointer-events-auto transition-all duration-300 ${
+                                    className={`transition-all duration-300 ${
                                         index === selectedIndex ? "bg-primary w-3 sm:w-8 h-1 sm:h-2" : "bg-slate-300 hover:bg-slate-400 w-1 sm:w-2 h-1 sm:h-2"
                                     } rounded-full`}
                                     aria-label={`Go to slide ${index + 1}`}
                                 />
                             ))}
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={scrollNext}
+                            aria-label="Next slide"
+                            className="flex h-4 w-4 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-transparent hover:bg-white/80 text-slate-800 shadow-md transition-colors"
+                        >
+                            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-slate-300 hover:text-primary transition-colors" />
+                        </button>
                     </div>
                 </div>
             )}

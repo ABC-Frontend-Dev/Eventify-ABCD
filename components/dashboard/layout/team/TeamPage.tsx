@@ -1,3 +1,4 @@
+// components/dashboard/layout/team/TeamPage.tsx
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -177,7 +178,10 @@ function GridEditor({ members, onDelete }: { members: TeamMember[]; onDelete: (i
             )}
 
             {/* Grid */}
-            <div ref={containerRef} className={`rounded-xl border-2 transition-colors ${isEditing ? "border-amber-300 bg-amber-50/30" : "border-slate-100 bg-slate-50/50"}`}>
+            <div
+                ref={containerRef}
+                className={`rounded-xl border-2 transition-colors max-w-360 w-full mx-auto px-20 ${isEditing ? "border-amber-300 bg-amber-50/30" : "border-slate-100 bg-slate-50/50"}`}
+            >
                 {mounted && items.length > 0 && width > 0 && (
                     <ReactGridLayout
                         layout={layout}

@@ -59,7 +59,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
             sectionId: "teams",
             dropdown: false,
         },
-        { id: 6, title: "Projects", name: "Projects", url: "#projects", dropdown: false },
+        { id: 6, title: "Projects", name: "Projects", sectionId: "projects", url: "/#projects", dropdown: false },
         {
             id: 7,
             title: "Awards",
@@ -68,7 +68,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
             sectionId: "awards",
             dropdown: false,
         },
-        { id: 8, title: "Blogs", name: "Blogs", url: "#blogs", dropdown: false },
+        { id: 8, title: "Blogs", name: "Blogs", sectionId: "blogs", url: "/#blogs", dropdown: false },
     ];
 
     return (

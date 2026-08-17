@@ -42,6 +42,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { signOut } from "next-auth/react";
 import NextImage from "next/image";
 import { useSession } from "next-auth/react";
+import { InstagramLogoIcon } from "@phosphor-icons/react";
 
 type SubMenuItem = {
     title: string;
@@ -158,6 +159,11 @@ const menuItems: MenuItem[] = [
             { title: "Compose & Send", icon: Mail, href: "/dashboard/newsletter" },
             { title: "Subscribers", icon: Users, href: "/dashboard/newsletter?tab=subscribers" },
         ],
+    },
+    {
+        title: "Instagram",
+        icon: InstagramLogoIcon,
+        href: "/dashboard/instagram",
     },
     {
         title: "Admins",

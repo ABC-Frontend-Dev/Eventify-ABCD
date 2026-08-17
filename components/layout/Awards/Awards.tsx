@@ -44,7 +44,7 @@ export default function Awards() {
 
     if (loading) {
         return (
-            <section id="awards" className="block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-14">
+            <section id="awards" className="block max-w-360 w-full mx-auto px-20 pt-9 lg:py-9 scroll-mt-1">
                 <header className="flex items-end justify-between">
                     <div>
                         <HeadingWithoutLogo title="Awards" />
@@ -61,7 +61,7 @@ export default function Awards() {
     if (awards.length === 0) return null;
 
     return (
-        <section id="awards" className="block max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-14">
+        <section id="awards" className="block max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-1">
             <Tabs defaultValue={`tab-${awards[0]?.id}`}>
                 <header className="flex items-start md:items-start lg:items-end lg:justify-between flex-col lg:flex-row gap-y-5 lg:gap-x-5">
                     <div>

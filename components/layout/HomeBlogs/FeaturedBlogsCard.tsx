@@ -76,7 +76,7 @@ export default function FeaturedBlogsCard() {
     const truncatedDescription = blog.description.substring(0, 120) + (blog.description.length > 120 ? "..." : "");
 
     return (
-        <div className="w-full lg:flex-1 h-46 lg:h-168.5 relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+        <div className="w-full lg:flex-1 h-46 md:h-87 lg:h-168.5 relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             <Link href={`/blogs/${blog.slug}`} className="block w-full h-full">
                 <figure className="w-full h-full">
                     <Image src={featuredImage} width={1000} height={1000} alt={altText} className="w-full h-full object-cover object-center" priority />

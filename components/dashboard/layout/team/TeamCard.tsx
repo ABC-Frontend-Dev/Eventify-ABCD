@@ -1,3 +1,4 @@
+// components/dashboard/layout/team/TeamCard.tsx
 "use client";
 
 import Image from "next/image";

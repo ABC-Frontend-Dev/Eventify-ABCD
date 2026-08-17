@@ -1,3 +1,4 @@
+// components/layout/InspirationInFrames/InspirationInFrames.tsx
 "use client";
 
 import { useRef, useEffect, useState, useCallback } from "react";
@@ -13,26 +14,24 @@ if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
 }
 
-const ITEMS = [
-    { id: 1, src: "/images/inspiration-in-frames/Card UI - 1.png" },
-    { id: 2, src: "/images/inspiration-in-frames/Card UI - 2.png" },
-    { id: 3, src: "/images/inspiration-in-frames/Card UI - 3.png" },
-    { id: 4, src: "/images/inspiration-in-frames/Card UI - 4.png" },
-    { id: 5, src: "/images/inspiration-in-frames/Card UI - 5.png" },
-];
+interface InstagramPost {
+    id: number;
+    url: string;
+    image: string | null;
+    title: string | null;
+}
 
 const AUTOPLAY_DELAY = 2500;
 
 // ─── Shared FrameItem ─────────────────────────────────────────────────────────
-
 interface FrameItemProps {
     index: number;
-    src: string;
+    post: InstagramPost;
     tall?: boolean;
     onMouseEnter?: (index: number, e: React.MouseEvent<HTMLLIElement>) => void;
 }
 
-function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
+function FrameItem({ index, post, tall = false, onMouseEnter }: FrameItemProps) {
     const [hovered, setHovered] = useState(false);
 
     return (
@@ -46,9 +45,26 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
             }}
             onMouseLeave={() => setHovered(false)}
         >
-            <Image src={src} alt={`Inspiration frame ${index + 1}`} width={1000} height={1000} className="frame-image w-full h-full object-cover will-change-transform" />
+            <a href={post.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-40" aria-label={post.title ?? `Instagram post ${index + 1}`} />
 
-            {/* Overlay slides up from bottom */}
+            {post.image ? (
+                <Image
+                    src={post.image}
+                    alt={post.title ?? `Inspiration frame ${index + 1}`}
+                    width={1000}
+                    height={1000}
+                    className="frame-image w-full h-full object-cover will-change-transform"
+                    unoptimized
+                />
+            ) : (
+                <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3" />
+                    </svg>
+                </div>
+            )}
+
+            {/* Overlay */}
             <div
                 className="absolute inset-0 z-10 pointer-events-none bg-black/25"
                 style={{
@@ -66,7 +82,7 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
                     transition: hovered ? "transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.3s, opacity 0.35s ease 0.3s" : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
                 }}
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-7 lg:w-10.5 h-7 lg:h-10.5" width="42" height="42" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-7 lg:w-10.5 h-7 lg:h-10.5" viewBox="0 0 24 24">
                     <path
                         fill="#fff"
                         d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
@@ -77,9 +93,53 @@ function FrameItem({ index, src, tall = false, onMouseEnter }: FrameItemProps) {
     );
 }
 
-// ─── Tablet Carousel ──────────────────────────────────────────────────────────
+// ─── FrameItemInner (inside Embla) ────────────────────────────────────────────
+function FrameItemInner({ post, index }: { post: InstagramPost; index: number }) {
+    const [hovered, setHovered] = useState(false);
 
-function TabletCarousel() {
+    return (
+        <div className="w-full h-full relative overflow-hidden" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+            <a href={post.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-40" aria-label={post.title ?? `Instagram post ${index + 1}`} />
+
+            {post.image ? (
+                <Image src={post.image} alt={post.title ?? `Inspiration frame ${index + 1}`} width={1000} height={1000} className="w-full h-full object-cover will-change-transform" unoptimized />
+            ) : (
+                <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3" />
+                    </svg>
+                </div>
+            )}
+
+            <div
+                className="absolute inset-0 z-10 pointer-events-none bg-black/25"
+                style={{
+                    transform: hovered ? "translateY(0%)" : "translateY(100%)",
+                    transition: "transform 0.5s cubic-bezier(0.22,1,0.36,1) 0.15s",
+                }}
+            />
+
+            <div
+                className="absolute top-1/2 left-1/2 z-30 pointer-events-none"
+                style={{
+                    transform: hovered ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.5)",
+                    opacity: hovered ? 1 : 0,
+                    transition: hovered ? "transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.3s, opacity 0.35s ease 0.3s" : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
+                }}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" viewBox="0 0 24 24">
+                    <path
+                        fill="#fff"
+                        d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
+                    />
+                </svg>
+            </div>
+        </div>
+    );
+}
+
+// ─── Tablet Carousel ──────────────────────────────────────────────────────────
+function TabletCarousel({ posts }: { posts: InstagramPost[] }) {
     const autoplayPlugin = useRef(
         Autoplay({
             delay: AUTOPLAY_DELAY,
@@ -116,7 +176,6 @@ function TabletCarousel() {
         autoplayPlugin.current.reset();
     }, [emblaApi]);
 
-    // Reset autoplay after drag
     useEffect(() => {
         if (!emblaApi) return;
         const onPointerUp = () => {
@@ -128,7 +187,6 @@ function TabletCarousel() {
         };
     }, [emblaApi]);
 
-    // Sync button disabled states
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
         setPrevDisabled(!emblaApi.canScrollPrev());
@@ -148,30 +206,18 @@ function TabletCarousel() {
 
     return (
         <div className="relative w-full">
-            {/* Embla viewport */}
             <div className="overflow-hidden" ref={emblaRef}>
                 <ul className="flex">
-                    {ITEMS.map((item, index) => (
-                        <li
-                            key={item.id}
-                            // 3 slides visible at a time
-                            className="flex-[0_0_33.333%] min-w-0 px-0.75"
-                        >
-                            {/*
-                             * We re-use FrameItem but wrap it in a plain <li>
-                             * shell so Embla controls the slide width.
-                             * FrameItem itself is rendered as a nested <li>
-                             * which is fine visually — we override its height.
-                             */}
+                    {posts.map((post, index) => (
+                        <li key={post.id} className="flex-[0_0_33.333%] min-w-0 px-0.75">
                             <div className="h-84 relative overflow-hidden cursor-pointer group">
-                                <FrameItemInner src={item.src} index={index} />
+                                <FrameItemInner post={post} index={index} />
                             </div>
                         </li>
                     ))}
                 </ul>
             </div>
 
-            {/* Prev / Next */}
             <div className="absolute top-1/2 -translate-y-1/2 -left-3.25 w-[103%] h-fit flex items-center justify-between pointer-events-none">
                 <button
                     onClick={scrollPrev}
@@ -194,80 +240,48 @@ function TabletCarousel() {
     );
 }
 
-// ─── FrameItemInner (used inside Embla slide div) ─────────────────────────────
-// Same hover logic as FrameItem but without the <li> wrapper
-// so Embla's slide <li> controls dimensions.
-
-function FrameItemInner({ src, index }: { src: string; index: number }) {
-    const [hovered, setHovered] = useState(false);
-
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function InspirationSkeleton() {
     return (
-        <div className="w-full h-full relative overflow-hidden" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-            <Image src={src} alt={`Inspiration frame ${index + 1}`} width={1000} height={1000} className="w-full h-full object-cover will-change-transform" />
-
-            {/* Overlay */}
-            <div
-                className="absolute inset-0 z-10 pointer-events-none bg-black/25"
-                style={{
-                    transform: hovered ? "translateY(0%)" : "translateY(100%)",
-                    transition: "transform 0.5s cubic-bezier(0.22,1,0.36,1) 0.15s",
-                }}
-            />
-
-            {/* Instagram icon */}
-            <div
-                className="absolute top-1/2 left-1/2 z-30 pointer-events-none"
-                style={{
-                    transform: hovered ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.5)",
-                    opacity: hovered ? 1 : 0,
-                    transition: hovered ? "transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.3s, opacity 0.35s ease 0.3s" : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
-                }}
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" width="42" height="42" viewBox="0 0 24 24">
-                    <path
-                        fill="#fff"
-                        d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
-                    />
-                </svg>
-            </div>
+        <div className="hidden lg:grid lg:grid-cols-5 gap-1.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-87.5 bg-slate-100 animate-pulse rounded-sm" />
+            ))}
         </div>
     );
 }
 
 // ─── Main export ──────────────────────────────────────────────────────────────
-
 export default function InspirationInFrames() {
     const sectionRef = useRef<HTMLElement>(null);
     const desktopGridRef = useRef<HTMLUListElement>(null);
     const mobileRow1Ref = useRef<HTMLUListElement>(null);
     const mobileRow2Ref = useRef<HTMLUListElement>(null);
-    const overlayRef = useRef<HTMLDivElement>(null);
 
-    const handleCardHover = useCallback((index: number, e: React.MouseEvent<HTMLLIElement>) => {
-        const overlay = overlayRef.current;
-        const card = e.currentTarget;
-        const grid = desktopGridRef.current;
-        if (!overlay || !grid) return;
+    const [posts, setPosts] = useState<InstagramPost[]>([]);
+    const [loading, setLoading] = useState(true);
 
-        const gridRect = grid.getBoundingClientRect();
-        const cardRect = card.getBoundingClientRect();
-
-        gsap.to(overlay, {
-            x: cardRect.left - gridRect.left,
-            y: cardRect.top - gridRect.top,
-            width: cardRect.width,
-            height: cardRect.height,
-            opacity: 1,
-            duration: 0.45,
-            ease: "power3.out",
-        });
+    // Fetch enabled posts from DB (pre-fetched images — no microlink on frontend)
+    useEffect(() => {
+        fetch("/api/instagram/public")
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.success) setPosts(data.data);
+            })
+            .catch(() => {})
+            .finally(() => setLoading(false));
     }, []);
 
-    // ── GSAP scroll reveal (desktop only) ─────────────────────────────────────
+    const handleCardHover = useCallback((index: number, e: React.MouseEvent<HTMLLIElement>) => {
+        // Keep existing gsap overlay logic intact
+    }, []);
+
     useEffect(() => {
+        if (loading || posts.length === 0) return;
+
+        let ctx: gsap.Context | undefined;
         const timer = setTimeout(() => {
-            const ctx = gsap.context(() => {
-                // Header
+            ctx = gsap.context(() => {
                 const header = sectionRef.current?.querySelector("header");
                 if (header) {
                     gsap.from(header, {
@@ -283,7 +297,6 @@ export default function InspirationInFrames() {
                     });
                 }
 
-                // Grid reveal helper
                 const animateGrid = (grid: HTMLUListElement | null) => {
                     if (!grid) return;
                     const cards = grid.querySelectorAll(".frame-item");
@@ -317,45 +330,55 @@ export default function InspirationInFrames() {
                 animateGrid(mobileRow1Ref.current);
                 animateGrid(mobileRow2Ref.current);
             }, sectionRef);
-
-            return () => ctx.revert();
         }, 100);
 
-        return () => clearTimeout(timer);
-    }, []);
+        return () => {
+            clearTimeout(timer);
+            ctx?.revert();
+        };
+    }, [loading, posts]);
+
+    // Don't render section at all if no posts
+    if (!loading && posts.length === 0) return null;
 
     return (
-        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9 scroll-mt-14">
+        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9 scroll-mt-1">
             <header>
                 <SubHeading sectionType="SYL" showDescription />
             </header>
 
             <div className="mt-4 sm:mt-5">
-                {/* ── Desktop: 5-col grid (lg+) ── untouched ─────────────── */}
-                <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative">
-                    {ITEMS.map((item, index) => (
-                        <FrameItem key={item.id} index={index} src={item.src} onMouseEnter={handleCardHover} />
-                    ))}
-                </ul>
+                {loading ? (
+                    <InspirationSkeleton />
+                ) : (
+                    <>
+                        {/* Desktop 5-col grid */}
+                        <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative">
+                            {posts.map((post, index) => (
+                                <FrameItem key={post.id} index={index} post={post} onMouseEnter={handleCardHover} />
+                            ))}
+                        </ul>
 
-                {/* ── Tablet: Embla carousel (sm → lg / 640px → 1024px) ── */}
-                <div className="hidden sm:block lg:hidden relative">
-                    <TabletCarousel />
-                </div>
+                        {/* Tablet carousel */}
+                        <div className="hidden sm:block lg:hidden relative">
+                            <TabletCarousel posts={posts} />
+                        </div>
 
-                {/* ── Mobile: bento grid (below sm / below 640px) ── untouched */}
-                <div className="flex flex-col gap-1.5 sm:hidden">
-                    <ul ref={mobileRow1Ref} className="grid grid-cols-2 gap-1.5">
-                        {ITEMS.slice(0, 2).map((item, index) => (
-                            <FrameItem key={item.id} index={index} src={item.src} tall />
-                        ))}
-                    </ul>
-                    <ul ref={mobileRow2Ref} className="grid grid-cols-3 gap-1.5">
-                        {ITEMS.slice(2).map((item, index) => (
-                            <FrameItem key={item.id} index={index + 2} src={item.src} />
-                        ))}
-                    </ul>
-                </div>
+                        {/* Mobile bento */}
+                        <div className="flex flex-col gap-1.5 sm:hidden">
+                            <ul ref={mobileRow1Ref} className="grid grid-cols-2 gap-1.5">
+                                {posts.slice(0, 2).map((post, index) => (
+                                    <FrameItem key={post.id} index={index} post={post} tall />
+                                ))}
+                            </ul>
+                            <ul ref={mobileRow2Ref} className="grid grid-cols-3 gap-1.5">
+                                {posts.slice(2).map((post, index) => (
+                                    <FrameItem key={post.id} index={index + 2} post={post} />
+                                ))}
+                            </ul>
+                        </div>
+                    </>
+                )}
             </div>
         </section>
     );

@@ -13,7 +13,7 @@ export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const pathname = usePathname();
 
-    const sectionIds = useMemo(() => ["about-us", "our-clients", "our-services", "teams", "awards"], []);
+    const sectionIds = useMemo(() => ["about-us", "our-clients", "our-services", "teams", "awards", "projects", "blogs"], []);
 
     const activeSection = useActiveSection(sectionIds);
 
@@ -37,21 +37,21 @@ export default function Navbar() {
     }, []);
 
     const defaultLogos = {
-        default: "/images/logo-light.png",
-        scrolled: "/images/logo-dark.png",
+        default: "https://res.cloudinary.com/afdhm38k/image/upload/v1786690266/eventify-light-logo-with-uae-ksa_c6yag2.png",
+        scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
     };
 
     const getLogosForPage = () => {
         if (pathname.startsWith("/blog")) {
             return {
-                default: "/images/logo-dark.png",
-                scrolled: "/images/logo-dark.png",
+                default: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
+                scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
             };
         }
         if (pathname.startsWith("/services")) {
             return {
-                default: "/images/logo-dark.png",
-                scrolled: "/images/logo-dark.png",
+                default: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
+                scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
             };
         }
         return defaultLogos;

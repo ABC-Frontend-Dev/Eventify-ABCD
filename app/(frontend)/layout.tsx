@@ -10,30 +10,29 @@ import Navbar from "@/components/layout/navbar/Navbar";
 import Footer from "@/components/layout/Footer/Footer";
 import { LenisHashHandler } from "@/components/layout/LenisHashHandler/LenisHashHandler";
 
-// Window globals (__lenis, __pendingHash) are declared in /types/global.d.ts
-
 gsap.registerPlugin(ScrollTrigger);
 
 function LenisScrollTriggerSync() {
-    const lenis = useLenis(({ scroll }) => {
-        ScrollTrigger.update();
-    });
+    const lenis = useLenis();
 
     useEffect(() => {
         if (!lenis) return;
-        // Expose the live instance so HeroPageLoader can read it on demand
-        // (useLenis inside a top-level handler can be stale or undefined).
+
         window.__lenis = lenis;
 
-        gsap.ticker.add((time) => {
+        // Keep ScrollTrigger in sync with Lenis scroll events.
+        lenis.on("scroll", ScrollTrigger.update);
+
+        // ONE raf loop total (ReactLenis has autoRaf={false}, see below).
+        const update = (time: number) => {
             lenis.raf(time * 1000);
-        });
+        };
+        gsap.ticker.add(update);
         gsap.ticker.lagSmoothing(0);
 
         return () => {
-            gsap.ticker.remove((time) => lenis.raf(time * 1000));
-            // Only clear if we're still the active instance, otherwise we'd
-            // wipe a fresh instance mounted by a re-render.
+            gsap.ticker.remove(update); // ✅ same reference → actually removes it
+            lenis.off("scroll", ScrollTrigger.update);
             if (window.__lenis === lenis) window.__lenis = undefined;
         };
     }, [lenis]);
@@ -45,10 +44,8 @@ function RouteChangeScrollSync() {
     const pathname = usePathname();
 
     useEffect(() => {
-        // If the user clicked a navbar item on another page, do NOT scroll
-        // to top — HeroPageLoader will handle the jump to the hash once
-        // its intro animation finishes and the page is interactive.
-        if (window.__pendingHash) return;
+        // Don't scroll to top when we're about to jump to a section hash.
+        if (window.__pendingHash || window.location.hash) return;
 
         window.__lenis?.scrollTo(0, { immediate: true });
 
@@ -64,7 +61,7 @@ function RouteChangeScrollSync() {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <ReactLenis className="cursor-none" root options={{ smoothWheel: true, lerp: 0.1 }}>
+        <ReactLenis className="cursor-none" root autoRaf={false} options={{ smoothWheel: true, lerp: 0.1 }}>
             <LenisHashHandler />
             <LenisScrollTriggerSync />
             <RouteChangeScrollSync />

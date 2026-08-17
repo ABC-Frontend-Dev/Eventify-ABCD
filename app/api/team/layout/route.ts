@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// GET /api/team/layout
-// Returns all team members with their grid layout positions
 export async function GET() {
     try {
         const members = await prisma.teamMember.findMany({
@@ -10,7 +8,6 @@ export async function GET() {
             orderBy: { id: "asc" },
         });
 
-        // Shape into the format react-grid-layout expects
         const layoutItems = members
             .filter((m) => m.gridLayout !== null)
             .map((m) => ({
@@ -33,54 +30,48 @@ export async function GET() {
     }
 }
 
-// PUT /api/team/layout
-// Body: Array of { i: string (teamMemberId), x, y, w, h }
 export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();
 
-        if (!Array.isArray(body)) {
-            return NextResponse.json({ success: false, error: "Expected an array of layout items." }, { status: 400 });
+        if (!Array.isArray(body) || body.length === 0) {
+            return NextResponse.json({ success: false, error: "Expected a non-empty array of layout items." }, { status: 400 });
         }
 
-        // Validate each item
+        // Validate all items first before touching the DB
         for (const item of body) {
-            if (!item.i || typeof item.x !== "number" || typeof item.y !== "number" || typeof item.w !== "number" || typeof item.h !== "number") {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: "Each item must have i, x, y, w, h.",
-                    },
-                    { status: 400 },
-                );
+            const id = parseInt(item.i);
+            if (isNaN(id) || typeof item.x !== "number" || typeof item.y !== "number" || typeof item.w !== "number" || typeof item.h !== "number") {
+                return NextResponse.json({ success: false, error: `Invalid item: ${JSON.stringify(item)}` }, { status: 400 });
             }
         }
 
-        // Upsert each layout entry
-        await prisma.$transaction(
-            body.map((item) =>
-                prisma.teamsGridLayout.upsert({
-                    where: { teamMemberId: parseInt(item.i) },
-                    update: {
-                        x: item.x,
-                        y: item.y,
-                        width: item.w,
-                        height: item.h,
-                    },
-                    create: {
-                        teamMemberId: parseInt(item.i),
-                        x: item.x,
-                        y: item.y,
-                        width: item.w,
-                        height: item.h,
-                    },
-                }),
-            ),
-        );
+        const memberIds = body.map((item) => parseInt(item.i));
+
+        // ── Step 1: Delete ALL existing layouts for these members ─────────────
+        // Must be fully committed before inserting new ones to avoid
+        // @@unique([x, y]) conflicts when items swap positions.
+        await prisma.teamsGridLayout.deleteMany({
+            where: {
+                teamMemberId: { in: memberIds },
+            },
+        });
+
+        // ── Step 2: Insert all new layouts fresh ──────────────────────────────
+        // Separate await ensures Step 1 is fully done before Step 2 starts.
+        await prisma.teamsGridLayout.createMany({
+            data: body.map((item) => ({
+                teamMemberId: parseInt(item.i),
+                x: Math.round(item.x),
+                y: Math.round(item.y),
+                width: Math.round(item.w),
+                height: Math.round(item.h),
+            })),
+        });
 
         return NextResponse.json({ success: true, message: "Layout saved successfully." }, { status: 200 });
     } catch (error) {
         console.error("PUT /api/team/layout error:", error);
-        return NextResponse.json({ success: false, error: "Failed to save team layout." }, { status: 500 });
+        return NextResponse.json({ success: false, error: "Failed to save layout." }, { status: 500 });
     }
 }

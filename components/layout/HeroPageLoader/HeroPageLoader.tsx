@@ -37,24 +37,9 @@ export default function HeroPageLoader() {
         const startY = height / 2 - totalHeight / 2;
 
         const data = [
-            {
-                width: 213,
-                height: barHeight,
-                x: width / 2 - 213 / 2,
-                y: startY,
-            },
-            {
-                width: 216,
-                height: barHeight,
-                x: width / 2 - 216 / 2,
-                y: startY + barHeight + gap1,
-            },
-            {
-                width: 213,
-                height: barHeight,
-                x: width / 2 - 213 / 2,
-                y: startY + barHeight + gap1 + barHeight + gap2,
-            },
+            { width: 213, height: barHeight, x: width / 2 - 213 / 2, y: startY },
+            { width: 216, height: barHeight, x: width / 2 - 216 / 2, y: startY + barHeight + gap1 },
+            { width: 213, height: barHeight, x: width / 2 - 213 / 2, y: startY + barHeight + gap1 + barHeight + gap2 },
         ];
 
         return data.map((bar) => ({
@@ -71,6 +56,7 @@ export default function HeroPageLoader() {
 
         if (!loader || !barsGroup || currentBars.length !== 3) return;
 
+        // Lock scroll for the duration of the intro.
         const scrollY = window.scrollY;
         document.body.style.overflow = "hidden";
         document.body.style.position = "fixed";
@@ -105,6 +91,7 @@ export default function HeroPageLoader() {
 
         const tl = gsap.timeline({
             onComplete: () => {
+                // Release the scroll lock.
                 document.body.style.overflow = "";
                 document.body.style.position = "";
                 document.body.style.top = "";
@@ -117,37 +104,71 @@ export default function HeroPageLoader() {
 
                 setIsLoading(false);
 
-                /* ── Pending-hash scroll: runs AFTER the loader has unmounted,
-                   the body styles are cleared, and lenis can drive the scroll. */
-                const hash = window.__pendingHash;
-                if (hash) {
-                    // Clear so back/forward navigation doesn't re-trigger it
-                    window.__pendingHash = undefined;
+                /* ── Resolve the target hash ───────────────────────────────
+                   Self-heal "#a#b" → keep only the LAST segment and repair
+                   the URL, then read the hash from stash → sessionStorage →
+                   live URL hash (in that order). ────────────────────────── */
+                const urlSegments = (window.location.hash || "").split("#").filter(Boolean);
+                const urlHash = urlSegments[urlSegments.length - 1] || "";
 
-                    const tryScroll = (attempt = 0) => {
-                        const target = document.getElementById(hash);
-                        const lenis = window.__lenis;
-
-                        if (target && lenis) {
-                            lenis.scrollTo(target, {
-                                offset: -80,
-                                duration: 1.2,
-                                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                            });
-                        } else if (attempt < 20) {
-                            // Wait one frame at a time — gives React, image
-                            // loading and lazy sections up to ~330 ms to mount
-                            requestAnimationFrame(() => tryScroll(attempt + 1));
-                        } else {
-                            // Final fallback if lenis is missing for any reason
-                            target?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }
-                    };
-
-                    // Defer one frame so React can flush the loader unmount
-                    // and the body styles above are fully cleared first
-                    requestAnimationFrame(() => tryScroll());
+                if (urlSegments.length > 1) {
+                    history.replaceState(null, "", window.location.pathname + window.location.search + `#${urlHash}`);
                 }
+
+                let hash = window.__pendingHash;
+                if (!hash) {
+                    try {
+                        hash = sessionStorage.getItem("pendingHash") || undefined;
+                    } catch {
+                        /* ignore */
+                    }
+                }
+                if (!hash) hash = urlHash;
+
+                if (!hash) return;
+
+                const clearPendingHash = () => {
+                    window.__pendingHash = undefined;
+                    try {
+                        sessionStorage.removeItem("pendingHash");
+                    } catch {
+                        /* ignore */
+                    }
+                    // Deliberately keep "#hash" in the URL — visible,
+                    // shareable, and refreshable.
+                };
+
+                const tryScroll = (start = performance.now()) => {
+                    const target = document.getElementById(hash);
+                    const lenis = window.__lenis;
+
+                    if (target && lenis) {
+                        // Recompute Lenis dimensions — right after the body
+                        // lock is released the height can still be stale.
+                        lenis.resize();
+                        lenis.scrollTo(target, {
+                            offset: -80,
+                            duration: 1.2,
+                            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                        });
+                        clearPendingHash();
+                    } else if (target) {
+                        // No lenis yet — plain smooth scroll fallback.
+                        target.scrollIntoView({ behavior: "smooth", block: "start" });
+                        setTimeout(() => window.scrollBy({ top: -80, behavior: "smooth" }), 250);
+                        clearPendingHash();
+                    } else if (performance.now() - start < 2500) {
+                        // Keep polling — lazy sections / images can take a
+                        // while. (~2.5s instead of the old ~330ms.)
+                        requestAnimationFrame(() => tryScroll(start));
+                    } else {
+                        // Section never appeared — give up quietly.
+                        clearPendingHash();
+                    }
+                };
+
+                // One frame so React flushes the unmount + body styles first.
+                requestAnimationFrame(() => tryScroll());
             },
         });
 
