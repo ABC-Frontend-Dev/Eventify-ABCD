@@ -57,7 +57,7 @@ export default function OurClients() {
                 <SubHeading sectionType="CLIENT" showDescription />
             </header>
 
-            <div className="mt-9">
+            <div className="mt-7.5">
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
                         <div className="text-center">

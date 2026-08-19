@@ -13,7 +13,7 @@ export default function OurTeam() {
                 <HeadingWithLogo titlePart1="" titlePart2_1="T" titlePart2_2="am" />
                 <SubHeading sectionType="TEAM" showDescription />
             </header>
-            <div className="mt-4 lg:mt-5">
+            <div className="mt-3 lg:mt-7">
                 <Teams />
                 <OurTeamMobileView />
             </div>

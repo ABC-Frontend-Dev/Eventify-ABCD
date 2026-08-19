@@ -41,7 +41,7 @@ export function TabsList({
                 "py-8 px-[11.1px]",
 
                 // ── Appearance ────────────────────────────────────────────────
-                "bg-black/10 backdrop-blur-sm opacity-60",
+                "bg-black/10 backdrop-blur-sm opacity-100",
 
                 // ── Vertical orientation ──────────────────────────────────────
                 "data-[orientation=vertical]:flex-col",
@@ -59,8 +59,8 @@ export function TabsList({
                 className={cn(
                     "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
                     variant === "underline"
-                        ? "z-10 bg-white data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
-                        : "-z-1 bg-white dark:bg-input",
+                        ? "z-10 bg-transparent data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
+                        : "-z-1 bg-transparent dark:bg-input",
                 )}
                 data-slot="tab-indicator"
             />
@@ -70,9 +70,10 @@ export function TabsList({
 
 export function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props): React.ReactElement {
     return (
+        // data-active:border-slate-200 data-active:shadow
         <TabsPrimitive.Tab
             className={cn(
-                "relative font-helvetica flex h-full shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-[calc(--spacing(2.5)-1px)] font-medium text-sm outline-none transition-[color,background-color,box-shadow] focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:font-helvetica-medium data-active:border-slate-200 data-active:shadow data-disabled:opacity-64 sm:h-8 sm:text-sm [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0",
+                "relative font-helvetica flex h-full shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-[calc(--spacing(2.5)-1px)] font-medium text-sm outline-none transition-[color,background-color,box-shadow] focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:font-helvetica-medium data-active:bg-slate-100 data-active:text-primary data-disabled:opacity-64 sm:h-8 sm:text-sm [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0",
                 className,
             )}
             data-slot="tabs-tab"

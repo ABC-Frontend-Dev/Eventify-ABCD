@@ -40,7 +40,7 @@ export default function NewsLetter() {
     };
 
     return (
-        <div className="max-w-90 lg:max-w-135 w-full h-10 md:h-12.5">
+        <div className="max-w-90 lg:max-w-110 xl:max-w-135 w-full h-10 md:h-12.5">
             {/* Success state */}
             {status === "success" ? (
                 <div className="flex flex-row items-center md:justify-end gap-1.5 md:gap-3">
@@ -63,7 +63,7 @@ export default function NewsLetter() {
                         }}
                         placeholder="Enter your email address"
                         required
-                        className="flex-1 w-full h-10 md:h-12 pl-8 md:pl-12 pr-2.5 py-2.5 bg-white/10 border border-white/20 text-white placeholder:text-white/40 placeholder:font-helvetica placeholder:text-sm md:placeholder:text-base font-helvetica text-sm md:text-base focus:outline-none focus:border-white/50 focus:bg-white/15 transition-all"
+                        className="flex-1 w-full h-10 md:h-10 xl:h-12 pl-8 md:pl-12 pr-2.5 py-2.5 bg-white/10 border border-white/20 text-white placeholder:text-white/40 placeholder:font-helvetica placeholder:text-sm md:placeholder:text-base font-helvetica text-sm md:text-base focus:outline-none focus:border-white/50 focus:bg-white/15 transition-all"
                     />
                     <div className="absolute top-1/2 left-2.5 -translate-y-1/2">
                         <Image
@@ -71,13 +71,13 @@ export default function NewsLetter() {
                             alt="Mail Icon"
                             width={1000}
                             height={1000}
-                            className="h-4 sm:h-6 md:h-7.5 w-4 sm:w-6 md:w-7.5"
+                            className="h-4 sm:h-6 lg:h-7.5 w-4 sm:w-6 lg:w-7.5"
                         />
                     </div>
                     <button
                         type="submit"
                         disabled={status === "loading"}
-                        className="h-10 md:h-12 px-3 md:px-6 bg-white text-primary font-helvetica-neue-roman font-semibold text-sm hover:bg-white/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                        className="h-10 md:h-10 xl:h-12 px-3 md:px-4 lg:px-6 bg-white text-primary font-helvetica-neue-roman font-semibold text-sm hover:bg-white/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                     >
                         {status === "loading" ? (
                             <>

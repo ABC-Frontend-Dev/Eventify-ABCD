@@ -160,11 +160,11 @@ const menuItems: MenuItem[] = [
             { title: "Subscribers", icon: Users, href: "/dashboard/newsletter?tab=subscribers" },
         ],
     },
-    {
-        title: "Instagram",
-        icon: InstagramLogoIcon,
-        href: "/dashboard/instagram",
-    },
+    // {
+    //     title: "Instagram",
+    //     icon: InstagramLogoIcon,
+    //     href: "/dashboard/instagram",
+    // },
     {
         title: "Admins",
         icon: User2,

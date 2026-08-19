@@ -4,7 +4,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SubHeading from "@/components/common/SubHeading";
@@ -15,52 +15,56 @@ if (typeof window !== "undefined") {
 }
 
 interface InstagramPost {
-    id: number;
-    url: string;
-    image: string | null;
-    title: string | null;
+    id: string;
+    permalink: string;
+    image: string;
+    caption: string | null;
+    isVideo: boolean;
 }
 
 const AUTOPLAY_DELAY = 2500;
 
-// ─── Shared FrameItem ─────────────────────────────────────────────────────────
+// ─── Shared FrameItem (desktop grid + mobile bento) ───────────────────────────
 interface FrameItemProps {
     index: number;
     post: InstagramPost;
-    tall?: boolean;
     onMouseEnter?: (index: number, e: React.MouseEvent<HTMLLIElement>) => void;
 }
 
-function FrameItem({ index, post, tall = false, onMouseEnter }: FrameItemProps) {
+function FrameItem({ index, post, onMouseEnter }: FrameItemProps) {
     const [hovered, setHovered] = useState(false);
+    const [ratio, setRatio] = useState(1); // fallback square until real image loads
 
     return (
         <li
-            className={["frame-item group w-full flex items-center justify-center relative overflow-hidden cursor-pointer", "lg:h-87.5", tall ? "h-48 sm:h-56 md:h-66" : "h-32 sm:h-40 md:h-52"].join(
-                " ",
-            )}
+            className="frame-item group w-full h-87.5 flex items-center justify-center relative overflow-hidden cursor-pointer"
+            style={{ aspectRatio: ratio }}
             onMouseEnter={(e) => {
                 setHovered(true);
                 onMouseEnter?.(index, e);
             }}
             onMouseLeave={() => setHovered(false)}
         >
-            <a href={post.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-40" aria-label={post.title ?? `Instagram post ${index + 1}`} />
+            <a href={post.permalink} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-40" aria-label={post.caption ?? `Instagram post ${index + 1}`} />
 
-            {post.image ? (
-                <Image
-                    src={post.image}
-                    alt={post.title ?? `Inspiration frame ${index + 1}`}
-                    width={1000}
-                    height={1000}
-                    className="frame-image w-full h-full object-cover will-change-transform"
-                    unoptimized
-                />
-            ) : (
-                <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3" />
-                    </svg>
+            <Image
+                src={post.image}
+                alt={post.caption ?? `Inspiration frame ${index + 1}`}
+                width={1000}
+                height={1000}
+                className="frame-image w-full h-full object-cover will-change-transform"
+                unoptimized
+                onLoad={(e) => {
+                    const img = e.currentTarget;
+                    if (img.naturalWidth && img.naturalHeight) {
+                        setRatio(img.naturalWidth / img.naturalHeight);
+                    }
+                }}
+            />
+
+            {post.isVideo && (
+                <div className="absolute top-2 right-2 z-20 pointer-events-none">
+                    <Play className="w-4 h-4 text-white fill-white drop-shadow" />
                 </div>
             )}
 
@@ -93,21 +97,38 @@ function FrameItem({ index, post, tall = false, onMouseEnter }: FrameItemProps) 
     );
 }
 
-// ─── FrameItemInner (inside Embla) ────────────────────────────────────────────
+// ─── FrameItemInner (inside Embla tablet carousel) ────────────────────────────
 function FrameItemInner({ post, index }: { post: InstagramPost; index: number }) {
     const [hovered, setHovered] = useState(false);
+    const [ratio, setRatio] = useState(1);
 
     return (
-        <div className="w-full h-full relative overflow-hidden" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-            <a href={post.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-40" aria-label={post.title ?? `Instagram post ${index + 1}`} />
+        <div
+            className="w-full relative overflow-hidden h-87.5 flex items-center justify-center bg-slate-50"
+            style={{ aspectRatio: ratio }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
+            <a href={post.permalink} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-40" aria-label={post.caption ?? `Instagram post ${index + 1}`} />
 
-            {post.image ? (
-                <Image src={post.image} alt={post.title ?? `Inspiration frame ${index + 1}`} width={1000} height={1000} className="w-full h-full object-cover will-change-transform" unoptimized />
-            ) : (
-                <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3" />
-                    </svg>
+            <Image
+                src={post.image}
+                alt={post.caption ?? `Inspiration frame ${index + 1}`}
+                width={1000}
+                height={1000}
+                className="w-full h-full object-cover will-change-transform"
+                unoptimized
+                onLoad={(e) => {
+                    const img = e.currentTarget;
+                    if (img.naturalWidth && img.naturalHeight) {
+                        setRatio(img.naturalWidth / img.naturalHeight);
+                    }
+                }}
+            />
+
+            {post.isVideo && (
+                <div className="absolute top-2 right-2 z-20 pointer-events-none">
+                    <Play className="w-4 h-4 text-white fill-white drop-shadow" />
                 </div>
             )}
 
@@ -207,12 +228,10 @@ function TabletCarousel({ posts }: { posts: InstagramPost[] }) {
     return (
         <div className="relative w-full">
             <div className="overflow-hidden" ref={emblaRef}>
-                <ul className="flex">
+                <ul className="flex items-start">
                     {posts.map((post, index) => (
-                        <li key={post.id} className="flex-[0_0_33.333%] min-w-0 px-0.75">
-                            <div className="h-84 relative overflow-hidden cursor-pointer group">
-                                <FrameItemInner post={post} index={index} />
-                            </div>
+                        <li key={post.id} className="flex-[0_0_33.333%] min-w-0 h-87.5 px-0.75">
+                            <FrameItemInner post={post} index={index} />
                         </li>
                     ))}
                 </ul>
@@ -245,7 +264,7 @@ function InspirationSkeleton() {
     return (
         <div className="hidden lg:grid lg:grid-cols-5 gap-1.5">
             {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-87.5 bg-slate-100 animate-pulse rounded-sm" />
+                <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-sm" />
             ))}
         </div>
     );
@@ -261,12 +280,15 @@ export default function InspirationInFrames() {
     const [posts, setPosts] = useState<InstagramPost[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch enabled posts from DB (pre-fetched images — no microlink on frontend)
+    // Fetch latest posts from the official Instagram Graph API (via our proxy route)
     useEffect(() => {
-        fetch("/api/instagram/public")
+        fetch("/api/instagram/latest")
             .then((r) => r.json())
             .then((data) => {
-                if (data.success) setPosts(data.data);
+                if (data.success) {
+                    // show up to 5, same cap as before
+                    setPosts((data.data as InstagramPost[]).slice(0, 5));
+                }
             })
             .catch(() => {})
             .finally(() => setLoading(false));
@@ -347,13 +369,13 @@ export default function InspirationInFrames() {
                 <SubHeading sectionType="SYL" showDescription />
             </header>
 
-            <div className="mt-4 sm:mt-5">
+            <div className="mt-4 sm:mt-7.5">
                 {loading ? (
                     <InspirationSkeleton />
                 ) : (
                     <>
                         {/* Desktop 5-col grid */}
-                        <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative">
+                        <ul ref={desktopGridRef} className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative items-start">
                             {posts.map((post, index) => (
                                 <FrameItem key={post.id} index={index} post={post} onMouseEnter={handleCardHover} />
                             ))}
@@ -366,12 +388,12 @@ export default function InspirationInFrames() {
 
                         {/* Mobile bento */}
                         <div className="flex flex-col gap-1.5 sm:hidden">
-                            <ul ref={mobileRow1Ref} className="grid grid-cols-2 gap-1.5">
+                            <ul ref={mobileRow1Ref} className="grid grid-cols-2 gap-1.5 items-start">
                                 {posts.slice(0, 2).map((post, index) => (
-                                    <FrameItem key={post.id} index={index} post={post} tall />
+                                    <FrameItem key={post.id} index={index} post={post} />
                                 ))}
                             </ul>
-                            <ul ref={mobileRow2Ref} className="grid grid-cols-3 gap-1.5">
+                            <ul ref={mobileRow2Ref} className="grid grid-cols-3 gap-1.5 items-start">
                                 {posts.slice(2).map((post, index) => (
                                     <FrameItem key={post.id} index={index + 2} post={post} />
                                 ))}

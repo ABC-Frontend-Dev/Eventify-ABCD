@@ -199,19 +199,19 @@ export default function Projects() {
                         <SubHeading sectionType="PROJECT" showDescription />
                     </div>
 
-                    <TabsList className="p-1.25 rounded-none bg-slate-100 gap-1">
-                        <TabsTab value="tab-all" className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
+                    <TabsList className="py-1.25 px-2 rounded-none bg-slate-100 gap-0">
+                        <TabsTab value="tab-all" className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75">
                             All Projects
                         </TabsTab>
                         {categories.map((category) => (
-                            <TabsTab key={`tab-${category.id}`} value={`tab-${category.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
+                            <TabsTab key={`tab-${category.id}`} value={`tab-${category.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75">
                                 {category.name}
                             </TabsTab>
                         ))}
                     </TabsList>
                 </header>
 
-                <div className="mt-4 lg:mt-5 relative">
+                <div className="mt-3 lg:mt-7.5 relative">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {visibleProjects.map((project) => (
@@ -279,13 +279,15 @@ export default function Projects() {
                             </div>
 
                             {/* Content */}
-                            <div className="p-5 flex-shrink-0">
-                                <p className="font-helvetica-medium text-lg lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
+                            <div className="p-5 shrink-0 flex gap-5 items-end">
+                                <div className="max-w-3/5 w-full shrink-0">
+                                    <p className="font-helvetica-medium text-lg lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{selectedProject.title}</p>
 
-                                {selectedProject.description && <p className="mt-2 font-helvetica-neue-roman text-xl leading-6.5 tracking-wide text-footer-bg">{selectedProject.description}</p>}
+                                    {selectedProject.description && <p className="mt-2 font-helvetica-neue-roman text-sm leading-4.5 tracking-wide text-footer-bg">{selectedProject.description}</p>}
+                                </div>
 
                                 {selectedProject.hasTabs && selectedProject.tabs.length > 0 && (
-                                    <TabsList className="mt-4 p-1.25 rounded-none bg-slate-100 gap-1 w-full justify-start">
+                                    <TabsList className="max-w-min w-fit mt-0 p-1.25 rounded-none bg-slate-100 gap-1 justify-start">
                                         {selectedProject.tabs.map((tab) => (
                                             <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                                                 {tab.name}
@@ -341,7 +343,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
                             </figure>
                         )}
                         {!logoToShow && <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>}
-                        {project.description && <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>}
+                        {/* {project.description && <p className="font-helvetica text-sm leading-4.5 text-center mt-2">{project.description}</p>} */}
                     </div>
 
                     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-fit z-20 bg-white/30 rounded-full block px-4 py-0.5 font-helvetica font-medium text-[16px] text-center text-white cursor-pointer">

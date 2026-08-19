@@ -51,7 +51,7 @@ export default function Awards() {
                         <SubHeading sectionType="AWARD" showDescription />
                     </div>
                 </header>
-                <div className="mt-5 flex items-center justify-center py-20">
+                <div className="mt-7.5 flex items-center justify-center py-20">
                     <p className="text-slate-400">Loading awards…</p>
                 </div>
             </section>
@@ -78,7 +78,7 @@ export default function Awards() {
                     </TabsList>
                 </header>
 
-                <div className="mt-5">
+                <div className="mt-7.5">
                     {awards.map((award) => (
                         <TabsPanel key={award.id} value={`tab-${award.id}`}>
                             <AwardsYearTabContent categories={award.categories} />

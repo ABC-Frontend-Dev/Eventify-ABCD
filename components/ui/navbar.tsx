@@ -91,7 +91,7 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
     return (
         <MotionConfig transition={{ bounce: 0, type: "tween", duration: 0.3 }}>
             <nav className={"relative"}>
-                <ul className={"flex items-center gap-2"}>
+                <ul className={"flex items-center gap-5"}>
                     {list?.map((item) => {
                         const active = isActive(item);
 
@@ -99,7 +99,7 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
                             <li key={item.id} className={"relative"}>
                                 {/* text-primary <- if want to change the active color */}
                                 <Link
-                                    className={`relative px-3.5 py-2 transition-all block ${active ? `${activeTextColor} font-helvetica-bold` : isScrolled ? colorConfig.scrolled : colorConfig.default}`}
+                                    className={`relative px-3.5 py-2 transition-all block text-sm ${active ? `${activeTextColor} font-helvetica-bold` : isScrolled ? colorConfig.scrolled : colorConfig.default}`}
                                     onMouseEnter={() => setHovered(item.id)}
                                     onMouseLeave={() => setHovered(null)}
                                     href={item?.url}
@@ -118,7 +118,7 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
 
                                 {/* Hover indicator */}
                                 {hovered === item?.id && !active && !item?.dropdown && (
-                                    <motion.div layout layoutId="hover-cursor" className={`absolute left-1/2 -translate-x-1/2 bottom-0 h-0.75 w-1/2 rounded-full ${indicatorColor.hover}`} />
+                                    <motion.div layout layoutId="hover-cursor" className={`absolute left-1/2 -translate-x-1/2 bottom-1 h-0.75 w-1/2 rounded-full ${indicatorColor.hover}`} />
                                 )}
 
                                 {/* Dropdown menu */}

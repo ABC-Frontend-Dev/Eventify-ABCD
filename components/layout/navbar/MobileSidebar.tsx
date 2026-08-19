@@ -217,15 +217,22 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                         </motion.div>
 
                         <motion.button
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            transition={{ delay: 0.2, duration: 0.2 }}
+                            initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                            exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
+                            transition={{
+                                delay: 0.2,
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 20,
+                            }}
+                            whileHover={{ scale: 1.1, rotate: 90 }}
+                            whileTap={{ scale: 0.9 }}
                             onClick={closeMenu}
-                            className="absolute top-4.5 right-4 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                            className="absolute top-5 right-4 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-primary text-gray-600 hover:text-white cursor-pointer group"
                             aria-label="Close menu"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-4 w-4 text-footer-bg group-hover:text-white transition-colors duration-200" />
                         </motion.button>
 
                         <nav className="min-h-screen pl-6 pr-6 flex flex-col items-start justify-between">
@@ -245,7 +252,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                                 <Link
                                                     href={menu.url}
                                                     onClick={() => handleNavClick(menu.url)}
-                                                    className={`relative block py-1 text-sm sm:text-lg text-left tracking-wide transition-all duration-300 hover:text-primary ${active ? "font-helvetica-medium text-primary" : "text-gray-600 font-helvetica"}`}
+                                                    className={`relative block py-1 text-sm sm:text-lg text-center tracking-wide transition-all duration-300 hover:text-primary ${active ? "font-helvetica-medium text-primary" : "text-gray-600 font-helvetica"}`}
                                                 >
                                                     {menu.name}
                                                 </Link>
@@ -262,7 +269,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                                     className="mb-4"
                                 >
                                     <button
-                                        className="mt-6 group relative overflow-hidden inline-flex cursor-pointer w-full items-center justify-center gap-1.5 rounded-[5px] font-helvetica-neue-roman will-change-transform hover:opacity-95 border border-gray-200"
+                                        className="mt-6 group relative overflow-hidden inline-flex cursor-pointer max-w-full w-full sm:max-w-3xs sm:mx-auto sm:block items-center justify-center gap-1.5 rounded-[5px] font-helvetica-neue-roman will-change-transform hover:opacity-95 border border-gray-200"
                                         style={{
                                             fontSize: "14px",
                                             padding: "0.6rem 1.75rem",

@@ -53,7 +53,7 @@ function MarqueeRow({ logos, direction = "left", duration = 1 }: { logos: Logo[]
 
     return (
         <div
-            className="relative overflow-hidden py-2"
+            className="relative overflow-hidden py-0"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             onTouchStart={() => setPaused(true)}

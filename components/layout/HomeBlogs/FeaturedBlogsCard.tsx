@@ -90,9 +90,7 @@ export default function FeaturedBlogsCard() {
                     <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
                     <p className="relative lg:absolute px-7.5 w-full lg:bottom-5 lg:left-1/2 lg:-translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
                         {truncatedDescription}
-                        <span className="block mt-2">
-                            <GoesOutComesInUnderline label="Read More" direction="right" />
-                        </span>
+                        <span className="border-b border-white/60 hover:border-white">Read More</span>
                     </p>
                 </div>
             </div>

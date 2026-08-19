@@ -23,7 +23,7 @@ export default function OurServices() {
                 <SubHeading sectionType="SERVICE" showDescription />
             </header>
 
-            <div className="mt-4 lg:mt-5">
+            <div className="mt-3 lg:mt-7.5">
                 <EmblaCarousel />
             </div>
         </section>

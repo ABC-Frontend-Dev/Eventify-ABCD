@@ -73,8 +73,6 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
 
     return (
         <LayoutGroup id={`contact-modal-flow-${pathname}`}>
-            {" "}
-            {/* 👈 scoped per route */}
             <div className="flex gap-2">
                 <NavBar list={menus} currentPath={pathname} isScrolled={isScrolled} activeSection={activeSection} />
 
@@ -88,8 +86,8 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
                                     backgroundSize: "280% auto",
                                     backgroundPosition: "left top",
                                     transition: "background-position 0.8s ease, opacity 0.2s",
-                                    fontSize: "16px",
-                                    padding: "0.6rem 1.75rem",
+                                    fontSize: "14px",
+                                    padding: "0.4rem 1.75rem",
                                     height: "40px",
                                     backgroundColor: "white",
                                     color: "black",
@@ -104,7 +102,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
                                 }}
                                 onClick={() => setOpen(true)}
                             >
-                                <span className="relative block overflow-hidden whitespace-nowrap text-center" style={{ minWidth: "110px" }}>
+                                <span className="relative block overflow-hidden whitespace-nowrap text-center" style={{ minWidth: "90px" }}>
                                     <span className="block transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-x-full">Let's Connect</span>
                                     <span
                                         aria-hidden="true"

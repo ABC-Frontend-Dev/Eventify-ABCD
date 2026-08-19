@@ -337,7 +337,7 @@ export async function sendAdminWelcomeEmail(email: string, firstName: string, la
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
       <tr>
         <td style="background-color:#7E0ACB;border-radius:10px 10px 0 0;padding:28px 32px;text-align:center;">
-          <img src="https://res.cloudinary.com/afdhm38k/image/upload/v1785845462/logo_liluod.png"
+          <img src="https://res.cloudinary.com/afdhm38k/image/upload/v1787124148/Mask_group_fvrqex.png"
                alt="Eventify" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;"/>
         </td>
       </tr>
@@ -445,7 +445,7 @@ export async function sendHandoverEmail(newSuperAdminEmail: string, newSuperAdmi
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
       <tr>
         <td style="background-color:#7E0ACB;border-radius:10px 10px 0 0;padding:28px 32px;text-align:center;">
-          <img src="https://res.cloudinary.com/afdhm38k/image/upload/v1785845462/logo_liluod.png"
+          <img src="https://res.cloudinary.com/afdhm38k/image/upload/v1787124148/Mask_group_fvrqex.png"
                alt="Eventify" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;"/>
         </td>
       </tr>

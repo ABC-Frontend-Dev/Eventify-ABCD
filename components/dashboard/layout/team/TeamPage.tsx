@@ -70,20 +70,48 @@ function GridEditor({ members, onDelete }: { members: TeamMember[]; onDelete: (i
     const [originalItems, setOriginalItems] = useState<GridItem[]>([]);
 
     const buildItems = useCallback((memberList: TeamMember[]): GridItem[] => {
-        return memberList
-            .filter((m) => m.gridLayout !== null)
-            .map((m) => ({
+        let autoX = 0;
+        let autoY = 0;
+
+        return memberList.map((m, index) => {
+            // If they already have a saved layout, use it
+            if (m.gridLayout !== null) {
+                return {
+                    i: String(m.id),
+                    x: m.gridLayout.x,
+                    y: m.gridLayout.y,
+                    w: m.gridLayout.width,
+                    h: m.gridLayout.height,
+                    content: {
+                        img: m.image,
+                        name: m.name,
+                        role: m.role,
+                    },
+                };
+            }
+
+            // ── Auto-assign a grid position for members without one ──
+            // Default: 2 wide × 3 tall, 5 per row
+            const DEFAULT_W = 2;
+            const DEFAULT_H = 3;
+            const PER_ROW = 5;
+
+            const col = index % PER_ROW;
+            const row = Math.floor(index / PER_ROW);
+
+            return {
                 i: String(m.id),
-                x: m.gridLayout!.x,
-                y: m.gridLayout!.y,
-                w: m.gridLayout!.width,
-                h: m.gridLayout!.height,
+                x: col * DEFAULT_W,
+                y: row * DEFAULT_H,
+                w: DEFAULT_W,
+                h: DEFAULT_H,
                 content: {
                     img: m.image,
                     name: m.name,
                     role: m.role,
                 },
-            }));
+            };
+        });
     }, []);
 
     useEffect(() => {
