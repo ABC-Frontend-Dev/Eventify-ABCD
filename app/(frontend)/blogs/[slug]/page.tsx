@@ -13,9 +13,10 @@ import { ViewTracker } from "@/components/layout/Blog/ViewTracker";
 interface Author {
     id: number;
     name: string;
+    role: string;
     avatar: string | null;
+    bio: string | null;
 }
-
 interface Category {
     id: number;
     name: string;
@@ -222,20 +223,50 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
             <ViewTracker slug={slug} />
 
             <div className="relative max-w-300 w-full mx-auto px-2.5 lg:px-20 pb-9 z-20">
-                <div className="max-w-200 text-footer-bg">
+                <div className="w-full text-footer-bg">
                     <Breadcrumb props={{ className: "mt-1.5 md:mt-3.5 text-white" }} />
 
-                    <div className="mt-4 md:mt-5 lg:mt-7 flex gap-x-1.5 md:gap-x-3">
+                    {/* <div className="mt-4 md:mt-5 lg:mt-7 flex gap-x-1.5 md:gap-x-3">
                         <p className="font-helvetica-neue-roman font-normal text-footer-bg text-xs md:text-sm leading-4 md:leading-3.5">{formatDate(blog.publishedAt || blog.createdAt)}</p>
                         <p className="font-helvetica-neue-roman font-normal text-footer-bg text-xs md:text-sm leading-4 md:leading-3.5">|</p>
                         <p className="font-helvetica-neue-roman font-normal text-footer-bg text-xs md:text-sm leading-4 md:leading-3.5">{blog.category.name}</p>
-                    </div>
+                    </div> */}
 
-                    <h1 className="mt-1.5 md:mt-2.5 text-sm sm:text-lg md:text-2xl lg:text-[30px] leading-5 sm:leading-5.5 md:leading-7 lg:leading-9 tracking-wide font-helvetica font-bold text-primary">
+                    <h1 className="max-w-200 w-full mt-3 md:mt-4.5 text-sm sm:text-lg md:text-2xl lg:text-[30px] leading-5 sm:leading-5.5 md:leading-7 lg:leading-9 tracking-normal font-abc-laica-a-italic-variable-trial font-semibold text-primary">
                         {blog.title}
                     </h1>
 
-                    <ShareBtn />
+                    {/* Author + Share row */}
+                    <div className="mt-3 md:mt-4 flex items-center justify-between gap-4">
+                        {/* Author info */}
+                        <div className="flex items-center gap-2.5">
+                            {/* {blog.author.avatar && (
+                                <div className="relative h-8 w-8 md:h-10 md:w-10 rounded-full overflow-hidden shrink-0 border border-white/20">
+                                    <Image src={blog.author.avatar} alt={blog.author.name} fill className="object-cover" />
+                                </div>
+                            )} */}
+                            <div>
+                                <p className="text-xs md:text-sm font-helvetica-neue-roman text-footer-bg leading-tight">
+                                    By: {blog.author.name}, {blog.author.role}
+                                </p>
+                            </div>
+
+                            {/* <span className="text-slate-300 text-xs mx-1">·</span> */}
+
+                            {/* Date */}
+                            {/* <p className="text-[10px] md:text-xs text-slate-400">{formatDate(blog.publishedAt || blog.createdAt)}</p> */}
+
+                            {/* Read time */}
+                            {/* {blog.timeToRead && (
+                                <>
+                                    <span className="text-slate-300 text-xs mx-1">·</span>
+                                    <p className="text-[10px] md:text-xs text-slate-400">{blog.timeToRead}</p>
+                                </>
+                            )} */}
+                        </div>
+
+                        <ShareBtn />
+                    </div>
                 </div>
 
                 <div className="mt-5 lg:mt-8 z-40">

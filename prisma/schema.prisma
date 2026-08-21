@@ -155,8 +155,9 @@ model ProjectCategory {
 model Author {
   id     Int     @id @default(autoincrement())
   name   String
-  bio    String?
   email  String  @unique
+  role String @default("Author")
+  bio    String?
   avatar String?
   blogs  Blog[]
 }

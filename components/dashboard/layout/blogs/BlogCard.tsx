@@ -58,7 +58,7 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
     };
 
     return (
-        <div className="group relative rounded-lg border bg-card transition-all hover:shadow-lg">
+        <div className="group relative rounded-lg border border-slate-200 bg-card transition-all hover:shadow-lg">
             {/* Header with Actions */}
             <Badge className={`${getStatusColor(status)} border absolute left-0 -top-2.5`}>{status}</Badge>
             <div className="absolute top-3 right-3 z-10 flex gap-2">

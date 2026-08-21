@@ -33,7 +33,7 @@ export function ProjectCard({ id, title, description, bannerImage, category, has
     const totalImages = hasTabs ? tabs.reduce((sum, tab) => sum + tab.images.length, 0) : images?.length || 0;
 
     return (
-        <div className="group relative rounded-lg border bg-card transition-all hover:shadow-lg">
+        <div className="group relative rounded-lg border border-slate-200 bg-card transition-all hover:shadow-lg">
             {/* Dropdown Menu */}
             <div className="absolute top-2 right-2 z-30">
                 <DropdownMenu>

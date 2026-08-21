@@ -20,6 +20,7 @@ interface Author {
     id: number;
     name: string;
     email: string;
+    role: string;
     bio: string | null;
     avatar: string | null;
 }

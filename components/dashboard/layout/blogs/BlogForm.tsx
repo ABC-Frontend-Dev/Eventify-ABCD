@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,8 @@ interface Author {
     id: number;
     name: string;
     email: string;
+    role: string;
+    avatar: string | null;
 }
 
 interface BlogFormProps {
@@ -163,7 +166,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
             { label: "Banner", ok: !!formData.banner_image },
             // ✅ Author and Category removed from completion checker
             // { label: "Category", ok: formData.categoryId !== 0 },
-            // { label: "Author",   ok: formData.authorId   !== 0 },
+            { label: "Author", ok: formData.authorId !== 0 },
         ],
         [formData],
     );
@@ -217,7 +220,10 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         fetch(`/api/blogs/${blogId}`)
             .then((r) => r.json())
             .then((data) => {
-                if (!data.success) return toast.error("Failed to load blog data");
+                if (!data.success) {
+                    toast.error("Failed to load blog data");
+                    return;
+                }
                 const b = data.data;
                 setFormData({
                     title: b.title,
@@ -234,7 +240,6 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     bannerImageAlt: b.bannerImageAlt || "",
                     canonical: b.canonical,
                     schemaScript: b.schemaScript,
-                    // ✅ fall back to "5 min read" if stored value is null/empty
                     timeToRead: b.timeToRead || "5 min read",
                     authorId: b.authorId,
                     categoryId: b.categoryId,
@@ -242,10 +247,20 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                 setEditorContent(b.content);
             })
             .catch(() => toast.error("Failed to load blog data"));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mode, blogId]);
 
-    // ─── Auto-generate slug from title (create mode) ──────────────────────────
+    useEffect(() => {
+        if (mode !== "create") return;
+        setFormData((p) => {
+            if (!p.title) return p;
+            const slug = p.title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, "");
+            return { ...p, slug };
+        });
+    }, [formData.title, mode]);
+
     useEffect(() => {
         if (mode !== "create" || !formData.title) return;
         setFormData((p) => ({
@@ -255,10 +270,8 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                 .replace(/[^a-z0-9]+/g, "-")
                 .replace(/(^-|-$)/g, ""),
         }));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.title]);
 
-    // ─── Generic field change ─────────────────────────────────────────────────
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((p) => ({
@@ -267,11 +280,6 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         }));
     };
 
-    // ─── Upload helpers ───────────────────────────────────────────────────────
-    /**
-     * Upload a single image to /api/upload?folder=blogs
-     * Server enforces 1 MB limit; we also guard client-side.
-     */
     const uploadImage = async (file: File): Promise<string | null> => {
         const fd = new FormData();
         fd.append("file", file);
@@ -386,7 +394,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         <div className="min-h-screen bg-slate-50/60">
             {/* ── Sticky top bar ── */}
             <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
-                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
+                {/* <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
                     <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
                         <Link href="/dashboard/blogs">
                             <ArrowLeft className="h-4 w-4" />
@@ -430,22 +438,49 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                         {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
                         {mode === "create" ? "Publish" : "Update"}
                     </Button>
-                </div>
+                </div> */}
 
                 {/* Section tabs */}
-                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 flex items-center gap-0 border-t border-slate-100">
-                    {NAV.map((s) => (
-                        <button
-                            key={s.id}
+                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 flex justify-between items-center gap-0 border-t border-slate-100">
+                    <div className="">
+                        {NAV.map((s) => (
+                            <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => scrollTo(s.id)}
+                                className={`px-3 py-2 text-[11px] font-medium border-b-2 transition-colors ${
+                                    activeSection === s.id ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"
+                                }`}
+                            >
+                                {s.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex gap-2">
+                        <Button
                             type="button"
-                            onClick={() => scrollTo(s.id)}
-                            className={`px-3 py-2 text-[11px] font-medium border-b-2 transition-colors ${
-                                activeSection === s.id ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"
-                            }`}
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleSubmit(e, BlogStatus.DRAFT)}
+                            disabled={loading || !isFormValid}
+                            className="h-7 text-xs text-slate-600 hover:text-slate-900 hidden sm:inline-flex"
                         >
-                            {s.label}
-                        </button>
-                    ))}
+                            <Save className="h-3.5 w-3.5 mr-1.5" />
+                            Save draft
+                        </Button>
+
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={(e) => handleSubmit(e, BlogStatus.PUBLISHED)}
+                            disabled={loading || uploadingThumbnail || uploadingBanner || !isFormValid}
+                            className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white"
+                        >
+                            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
+                            {mode === "create" ? "Publish" : "Update"}
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -496,13 +531,9 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
 
                             {/* Reading time only — category & author are commented out */}
                             <div className="grid grid-cols-1 gap-3">
-                                {/*
-                                ── COMMENTED OUT: Category & Author dropdowns ──
-                                Admin doesn't need to set these; they are auto-filled
-                                server-side ("Activations" + "Eventify").
-                                Un-comment the block below to restore the UI pickers.
-
-                                <div>
+                                {/* ── COMMENTED OUT: Category & Author dropdowns ── Admin doesn't need to set these; they are auto-filled server-side ("Activations" + "Eventify"). Un-comment the block
+                                below to restore the UI pickers. */}
+                                {/* <div>
                                     <FieldLabel required ok={formData.categoryId !== 0}>
                                         Category
                                     </FieldLabel>
@@ -520,29 +551,40 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                             </option>
                                         ))}
                                     </select>
-                                </div>
-
+                                </div> */}
                                 <div>
                                     <FieldLabel required ok={formData.authorId !== 0}>
                                         Author
                                     </FieldLabel>
-                                    <select
-                                        name="authorId"
-                                        value={formData.authorId}
-                                        onChange={handleChange}
-                                        className={sel}
-                                        disabled={loadingAuthors}
-                                    >
-                                        <option value={0}>Select…</option>
+                                    <select name="authorId" value={formData.authorId} onChange={handleChange} className={sel} disabled={loadingAuthors}>
+                                        <option value={0}>{loadingAuthors ? "Loading…" : "Select author…"}</option>
                                         {authors.map((a) => (
                                             <option key={a.id} value={a.id}>
-                                                {a.name}
+                                                {a.name} — {a.role}
                                             </option>
                                         ))}
                                     </select>
-                                </div>
-                                */}
 
+                                    {/* Author preview — shows avatar + role when selected */}
+                                    {formData.authorId !== 0 &&
+                                        (() => {
+                                            const selected = authors.find((a) => a.id === formData.authorId);
+                                            if (!selected) return null;
+                                            return (
+                                                <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-slate-50 border border-slate-100 rounded-md">
+                                                    {selected.avatar && (
+                                                        <div className="relative h-6 w-6 rounded-full overflow-hidden shrink-0">
+                                                            <Image src={selected.avatar} alt={selected.name} fill className="object-cover" />
+                                                        </div>
+                                                    )}
+                                                    <div className="min-w-0">
+                                                        <p className="text-[11px] font-medium text-slate-700 truncate">{selected.name}</p>
+                                                        <p className="text-[10px] text-slate-400 truncate">{selected.role}</p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                </div>
                                 {/* Reading time — visible, defaults to "5 min read" */}
                                 {/* <div>
                                     <FieldLabel>Reading time</FieldLabel>
@@ -858,7 +900,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                                 <li>
                                     Images must be under <strong className="text-slate-500">1 MB</strong>.
                                 </li>
-                                <li>Author &amp; category are set automatically (Eventify / Activations).</li>
+                                <li>Author role appears on the published blog page.</li>
                             </ul>
                         </div>
                     </div>

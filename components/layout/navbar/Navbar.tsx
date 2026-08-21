@@ -37,21 +37,21 @@ export default function Navbar() {
     }, []);
 
     const defaultLogos = {
-        default: "https://res.cloudinary.com/afdhm38k/image/upload/v1786690266/eventify-light-logo-with-uae-ksa_c6yag2.png",
-        scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
+        default: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-light-logo-with-uae-ksa_m8nbd3.png",
+        scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-dark-logo-with-uae-ksa_ht3x8v.png",
     };
 
     const getLogosForPage = () => {
         if (pathname.startsWith("/blog")) {
             return {
-                default: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
-                scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
+                default: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-dark-logo-with-uae-ksa_ht3x8v.png",
+                scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-dark-logo-with-uae-ksa_ht3x8v.png",
             };
         }
         if (pathname.startsWith("/services")) {
             return {
-                default: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
-                scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1786960300/eventify-dark-logo-with-uae-ksa_ktit0x.png",
+                default: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-dark-logo-with-uae-ksa_ht3x8v.png",
+                scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-dark-logo-with-uae-ksa_ht3x8v.png",
             };
         }
         return defaultLogos;

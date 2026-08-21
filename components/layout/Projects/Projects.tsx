@@ -235,15 +235,19 @@ export default function Projects() {
 
                     {showLoadMoreButton && (
                         <div
-                            className="absolute bottom-0 left-0 w-full h-85 flex items-end justify-end z-10"
-                            style={{
-                                background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.7) 60%, #FFFFFF 85%)",
-                            }}
+                            className="absolute bottom-0 left-0 w-full h-85 flex items-end justify-end z-10 pointer-events-none"
+                            style={
+                                allLoaded
+                                    ? undefined
+                                    : {
+                                          background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.7) 60%, #FFFFFF 85%)",
+                                      }
+                            }
                         >
                             <button
                                 type="button"
                                 onClick={handleLoadMoreClick}
-                                className="relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-10 cursor-pointer px-6 py-2 text-sm bg-primary text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className={`relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-10 cursor-pointer px-6 py-2 text-sm bg-primary text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto ${allLoaded ? "translate-y-11" : "translate-y-0"}`}
                             >
                                 {allLoaded ? "View less projects" : "View more projects"}
                             </button>
@@ -338,8 +342,8 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
                 <div className="group-hover:opacity-100 group-hover:z-10 transition-opacity duration-500 opacity-0 z-0 absolute left-0 top-0 w-full h-full px-10 bg-black/50">
                     <div className="flex items-center justify-center flex-col w-full h-full text-white">
                         {logoToShow && (
-                            <figure className="max-w-56 w-full mb-4">
-                                <Image src={logoToShow} alt={project.client?.name || "Client logo"} width={1000} height={1000} className="w-full h-auto object-contain" />
+                            <figure className="max-w-60 w-full h-28 mb-4">
+                                <Image src={logoToShow} alt={project.client?.name || "Client logo"} width={1000} height={1000} className="max-w-60 w-full h-28 object-contain" />
                             </figure>
                         )}
                         {!logoToShow && <h2 className="font-helvetica text-[26px] font-bold text-center">{project.title}</h2>}

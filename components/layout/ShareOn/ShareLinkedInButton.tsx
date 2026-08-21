@@ -20,8 +20,15 @@ const sizeMap: Record<SizeVariant, { button: string; icon: number }> = {
 };
 
 // LinkedIn Icon Component
-const LinkedInIcon = ({ size = 16 }: { size?: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-3 md:w-4 h-3 md:h-4" fill="#fff" stroke="#fff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+const LinkedInIcon = ({ size = 16, className }: { size?: number; className?: string }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        className={cn("w-3 md:w-5 h-3 md:h-5 fill-footer-bg stroke-footer-bg", className)}
+        strokeWidth={1}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
         <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
         <rect x="2" y="9" width="4" height="12" />
         <circle cx="4" cy="4" r="2" />
@@ -70,11 +77,11 @@ const ShareLinkedInButton = React.forwardRef<HTMLButtonElement, ShareLinkedInBut
             )}
             {...props}
         >
-            <div className={cn("transition-all duration-200", shared ? "scale-100 opacity-100 blur-none" : "scale-70 opacity-0 blur-[2px]")}>
+            <div className={cn("transition-all duration-200", shared ? "scale-100 opacity-100 blur-none" : "scale-100 opacity-0 blur-[2px]")}>
                 <CheckIcon size={iconSize} strokeWidth={2} aria-hidden="true" />
             </div>
             <div className={cn("absolute transition-all duration-200", shared ? "scale-0 opacity-0 blur-[2px]" : "scale-100 opacity-100 blur-none")}>
-                <LinkedInIcon size={iconSize} />
+                <LinkedInIcon className="text-footer-bg" size={iconSize} />
             </div>
         </button>
     );

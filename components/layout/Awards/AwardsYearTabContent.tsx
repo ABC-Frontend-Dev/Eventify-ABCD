@@ -57,12 +57,16 @@ function AwardYearPanel({ images }: { images: AwardImage[] }) {
 
             {/* ── Title + Description (synced with current slide) ── */}
             {currentImage && (currentImage.title || currentImage.description) && (
-                <div className="absolute left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-2.5 lg:left-5 top-1 sm:top-auto sm:bottom-2.5 lg:bottom-5 z-20 max-w-full w-[98%] sm:max-w-120 min-w-61.25">
+                <div className="absolute left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-2.5 lg:left-7.5 top-1 sm:top-auto sm:bottom-2.5 lg:bottom-10 z-20 max-w-full w-[98%] sm:max-w-120 min-w-61.25">
                     {/* w-51.25 backdrop-blur-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] bg-white/10 */}
                     <div key={currentImage.id} className="transition-all duration-500">
-                        {currentImage.title && <h3 className="font-helvetica-neue-roman text-sm sm:text-xl lg:text-xl leading-4 sm:leading-6 lg:leading-6 text-white">{currentImage.title}</h3>}
+                        {currentImage.title && (
+                            <h3 className="font-abc-laica-a-italic-variable-trial text-sm sm:text-xl lg:text-xl xl:text-4xl leading-4 sm:leading-6 lg:leading-6 xl:leading-10 text-white">
+                                {currentImage.title}
+                            </h3>
+                        )}
                         {currentImage.description && (
-                            <p className="mt-0.75 sm:mt-0 lg:mt-0.75 font-helvetica-thin sm:font-helvetica text-xs sm:text-base lg:text-sm leading-3.5 sm:leading-4.5 text-[#E2E8F0] tracking-wide">
+                            <p className="mt-0.75 sm:mt-0 lg:mt-0.75 font-helvetica-thin sm:font-helvetica text-xs sm:text-base lg:text-lg leading-3.5 sm:leading-4.5 xl:leading-5.5 text-[#E2E8F0] tracking-wide">
                                 {currentImage.description}
                             </p>
                         )}

@@ -86,10 +86,10 @@ export default function FeaturedBlogsCard() {
             {/* GSAP overlay */}
             <div ref={overlayRef} className="absolute inset-0 z-10 opacity-0 pointer-events-none" style={{ willChange: "opacity" }}>
                 <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
-                <div className="relative w-full h-full flex flex-col gap-5 items-center justify-center px-2.5 lg:px-7.5 py-5 lg:py-7.5">
-                    <p className="text-center text-base lg:text-xl leading-5.5 lg:leading-6 tracking-wide font-helvetica-medium text-white">{blog.title}</p>
-                    <p className="relative lg:absolute px-7.5 w-full lg:bottom-5 lg:left-1/2 lg:-translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
-                        {truncatedDescription}
+                <div className="relative w-full h-full flex flex-col gap-5 items-center justify-center px-2.5 lg:px-7.5 xl:px-30 py-5 lg:py-7.5">
+                    <p className="text-center text-base lg:text-xl xl:text-2xl leading-5.5 lg:leading-6 xl:leading-7 font-abc-laica-a-italic-variable-trial font-normal text-white">{blog.title}</p>
+                    <p className="relative lg:absolute px-7.5 w-full lg:bottom-5 xl:bottom-10 lg:left-1/2 lg:-translate-x-1/2 text-center text-xs lg:text-sm leading-4 lg:leading-5 tracking-wider font-helvetica text-white">
+                        {/* {truncatedDescription} */}
                         <span className="border-b border-white/60 hover:border-white">Read More</span>
                     </p>
                 </div>

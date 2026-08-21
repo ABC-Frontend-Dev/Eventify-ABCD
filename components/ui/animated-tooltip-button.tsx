@@ -77,7 +77,7 @@ function TooltipItem({
             {/* ── Icon / Image ──────────────────────────────────────────────── */}
             <div
                 className={cn(
-                    "!m-0 !p-0 rounded-full w-6 md:w-8 h-6 md:h-8 bg-footer-bg",
+                    "!m-0 !p-0 w-6 md:w-6 h-6 md:h-6",
                     "border-background relative transition duration-500",
                     "group-hover:scale-105 group-hover:z-30",
                     "flex items-center justify-center overflow-hidden",
@@ -106,7 +106,7 @@ export const AnimatedTooltip = ({
     className?: string;
 }) => {
     return (
-        <div className={cn("flex items-center gap-1", className)}>
+        <div className={cn("flex items-center gap-0.5", className)}>
             {items.map((item) => (
                 <TooltipItem key={item.id} item={item} />
             ))}

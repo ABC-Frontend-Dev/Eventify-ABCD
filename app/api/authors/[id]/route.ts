@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 type UpdateAuthorBody = {
     name: string;
     email: string;
+    role: string;
     bio?: string;
     avatar?: string;
 };
@@ -114,6 +115,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             where: { id: authorId },
             data: {
                 name: body.name ?? existingAuthor.name,
+                role: body.role ?? existingAuthor.role,
                 email: body.email ?? existingAuthor.email,
                 bio: body.bio ?? existingAuthor.bio,
                 avatar: body.avatar ?? existingAuthor.avatar,

@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 type AuthorBody = {
     name: string;
     email: string;
+    role: string;
     bio?: string;
     avatar?: string;
 };
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
                 email: body.email,
                 bio: body.bio || null,
                 avatar: body.avatar || null,
+                role: body.role || "Author",
             },
         });
 

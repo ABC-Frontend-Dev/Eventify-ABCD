@@ -81,7 +81,7 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
                         <motion.div key="contact-trigger" layoutId="contact-modal-shell" transition={{ layout: morphTransition }} whileTap={{ scale: 0.985 }}>
                             {/* <ShineButton label="Let's Connect" size="md" bgColor="linear-gradient(325deg, #57068C 0%, #bd76eb 55%, #57068C 90%)" onClick={() => setOpen(true)} /> */}
                             <button
-                                className="group relative overflow-hidden inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-[5px] font-helvetica-neue-roman will-change-transform hover:opacity-95 border border-footer-bg/20"
+                                className="group relative overflow-hidden inline-flex cursor-pointer items-center justify-center gap-1.5 font-helvetica-neue-roman will-change-transform hover:opacity-95 border border-footer-bg/20"
                                 style={{
                                     backgroundSize: "280% auto",
                                     backgroundPosition: "left top",

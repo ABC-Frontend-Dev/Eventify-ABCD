@@ -72,13 +72,16 @@ function SubHeading({ part1, part2 }: SubHeadingProps) {
 
     return (
         //  pr-0 lg:pr-16
-        <h3 ref={textRef} className="text-2xl lg:text-4xl leading-7 lg:leading-10 font-helvetica-neue-roman font-bold normal-case text-primary wrap-break-word" style={{ willChange: "filter" }}>
-            {part1}
-            <br />
+        // {/* <br /> */}
+        <h3
+            ref={textRef}
+            className="text-2xl lg:text-5xl xl:text-[56.5px] leading-7 lg:leading-10 xl:leading-11.25 font-helvetica-neue-roman font-normal normal-case text-center text-footer-bg wrap-break-word"
+            style={{ willChange: "filter" }}
+        >
+            {part1}{" "}
             {part2 && (
                 <>
-                    {" "}
-                    <span className="font-abc-laica-a-italic-variable-trial font-semibold normal-case italic">{part2}</span>
+                    <span className="text-primary font-abc-laica-a-italic-variable-trial font-semibold normal-case italic">{part2}</span>
                 </>
             )}
         </h3>
@@ -199,14 +202,35 @@ export default function AboutUs() {
 
     return (
         <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-1">
-            <header className="grid lg:grid-cols-[380px_1fr] gap-y-1 gap-x-10 items-start">
-                <h1 className="hidden">Eventify Entertainment</h1>
-                <SubHeading part1={data.titlePartOne} part2={data.titlePartTwo} />
-                <p className="text-sm lg:text-base font-helvetica leading-5 tracking-wider text-slate-800">
-                    <ScrollReveal scrollContainerRef={undefined} baseOpacity={0.1} enableBlur baseRotation={3} blurStrength={4}>
-                        {data.description}
-                    </ScrollReveal>
-                </p>
+            {/* grid lg:grid-cols-[380px_1fr] gap-y-1 gap-x-10 items-start */}
+            <header className="flex items-start gap-16">
+                <div className="max-w-36">
+                    <Image
+                        src={"https://res.cloudinary.com/afdhm38k/image/upload/v1787231866/spotlight_website_left-side_rau405.png"}
+                        width={1000}
+                        height={1000}
+                        className="w-full h-full"
+                        alt={"spotlight_website_left-side"}
+                    />
+                </div>
+                <div className="">
+                    <h1 className="hidden">Eventify Entertainment</h1>
+                    <SubHeading part1={data.titlePartOne} part2={data.titlePartTwo} />
+                    <p className="mt-8 text-sm lg:text-base font-helvetica-neue-roman leading-5 tracking-wider text-justify text-slate-800">
+                        <ScrollReveal scrollContainerRef={undefined} baseOpacity={0.1} enableBlur baseRotation={3} blurStrength={4}>
+                            {data.description}
+                        </ScrollReveal>
+                    </p>
+                </div>
+                <div className="max-w-36">
+                    <Image
+                        src={"https://res.cloudinary.com/afdhm38k/image/upload/v1787231866/spotlight_website_right-side_qqcqsq.png"}
+                        width={1000}
+                        height={1000}
+                        className="w-full h-full"
+                        alt={"spotlight_website_left-side"}
+                    />
+                </div>
             </header>
 
             {/* ── Content grid ─────────────────────────────────────────────── */}
