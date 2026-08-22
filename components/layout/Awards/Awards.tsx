@@ -69,7 +69,7 @@ export default function Awards() {
                         <SubHeading sectionType="AWARD" showDescription />
                     </div>
 
-                    <TabsList className="p-1.25 rounded-none bg-slate-100 gap-2.5">
+                    <TabsList className="p-0 rounded-none bg-white gap-1">
                         {awards.map((award) => (
                             <TabsTab key={award.id} value={`tab-${award.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                                 {award.year}

@@ -35,15 +35,15 @@ const COMPARISON_ITEMS: ComparisonItem[] = [
     {
         id: 2,
         title: "Stage Design",
-        beforeImage: "/images/comparisons/stage-design-before.jpg",
-        afterImage: "/images/comparisons/stage-design-after.jpg",
+        beforeImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1785231894/eventify/images/usqme81byoqunjaagmjr.webp",
+        afterImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1785231859/eventify/images/zpre1illignqcswkultv.webp",
     },
-    {
-        id: 3,
-        title: "Venue Decor",
-        beforeImage: "/images/comparisons/venue-decor-before.jpg",
-        afterImage: "/images/comparisons/venue-decor-after.jpg",
-    },
+    // {
+    //     id: 3,
+    //     title: "Venue Decor",
+    //     beforeImage: "/images/comparisons/venue-decor-before.jpg",
+    //     afterImage: "/images/comparisons/venue-decor-after.jpg",
+    // },
     // ── Add more items here ──────────────────────────────────────────────────
     // {
     //     id: 4,
@@ -348,25 +348,32 @@ export function ComparisonCarousel() {
                             <button
                                 key={`dot-${index}`}
                                 onClick={() => scrollTo(index)}
-                                className={`bg-white pointer-events-auto transition-all duration-300 leading-0 h-8.5  border ${
-                                    index === selectedIndex ? "text-primary border-primary font-helvetica-neue-roman w-full" : "text-footer-bg font-helvetica w-full border-slate-300"
+                                className={`relative pointer-events-auto transition-colors duration-300 leading-0 h-8.5 border w-full overflow-hidden ${
+                                    index === selectedIndex ? "bg-primary border-primary" : "bg-white border-slate-300"
                                 }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             >
-                                {item.title}
+                                {/* Unselected label (regular weight, dark) */}
+                                <span
+                                    className={`absolute inset-0 flex items-center justify-center font-helvetica text-footer-bg transition-opacity duration-300 ${
+                                        index === selectedIndex ? "opacity-0" : "opacity-100"
+                                    }`}
+                                >
+                                    {item.title}
+                                </span>
+
+                                {/* Selected label (neue-roman, white) */}
+                                <span
+                                    className={`absolute inset-0 flex items-center justify-center font-helvetica-neue-roman text-white transition-opacity duration-300 ${
+                                        index === selectedIndex ? "opacity-100" : "opacity-0"
+                                    }`}
+                                >
+                                    {item.title}
+                                </span>
+
+                                {/* Spacer to preserve button's natural sizing since children are absolute */}
+                                <span className="invisible font-helvetica">{item.title}</span>
                             </button>
-                            // <button
-                            //     key={`dot-${index}`}
-                            //     onClick={() => scrollTo(index)}
-                            //     className={`pointer-events-auto transition-all duration-300 leading-0 h-8.5 ${
-                            //         index === selectedIndex
-                            //             ? "bg-white text-footer-bg font-helvetica-neue-roman w-full px-3.5 border border-slate-200 shadow"
-                            //             : "bg-slate-100 text-footer-bg font-helvetica w-full px-3.5 hover:bg-slate-400"
-                            //     }`}
-                            //     aria-label={`Go to slide ${index + 1}`}
-                            // >
-                            //     {item.title}
-                            // </button>
                         ))}
                     </div>
                 </div>

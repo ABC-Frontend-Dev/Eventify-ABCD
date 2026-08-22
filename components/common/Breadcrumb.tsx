@@ -11,8 +11,13 @@ export default function Breadcrumb({ props }: { props?: any }) {
     // Matches any route under /blogs/*
     const isBlogPage = pathSegments[0] === "blogs" && pathSegments.length > 1;
 
-    const textColor = isBlogPage ? "text-footer-bg" : "text-white";
-    const separatorColor = isBlogPage ? "text-footer-bg" : "text-white";
+    // Matches any route under /services/*
+    const isServicePage = pathSegments[0] === "services" && pathSegments.length > 1;
+
+    const isDarkTextPage = isBlogPage || isServicePage;
+
+    const textColor = isDarkTextPage ? "text-footer-bg" : "text-white";
+    const separatorColor = isDarkTextPage ? "text-footer-bg" : "text-white";
 
     return (
         <ul className={`flex items-center flex-nowrap overflow-hidden w-full max-w-full gap-2 font-helvetica font-semibold tracking-wide ${props?.className || ""}`}>
