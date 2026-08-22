@@ -40,7 +40,7 @@ export default function NewsLetter() {
     };
 
     return (
-        <div className="w-full h-10 md:h-12.5 max-w-md">
+        <div className="w-full h-10 md:h-12.5 max-w-full md:max-w-full xl:max-w-md">
             {/* Success state */}
             {status === "success" ? (
                 <div className="flex flex-row items-center md:justify-end gap-1.5 md:gap-3">

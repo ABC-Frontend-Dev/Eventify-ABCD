@@ -41,9 +41,9 @@ function BlogCard({ blog }: { blog: Blog }) {
     return (
         <Link href={`/blogs/${blog.slug}`} className="group block h-full">
             {/* Category badge */}
-            <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
+            {/* <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
                 {blog.category?.name ?? "Blog"}
-            </div>
+            </div> */}
 
             {/* Thumbnail */}
             <figure className="h-60 sm:h-65 md:h-70 lg:h-80 w-full overflow-hidden">

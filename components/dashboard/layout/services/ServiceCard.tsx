@@ -16,7 +16,7 @@ interface ServiceCardProps {
 
 export function ServiceCard({ id, title, url, description, image, onDelete }: ServiceCardProps) {
     return (
-        <div className="group relative overflow-hidden rounded-lg border bg-card p-4 transition-all hover:shadow-lg">
+        <div className="group relative overflow-hidden rounded-lg border border-slate-200 bg-card p-4 transition-all hover:shadow-lg">
             <div className="absolute top-2 right-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -46,7 +46,7 @@ export function ServiceCard({ id, title, url, description, image, onDelete }: Se
             </div>
 
             <div className="flex flex-col items-center space-y-3">
-                <div className="h-32 w-full overflow-hidden border rounded-lg">
+                <div className="h-64 w-full overflow-hidden border border-slate-200 rounded-lg">
                     <img src={image} alt={title} className="h-full w-full object-cover" />
                 </div>
                 <div className="text-center space-y-1 w-full">

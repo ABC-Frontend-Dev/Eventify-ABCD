@@ -244,7 +244,7 @@ export function EmblaCarousel() {
                             onMouseLeave={() => handleCardLeave(index)}
                             className="flex-[0_0_100%] px-1.25 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
-                            <Link href="#">
+                            <Link href={`services/${item.url}`}>
                                 <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
                                     <div className="w-full h-full">
                                         <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />

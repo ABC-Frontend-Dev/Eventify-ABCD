@@ -23,32 +23,19 @@ export function TabsList({
             className={cn(
                 // ── Layout ───────────────────────────────────────────────────
                 "relative z-0",
-
-                // Single row on ALL screen sizes — no wrapping ever
                 "flex flex-nowrap",
-
-                // Scroll on ALL screen sizes when tabs overflow
                 "overflow-x-auto",
-
-                // Hide scrollbar visually on all browsers — still scrollable
                 "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-
                 // ── Sizing & spacing ──────────────────────────────────────────
-                // w-full would fight with overflow-x-auto on desktop
-                // use min-w-full so it expands but never shrinks below container
                 "min-w-0 w-max max-w-full",
                 "items-center justify-start",
                 "py-8 px-[11.1px]",
-
                 // ── Appearance ────────────────────────────────────────────────
                 "bg-black/10 backdrop-blur-sm opacity-100",
-
                 // ── Vertical orientation ──────────────────────────────────────
                 "data-[orientation=vertical]:flex-col",
-
                 // ── Variant overrides ─────────────────────────────────────────
                 variant === "underline" ? "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-8 data-[orientation=horizontal]:opacity-100" : "",
-
                 className,
             )}
             data-slot="tabs-list"
@@ -57,10 +44,15 @@ export function TabsList({
             {children}
             <TabsPrimitive.Indicator
                 className={cn(
-                    "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
+                    "absolute bottom-0 left-0 pointer-events-none",
+                    "h-(--active-tab-height) w-(--active-tab-width)",
+                    "translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom)",
+                    // Smooth slide + resize between tabs
+                    "transition-[width,height,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                    "will-change-[width,height,transform]",
                     variant === "underline"
-                        ? "z-10 bg-transparent data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
-                        : "-z-1 bg-transparent dark:bg-input",
+                        ? "z-10 bg-current data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
+                        : "z-0 bg-primary",
                 )}
                 data-slot="tab-indicator"
             />
@@ -70,10 +62,13 @@ export function TabsList({
 
 export function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props): React.ReactElement {
     return (
-        // data-active:border-slate-200 data-active:shadow
         <TabsPrimitive.Tab
             className={cn(
-                "relative font-helvetica flex h-full shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-[calc(--spacing(2.5)-1px)] font-medium text-sm outline-none transition-[color,background-color,box-shadow] focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:font-helvetica-medium data-active:bg-slate-100 data-active:text-primary data-disabled:opacity-64 sm:h-8 sm:text-sm [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0",
+                // z-10 keeps text above the sliding pill indicator
+                "relative z-10 font-helvetica flex h-full shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap px-[calc(--spacing(2.5)-1px)] font-medium text-sm outline-none border border-slate-300 focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:font-helvetica-medium data-active:text-white data-disabled:opacity-64 sm:h-8 sm:text-sm [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0",
+                // Smooth text color change + subtle press feedback
+                "transition-[color,transform] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "active:scale-[0.97]",
                 className,
             )}
             data-slot="tabs-tab"
@@ -87,9 +82,10 @@ export function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props): R
         <TabsPrimitive.Panel
             className={cn(
                 "[&[hidden]]:!block [&[hidden]]:absolute [&[hidden]]:inset-x-0 [&[hidden]]:top-0",
-                "[&[hidden]]:opacity-0 [&[hidden]]:translate-y-3 [&[hidden]]:pointer-events-none",
+                "[&[hidden]]:opacity-0 [&[hidden]]:translate-y-2 [&[hidden]]:pointer-events-none",
                 "opacity-100 translate-y-0",
-                "transition-[opacity,transform] duration-350 ease-out",
+                "transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "will-change-[opacity,transform]",
                 "flex-1 outline-none relative",
                 className,
             )}

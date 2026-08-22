@@ -93,11 +93,11 @@ export default function AwardsYearTabContent({ categories }: AwardsYearTabConten
 
     return (
         <AwardsTabs defaultValue={defaultValue}>
-            <div className="absolute right-1.25 bottom-1.25 z-100">
+            <div className="absolute right-1.25 sm:right-14 bottom-1.25 sm:bottom-10 z-100">
                 <AwardsTabsList variant="underline">
                     {categories.map((category) => (
                         <TabsTrigger key={category.id} value={category.id.toString()}>
-                            <Image src={category.icon} alt={category.iconAlt} width={1000} height={1000} className="h-4 sm:h-5 lg:h-8 w-auto object-contain" />
+                            <Image src={category.icon} alt={category.iconAlt} width={1000} height={1000} className="h-4 sm:h-5 lg:h-6.5 w-auto object-contain" />
                         </TabsTrigger>
                     ))}
                 </AwardsTabsList>

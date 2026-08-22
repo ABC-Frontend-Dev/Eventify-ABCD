@@ -199,7 +199,7 @@ export default function Projects() {
                         <SubHeading sectionType="PROJECT" showDescription />
                     </div>
 
-                    <TabsList className="py-1.25 px-2 rounded-none bg-slate-100 gap-0">
+                    <TabsList className="py-0 px-0 rounded-none bg-white gap-1">
                         <TabsTab value="tab-all" className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75">
                             All Projects
                         </TabsTab>
@@ -291,7 +291,7 @@ export default function Projects() {
                                 </div>
 
                                 {selectedProject.hasTabs && selectedProject.tabs.length > 0 && (
-                                    <TabsList className="max-w-min w-fit mt-0 p-1.25 rounded-none bg-slate-100 gap-1 justify-start">
+                                    <TabsList className="max-w-min w-fit mt-0 p-0 rounded-none bg-white gap-1 justify-start">
                                         {selectedProject.tabs.map((tab) => (
                                             <TabsTab key={tab.id} value={`inner-tab-${tab.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-6.75">
                                                 {tab.name}

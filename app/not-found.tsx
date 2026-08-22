@@ -31,19 +31,19 @@ export default function NotFoundWithLayout() {
                                 <Link href="/">← Back to Home</Link>
                             </Button>
                             <Button asChild variant="outline" size="lg">
-                                <Link href="/services">Browse Services</Link>
+                                <Link href="/#our-services">Browse Services</Link>
                             </Button>
                         </div>
 
                         {/* Quick Links */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12 border-t border-slate-200">
-                            <Link href="/blogs" className="p-4 rounded-lg hover:bg-slate-50 transition-colors">
+                            <Link href="/#blogs" className="p-4 rounded-lg hover:bg-slate-50 transition-colors">
                                 <h3 className="font-semibold text-slate-900 mb-2">Blog</h3>
                                 <p className="text-sm text-slate-600">Read our latest articles and insights</p>
                             </Link>
-                            <Link href="/services" className="p-4 rounded-lg hover:bg-slate-50 transition-colors">
-                                <h3 className="font-semibold text-slate-900 mb-2">Services</h3>
-                                <p className="text-sm text-slate-600">Explore what we offer</p>
+                            <Link href="/#projects" className="p-4 rounded-lg hover:bg-slate-50 transition-colors">
+                                <h3 className="font-semibold text-slate-900 mb-2">Projects</h3>
+                                <p className="text-sm text-slate-600">Explore our projects</p>
                             </Link>
                             <Link href="/contact" className="p-4 rounded-lg hover:bg-slate-50 transition-colors">
                                 <h3 className="font-semibold text-slate-900 mb-2">Contact</h3>

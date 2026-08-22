@@ -44,23 +44,25 @@ export default function Footer() {
                     <p className="text-xl lg:text-2xl xl:text-3xl font-abc-laica-a-italic-variable-trial leading-6 lg:leading-7.5 xl:leading-8.5 capitalize">Our Offices</p>
 
                     <div className="mt-5 lg:mt-11 flex items-start flex-col sm:flex-row justify-between w-full">
-                        <div className="flex items-start flex-col sm:flex-row gap-5.25 w-full shrink-0">
-                            <div className="w-full sm:w-1/4 shrink-0">
-                                <p className="text-lg lg:text-2xl font-abc-laica-a-italic-variable-trial font-medium leading-6 lg:leading-7.5 uppercase mb-1 lg:mb-1">uae</p>
-                                {/* <p className="text-sm lg:text-xl leading-4.5 font-helvetica-neue-roman lg:font-helvetica-medium tracking-[1px] font-bold lg:leading-6 mb-1.5 lg:mb-2.25">Address:</p> */}
-                                <p className="text-xs lg:text-xl font-helvetica-thin font-light leading-4 lg:leading-6 tracking-wider lg:tracking-wide mb-2.25">
-                                    508, API Business Suite, Al Barsha 1, PO Box 449832, Dubai, UAE
-                                </p>
+                        <div className="flex items-start flex-col sm:flex-row gap-5.25 w-full shrink xl:shrink-0">
+                            <div className="flex flex-col sm:flex-row w-1/2 gap-5.25 shrink-0">
+                                <div className="w-full sm:w-1/4 md:w-1/2 shrink-0">
+                                    <p className="text-lg lg:text-2xl font-abc-laica-a-italic-variable-trial font-medium leading-6 lg:leading-7.5 uppercase mb-1 lg:mb-1">uae</p>
+                                    {/* <p className="text-sm lg:text-xl leading-4.5 font-helvetica-neue-roman lg:font-helvetica-medium tracking-[1px] font-bold lg:leading-6 mb-1.5 lg:mb-2.25">Address:</p> */}
+                                    <p className="text-xs lg:text-xl font-helvetica-thin font-light leading-4 lg:leading-6 tracking-wider lg:tracking-wide mb-2.25">
+                                        508, API Business Suite, Al Barsha 1, PO Box 449832, Dubai, UAE
+                                    </p>
+                                </div>
+                                <div className="w-full sm:w-1/4 md:w-1/2 shrink-0">
+                                    <p className="text-lg lg:text-2xl font-abc-laica-a-italic-variable-trial font-medium leading-6 lg:leading-7.5 uppercase mb-1 lg:mb-1">ksa</p>
+                                    {/* <p className="text-sm lg:text-xl font-helvetica-neue-roman lg:font-helvetica-medium tracking-[1px] font-bold leading-4.5 lg:leading-6  mb-1.5 lg:mb-2.25">Address:</p> */}
+                                    <p className="text-xs lg:text-xl font-helvetica-thin font-light leading-4 lg:leading-6 tracking-wider lg:tracking-wide mb-2.25">
+                                        508, Al Noor Business Center, King Fahd Road, Al Olaya District, PO Box 245671, Riyadh, Saudi Arabia
+                                    </p>
+                                </div>
                             </div>
-                            <div className="w-full sm:w-1/4 shrink-0">
-                                <p className="text-lg lg:text-2xl font-abc-laica-a-italic-variable-trial font-medium leading-6 lg:leading-7.5 uppercase mb-1 lg:mb-1">ksa</p>
-                                {/* <p className="text-sm lg:text-xl font-helvetica-neue-roman lg:font-helvetica-medium tracking-[1px] font-bold leading-4.5 lg:leading-6  mb-1.5 lg:mb-2.25">Address:</p> */}
-                                <p className="text-xs lg:text-xl font-helvetica-thin font-light leading-4 lg:leading-6 tracking-wider lg:tracking-wide mb-2.25">
-                                    508, Al Noor Business Center, King Fahd Road, Al Olaya District, PO Box 245671, Riyadh, Saudi Arabia
-                                </p>
-                            </div>
-                            <div className="w-full flex justify-end">
-                                <div className="w-[450px]">
+                            <div className="w-1/2 flex justify-end">
+                                <div className="w-full xl:w-[450px]">
                                     <p className="text-[35px] font-abc-laica-a-italic-variable-trial leading-10 mb-7">Join our Newsletter</p>
 
                                     <NewsLetter />
@@ -97,7 +99,7 @@ export default function Footer() {
 
 function FacebookIcon() {
     return (
-        <svg viewBox="0 0 24 24" className="w-3 md:w-13 h-3 md:h-13 fill-white">
+        <svg viewBox="0 0 24 24" className="w-3 md:w-13 h-3 md:h-13 fill-white -translate-y-1">
             <path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z" />
         </svg>
     );

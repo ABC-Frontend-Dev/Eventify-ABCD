@@ -48,7 +48,7 @@ function BlogRow({ blog }: { blog: Blog }) {
                     <div className="relative flex h-full w-full flex-col items-center justify-center bg-black/60 px-4 py-4 lg:px-12.75 lg:py-7.5">
                         <p className="text-center text-sm lg:text-xl leading-4.5 lg:leading-6 font-abc-laica-a-italic-variable-trial text-white">{blog.title}</p>
                         {/* <p className="mt-3 text-center text-xs lg:text-sm leading-4 lg:leading-4.5 tracking-wider font-helvetica text-white">{truncatedDescription}</p> */}
-                        <span className="text-white text-sm border-b border-white/60 hover:border-white">Read More</span>
+                        <span className="text-white text-sm border-b border-white/60 hover:border-white mt-1">Read More</span>
                     </div>
                 </div>
             </Link>

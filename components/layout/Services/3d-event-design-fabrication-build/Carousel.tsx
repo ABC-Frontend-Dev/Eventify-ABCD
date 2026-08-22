@@ -11,6 +11,13 @@ if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
 }
 
+// ─── Static data — edit this object to add/remove comparisons ─────────────────
+// Add as many items as you need. Fields:
+//   id          : unique number
+//   title       : label shown in the tab buttons below the carousel
+//   beforeImage : path or URL to the "before" image
+//   afterImage  : path or URL to the "after" image
+
 interface ComparisonItem {
     id: number;
     title: string;
@@ -18,11 +25,36 @@ interface ComparisonItem {
     afterImage: string;
 }
 
-/**
- * Custom handle that runs the GSAP "drag me" nudge animation.
- * It must be a child of `<ReactCompareSlider>` so it can read the slider's context —
- * passing it via the `handle` prop is the supported way to do that.
- */
+const COMPARISON_ITEMS: ComparisonItem[] = [
+    {
+        id: 1,
+        title: "Event Setup",
+        beforeImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1784282917/eventify/images/ggb9nwql1hqph2mhaomw.webp",
+        afterImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1784282933/eventify/images/dyptyr1det7dl61njtba.webp",
+    },
+    {
+        id: 2,
+        title: "Stage Design",
+        beforeImage: "/images/comparisons/stage-design-before.jpg",
+        afterImage: "/images/comparisons/stage-design-after.jpg",
+    },
+    {
+        id: 3,
+        title: "Venue Decor",
+        beforeImage: "/images/comparisons/venue-decor-before.jpg",
+        afterImage: "/images/comparisons/venue-decor-after.jpg",
+    },
+    // ── Add more items here ──────────────────────────────────────────────────
+    // {
+    //     id: 4,
+    //     title: "Lighting Rig",
+    //     beforeImage: "/images/comparisons/lighting-before.jpg",
+    //     afterImage:  "/images/comparisons/lighting-after.jpg",
+    // },
+];
+
+// ─── Nudge handle ─────────────────────────────────────────────────────────────
+
 function ComparisonNudgeHandle({ nudgeKey }: { nudgeKey: number }) {
     const { setPosition, isDragging, position } = useReactCompareSliderContext();
 
@@ -32,7 +64,6 @@ function ComparisonNudgeHandle({ nudgeKey }: { nudgeKey: number }) {
 
     // (Re-)create the nudge timeline whenever the parent bumps `nudgeKey`
     useEffect(() => {
-        // Begin from wherever the slider was left — feels less jarring than always snapping to 50
         proxyRef.current.value = position.current ?? 50;
         userTookOverRef.current = false;
 
@@ -43,13 +74,21 @@ function ComparisonNudgeHandle({ nudgeKey }: { nudgeKey: number }) {
                     setPosition(proxyRef.current.value);
                 },
             })
-            // Two full left→right cycles from center, 25% amplitude (within 20–30% spec)
-            .to(proxyRef.current, { value: 45, duration: 0.45, ease: "sine.inOut" })
-            .to(proxyRef.current, { value: 55, duration: 0.45, ease: "sine.inOut" })
-            .to(proxyRef.current, { value: 50, duration: 0.4, ease: "sine.out" });
-        // .to(proxyRef.current, { value: 25, duration: 0.45, ease: "sine.inOut" })
-        // .to(proxyRef.current, { value: 75, duration: 0.45, ease: "sine.inOut" })
-        // .to(proxyRef.current, { value: 50, duration: 0.4, ease: "sine.out" });
+            .to(proxyRef.current, {
+                value: 45,
+                duration: 0.45,
+                ease: "sine.inOut",
+            })
+            .to(proxyRef.current, {
+                value: 55,
+                duration: 0.45,
+                ease: "sine.inOut",
+            })
+            .to(proxyRef.current, {
+                value: 50,
+                duration: 0.4,
+                ease: "sine.out",
+            });
 
         tlRef.current = tl;
 
@@ -59,7 +98,7 @@ function ComparisonNudgeHandle({ nudgeKey }: { nudgeKey: number }) {
         };
     }, [nudgeKey, setPosition, position]);
 
-    // If the user grabs the handle mid-tween, kill the animation so they drive cleanly
+    // If user grabs mid-tween, kill the animation
     useEffect(() => {
         if (isDragging && tlRef.current) {
             userTookOverRef.current = true;
@@ -71,28 +110,29 @@ function ComparisonNudgeHandle({ nudgeKey }: { nudgeKey: number }) {
     return <ReactCompareSliderHandle />;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const isMobileOrTabletViewport = () => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 1023.98px)").matches;
+};
+
+const isCompareSliderTarget = (target: EventTarget | null) => {
+    return target instanceof HTMLElement && !!target.closest("[data-compare-slider]");
+};
+
+// ─── Carousel ─────────────────────────────────────────────────────────────────
+
 export function ComparisonCarousel() {
-    const isMobileOrTabletViewport = () => {
-        if (typeof window === "undefined") return false;
-        return window.matchMedia("(max-width: 1023.98px)").matches;
-    };
-
-    const isCompareSliderTarget = (target: EventTarget | null) => {
-        return target instanceof HTMLElement && !!target.closest("[data-compare-slider]");
-    };
-
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: false,
         align: "start",
         containScroll: "trimSnaps",
         dragFree: false,
         watchDrag: (_, evt) => {
-            // On mobile/tablet, if the drag starts inside the compare slider,
-            // don't let Embla treat it as a carousel swipe.
             if (isMobileOrTabletViewport() && isCompareSliderTarget(evt.target)) {
                 return false;
             }
-
             return true;
         },
     });
@@ -100,35 +140,16 @@ export function ComparisonCarousel() {
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
     const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [items, setItems] = useState<ComparisonItem[]>([]);
-    const [loading, setLoading] = useState(true);
     const [nudgeKeys, setNudgeKeys] = useState<Record<number, number>>({});
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
-    // Tracks whether the section is currently considered "entered" for nudge purposes.
-    // Paired with the hysteresis gap in the ScrollTrigger below so a few px of scroll
-    // jitter right at the boundary can't flip this back and forth.
     const hasEnteredRef = useRef(false);
 
-    // Fetch comparisons from API
-    useEffect(() => {
-        const fetchComparisons = async () => {
-            try {
-                const response = await fetch("/api/comparisons");
-                const data = await response.json();
-                if (data.success) {
-                    setItems(data.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch comparisons:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // Use the static data directly — no fetch, no loading state
+    const items = COMPARISON_ITEMS;
 
-        fetchComparisons();
-    }, []);
+    // ── Embla callbacks ───────────────────────────────────────────────────────
 
     const scrollPrev = useCallback(() => {
         if (emblaApi) emblaApi.scrollPrev();
@@ -163,7 +184,8 @@ export function ComparisonCarousel() {
         };
     }, [emblaApi, onSelect]);
 
-    // Scroll-in reveal + nudge replay on re-entry
+    // ── GSAP reveal + nudge on scroll ─────────────────────────────────────────
+
     useEffect(() => {
         if (!containerRef.current || items.length === 0) return;
 
@@ -204,22 +226,15 @@ export function ComparisonCarousel() {
                 });
             };
 
-            // Progress-based trigger with hysteresis: the "enter" zone (0.15–0.85)
-            // and the "reset" zone (<0.05 or >0.95) are kept well apart so a small
-            // 10–20px wheel jitter near one boundary can never also cross the other.
-            // Without this gap, onEnter/onLeaveBack would ping-pong on tiny scrolls
-            // and replay the nudge every time the user nudged the wheel at all —
-            // now it only fires once when genuinely entering from top or bottom,
-            // and re-arms only once the section has scrolled well clear of the viewport.
             ScrollTrigger.create({
                 trigger: containerRef.current,
-                start: "top bottom", // progress 0 → container top hits viewport bottom
-                end: "bottom top", // progress 1 → container bottom hits viewport top
+                start: "top bottom",
+                end: "bottom top",
                 onUpdate: (self) => {
                     const progress = self.progress;
-                    const ENTER_LOW = 0.15; // roughly matches old "top 85%"
-                    const ENTER_HIGH = 0.85; // roughly matches old "bottom 15%"
-                    const RESET_LOW = 0.05; // must scroll well clear before re-arming
+                    const ENTER_LOW = 0.15;
+                    const ENTER_HIGH = 0.85;
+                    const RESET_LOW = 0.05;
                     const RESET_HIGH = 0.95;
 
                     const inEnterZone = progress >= ENTER_LOW && progress <= ENTER_HIGH;
@@ -238,9 +253,7 @@ export function ComparisonCarousel() {
         return () => ctx.revert();
     }, [items]);
 
-    if (loading) {
-        return <div className="h-96 sm:h-[500px] lg:h-[600px] bg-slate-200 rounded-xl animate-pulse" />;
-    }
+    // ── Empty state ───────────────────────────────────────────────────────────
 
     if (items.length === 0) {
         return (
@@ -249,6 +262,8 @@ export function ComparisonCarousel() {
             </div>
         );
     }
+
+    // ── Render ────────────────────────────────────────────────────────────────
 
     return (
         <div className="relative w-full" ref={containerRef}>
@@ -263,37 +278,40 @@ export function ComparisonCarousel() {
                             className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 group lg:flex-[0_0_100%]"
                         >
                             <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
-                                <div className="h-full sm:h-[500px] lg:h-[600px] relative">
+                                <div className="h-full sm:h-[500px] lg:h-[563.83px] relative">
+                                    {/* Before label */}
                                     <span
                                         className="
-                        absolute top-2 sm:top-4 left-2 sm:left-4 z-20
-                        px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
-                        bg-black/60 backdrop-blur-sm
-                        text-white
-                        text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
-                        tracking-[1.5px] uppercase
-                        rounded-full
-                        pointer-events-none select-none
-                    "
+                                            absolute top-2 sm:top-4 left-2 sm:left-4 z-20
+                                            px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
+                                            bg-black/60 backdrop-blur-sm
+                                            text-white
+                                            text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
+                                            tracking-[1.5px] uppercase
+                                            rounded-full
+                                            pointer-events-none select-none
+                                        "
                                     >
                                         Before
                                     </span>
 
+                                    {/* After label */}
                                     <span
                                         className="
-                        absolute top-2 sm:top-4 right-2 sm:right-4 z-20
-                        px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
-                        bg-black/60 backdrop-blur-sm
-                        text-white
-                        text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
-                        tracking-[1.5px] uppercase
-                        rounded-full
-                        pointer-events-none select-none
-                    "
+                                            absolute top-2 sm:top-4 right-2 sm:right-4 z-20
+                                            px-1.25 sm:px-3.5 py-0.75 sm:py-1.5
+                                            bg-black/60 backdrop-blur-sm
+                                            text-white
+                                            text-[8px] sm:text-xs font-helvetica sm:font-helvetica-medium
+                                            tracking-[1.5px] uppercase
+                                            rounded-full
+                                            pointer-events-none select-none
+                                        "
                                     >
                                         After
                                     </span>
 
+                                    {/* Compare slider */}
                                     <div
                                         data-compare-slider
                                         className="h-full"
@@ -308,26 +326,11 @@ export function ComparisonCarousel() {
                                             if (isMobileOrTabletViewport()) e.stopPropagation();
                                         }}
                                     >
-                                        <div
-                                            data-compare-slider
-                                            className="h-full"
-                                            style={{ touchAction: "pan-y" }}
-                                            onPointerDownCapture={(e) => {
-                                                if (isMobileOrTabletViewport()) e.stopPropagation();
-                                            }}
-                                            onTouchStartCapture={(e) => {
-                                                if (isMobileOrTabletViewport()) e.stopPropagation();
-                                            }}
-                                            onMouseDownCapture={(e) => {
-                                                if (isMobileOrTabletViewport()) e.stopPropagation();
-                                            }}
-                                        >
-                                            <ReactCompareSlider
-                                                itemOne={<ReactCompareSliderImage src={item.beforeImage} alt={`${item.title} - Before`} />}
-                                                itemTwo={<ReactCompareSliderImage src={item.afterImage} alt={`${item.title} - After`} />}
-                                                handle={<ComparisonNudgeHandle nudgeKey={nudgeKeys[index] ?? 0} />}
-                                            />
-                                        </div>
+                                        <ReactCompareSlider
+                                            itemOne={<ReactCompareSliderImage src={item.beforeImage} alt={`${item.title} — Before`} />}
+                                            itemTwo={<ReactCompareSliderImage src={item.afterImage} alt={`${item.title} — After`} />}
+                                            handle={<ComparisonNudgeHandle nudgeKey={nudgeKeys[index] ?? 0} />}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -336,22 +339,34 @@ export function ComparisonCarousel() {
                 </div>
             </div>
 
+            {/* Tab buttons */}
             {items.length > 1 && (
-                <div className="mt-3  relative z-0 flex  lg:justify-end backdrop-blur-sm">
-                    <div className="flex justify-center gap-2 p-1.25 rounded-none bg-slate-100 w-full lg:w-1/3">
+                <div className="mt-3 relative z-0 flex lg:justify-start backdrop-blur-sm">
+                    {/* p-1.25 rounded-none bg-slate-100 */}
+                    <div className="flex justify-center w-full gap-1 lg:w-1/2">
                         {items.map((item, index) => (
                             <button
                                 key={`dot-${index}`}
                                 onClick={() => scrollTo(index)}
-                                className={`pointer-events-auto transition-all duration-300 leading-0 h-8.5 ${
-                                    index === selectedIndex
-                                        ? "bg-white text-footer-bg font-helvetica-neue-roman w-full px-3.5 border border-slate-200 shadow"
-                                        : "bg-slate-100 text-footer-bg font-helvetica w-full px-3.5 hover:bg-slate-400"
+                                className={`bg-white pointer-events-auto transition-all duration-300 leading-0 h-8.5  border ${
+                                    index === selectedIndex ? "text-primary border-primary font-helvetica-neue-roman w-full" : "text-footer-bg font-helvetica w-full border-slate-300"
                                 }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             >
                                 {item.title}
                             </button>
+                            // <button
+                            //     key={`dot-${index}`}
+                            //     onClick={() => scrollTo(index)}
+                            //     className={`pointer-events-auto transition-all duration-300 leading-0 h-8.5 ${
+                            //         index === selectedIndex
+                            //             ? "bg-white text-footer-bg font-helvetica-neue-roman w-full px-3.5 border border-slate-200 shadow"
+                            //             : "bg-slate-100 text-footer-bg font-helvetica w-full px-3.5 hover:bg-slate-400"
+                            //     }`}
+                            //     aria-label={`Go to slide ${index + 1}`}
+                            // >
+                            //     {item.title}
+                            // </button>
                         ))}
                     </div>
                 </div>

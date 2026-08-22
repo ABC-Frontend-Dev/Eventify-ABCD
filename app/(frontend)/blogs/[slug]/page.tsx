@@ -237,7 +237,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                     </h1>
 
                     {/* Author + Share row */}
-                    <div className="mt-3 md:mt-4 flex items-center justify-between gap-4">
+                    <div className="mt-3 md:mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         {/* Author info */}
                         <div className="flex items-center gap-2.5">
                             {/* {blog.author.avatar && (
