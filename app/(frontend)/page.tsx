@@ -15,9 +15,8 @@ import OurTeam from "@/components/layout/OurTeam/OurTeam";
 import Projects from "@/components/layout/Projects/Projects";
 
 export const metadata: Metadata = {
-    title: "Event Management Company in Dubai & Riyadh | Eventify Entertainment",
-    description:
-        "Eventify Entertainment is a leading event management and production company in Dubai and Riyadh, specializing in corporate event management, experiential marketing, brand activation, conference management, and exhibition management across the UAE.",
+    title: "Event Management Company in Dubai | Eventify UAE & KSA",
+    description: "Eventify is a Dubai-based event management company delivering corporate events, festivals, activations and experiences across the UAE and Saudi Arabia.",
     keywords: [
         "event management company Dubai",
         "event production company Dubai",
@@ -34,8 +33,8 @@ export const metadata: Metadata = {
         "event agency Riyadh",
     ],
     openGraph: {
-        title: "Event Management Company in Dubai & Riyadh | Eventify Entertainment",
-        description: "Leading event management and production company in Dubai and Riyadh — corporate events, experiential marketing, brand activation, conferences, and exhibitions across the UAE.",
+        title: "Event Management Company in Dubai | Eventify UAE & KSA",
+        description: "Eventify is a Dubai-based event management company delivering corporate events, festivals, activations and experiences across the UAE and Saudi Arabia.",
         url: "/",
         siteName: "Eventify Entertainment",
         images: [
@@ -51,8 +50,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Event Management Company in Dubai & Riyadh | Eventify Entertainment",
-        description: "Leading event management and production company in Dubai and Riyadh — corporate events, experiential marketing, brand activation, conferences, and exhibitions across the UAE.",
+        title: "Event Management Company in Dubai | Eventify UAE & KSA",
+        description: "Eventify is a Dubai-based event management company delivering corporate events, festivals, activations and experiences across the UAE and Saudi Arabia.",
         images: ["https://res.cloudinary.com/afdhm38k/image/upload/v1787306416/Evevntify_OG_Image_tvlxn2.png"],
     },
 };

@@ -1,3 +1,4 @@
+// components/dashboard/layout/hero-section/HeroImageUpload.tsx
 "use client";
 
 import { useState } from "react";

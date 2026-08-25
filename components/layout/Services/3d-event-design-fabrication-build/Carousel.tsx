@@ -28,13 +28,13 @@ interface ComparisonItem {
 const COMPARISON_ITEMS: ComparisonItem[] = [
     {
         id: 1,
-        title: "Event Setup",
+        title: "1",
         beforeImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1784282917/eventify/images/ggb9nwql1hqph2mhaomw.webp",
         afterImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1784282933/eventify/images/dyptyr1det7dl61njtba.webp",
     },
     {
         id: 2,
-        title: "Stage Design",
+        title: "2",
         beforeImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1785231894/eventify/images/usqme81byoqunjaagmjr.webp",
         afterImage: "https://res.cloudinary.com/afdhm38k/image/upload/v1785231859/eventify/images/zpre1illignqcswkultv.webp",
     },
@@ -343,12 +343,12 @@ export function ComparisonCarousel() {
             {items.length > 1 && (
                 <div className="mt-3 relative z-0 flex lg:justify-start backdrop-blur-sm">
                     {/* p-1.25 rounded-none bg-slate-100 */}
-                    <div className="flex justify-center w-full gap-1 lg:w-1/2">
+                    <div className="flex justify-center w-full gap-1 lg:w-full">
                         {items.map((item, index) => (
                             <button
                                 key={`dot-${index}`}
                                 onClick={() => scrollTo(index)}
-                                className={`relative pointer-events-auto transition-colors duration-300 leading-0 h-8.5 border w-full overflow-hidden ${
+                                className={`relative pointer-events-auto transition-colors duration-300 leading-0 h-8.5 border w-8.5 overflow-hidden rounded-full ${
                                     index === selectedIndex ? "bg-primary border-primary" : "bg-white border-slate-300"
                                 }`}
                                 aria-label={`Go to slide ${index + 1}`}

@@ -16,99 +16,99 @@ model Model {
 }
 
 enum SectionType {
-CLIENT
-SERVICE
-TEAM
-PROJECT
-AWARD
-BLOG
-SYL //See You Later
+  CLIENT
+  SERVICE
+  TEAM
+  PROJECT
+  AWARD
+  BLOG
+  SYL //See You Later
 }
 
 model SectionTD {
-id Int @id @default(autoincrement())
-type SectionType @unique
-titlePartOne String
-titlePartTwo String?
-description String? @db.Text
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  id           Int         @id @default(autoincrement())
+  type         SectionType @unique
+  titlePartOne String
+  titlePartTwo String?
+  description  String?     @db.Text
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model HeroSection {
-  id           Int      @id @default(autoincrement())
-  mediaType    String   // "video" or "image"
+  id        Int    @id @default(autoincrement())
+  mediaType String // "video" or "image"
 
   // Video fields
-  videoUrl     String?
-  videoTitle   String?
-  videoDesc    String?
+  videoUrl   String?
+  videoTitle String?
+  videoDesc  String?
 
   // Image fields (multiple)
-  images       HeroImage[]
+  images HeroImage[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AboutUs {
-  id           Int           @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  titlePartOne String        @db.VarChar(50)
-  titlePartTwo String?       @db.VarChar(50)
+  titlePartOne String  @db.VarChar(50)
+  titlePartTwo String? @db.VarChar(50)
 
-  description  String        @db.Text
+  description String @db.Text
 
-  image         String       @db.Text
-  imageAlt      String?      @default("Eventify Banner Image")
+  image    String  @db.Text
+  imageAlt String? @default("Eventify Banner Image")
 
-  cards         AboutUsCard[]
+  cards AboutUsCard[]
 
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AboutUsCard {
-  id          Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  frontFace   String   @db.Text
-  backFace    String   @db.Text
-  sortOrder   Int
+  frontFace String @db.Text
+  backFace  String @db.Text
+  sortOrder Int
 
-  aboutUsId   Int
-  aboutUs     AboutUs  @relation(fields: [aboutUsId], references: [id], onDelete: Cascade)
+  aboutUsId Int
+  aboutUs   AboutUs @relation(fields: [aboutUsId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model HeroImage {
-  id           Int      @id @default(autoincrement())
-  heroId       Int
-  hero         HeroSection @relation(fields: [heroId], references: [id], onDelete: Cascade)
+  id     Int         @id @default(autoincrement())
+  heroId Int
+  hero   HeroSection @relation(fields: [heroId], references: [id], onDelete: Cascade)
 
-  imageUrl     String
-  altText      String?
-  title        String?
-  description  String?
-  isActive     Boolean  @default(false)
-  order        Int      @default(0)
+  imageUrl    String
+  altText     String?
+  title       String?
+  description String?
+  isActive    Boolean @default(false)
+  order       Int     @default(0)
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([heroId])
 }
 
 model Clients {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String?
   image       String
   order       Int       @default(0)
   projects    Project[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
 }
 
 model Project {
@@ -120,15 +120,15 @@ model Project {
   categoryId        Int
   order             Int             @default(0)
   hasTabs           Boolean         @default(false)
-  clientId          Int?            
-  projectClientLogo String?         
+  clientId          Int?
+  projectClientLogo String?
   category          ProjectCategory @relation(fields: [categoryId], references: [id])
   client            Clients?        @relation(fields: [clientId], references: [id])
   tabs              ProjectTab[]
   createdAt         DateTime        @default(now())
-  
+
   // FIX: Add @default(now()) so existing 23 rows get filled with the current time
-  updatedAt         DateTime        @default(now()) @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([categoryId])
   @@index([clientId])
@@ -156,7 +156,7 @@ model Author {
   id     Int     @id @default(autoincrement())
   name   String
   email  String  @unique
-  role String @default("Author")
+  role   String  @default("Author")
   bio    String?
   avatar String?
   blogs  Blog[]
@@ -285,14 +285,14 @@ model Award {
 }
 
 model AwardCategory {
-  id        Int          @id @default(autoincrement())
-  name      String
-  icon      String
-  iconAlt   String
-  order     Int          @default(0)
-  awardId   Int
-  award     Award        @relation(fields: [awardId], references: [id], onDelete: Cascade)
-  images    AwardImage[]
+  id      Int          @id @default(autoincrement())
+  name    String
+  icon    String
+  iconAlt String
+  order   Int          @default(0)
+  awardId Int
+  award   Award        @relation(fields: [awardId], references: [id], onDelete: Cascade)
+  images  AwardImage[]
 
   @@index([awardId])
 }
@@ -358,35 +358,35 @@ enum ContactSubmissionStatus {
 }
 
 model NewsletterSubscriber {
-  id              Int      @id @default(autoincrement())
-  email           String   @unique
-  subscribedAt    DateTime @default(now())
-  unsubscribeToken String  @unique @default(cuid())
-  unsubscribedAt  DateTime?
-  isActive        Boolean  @default(true)
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  subscribedAt     DateTime  @default(now())
+  unsubscribeToken String    @unique @default(cuid())
+  unsubscribedAt   DateTime?
+  isActive         Boolean   @default(true)
 
   @@index([email])
   @@index([isActive])
 }
 
 model NewsletterSend {
-  id           Int      @id @default(autoincrement())
-  subject      String
-  templateId   String
-  templateData Json
-  sentAt       DateTime @default(now())
-  recipientCount Int    @default(0)
+  id             Int      @id @default(autoincrement())
+  subject        String
+  templateId     String
+  templateData   Json
+  sentAt         DateTime @default(now())
+  recipientCount Int      @default(0)
 }
 
 model InstagramPost {
-  id        Int      @id @default(autoincrement())
-  url       String   @unique
+  id          Int      @id @default(autoincrement())
+  url         String   @unique
   imageWidth  Int?
   imageHeight Int?
-  image     String?
-  title     String?
-  isEnabled Boolean  @default(false)
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  image       String?
+  title       String?
+  isEnabled   Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

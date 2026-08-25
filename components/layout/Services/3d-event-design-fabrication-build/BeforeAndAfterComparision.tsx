@@ -18,7 +18,7 @@ export default function BeforeAndAfterComparision() {
     }, []);
 
     return (
-        <section id="our-services" className="max-w-360 w-full mx-auto mt-16 lg:mt-26 px-3.5 lg:px-20 pb-9 scroll-mt-1">
+        <section id="our-services" className="max-w-360 w-full mx-auto mt-16 lg:mt-26 px-3.5 lg:px-20 pb-13  scroll-mt-6 md:scroll-mt-1">
             {/* <header>
                 <HeadingWithoutLogo title="Transformation" />
                 <SubHeading title="From Render to Reality" />

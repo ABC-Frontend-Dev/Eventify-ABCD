@@ -75,7 +75,7 @@ function SubHeading({ part1, part2 }: SubHeadingProps) {
         // {/* <br /> */}
         <h3
             ref={textRef}
-            className="text-2xl lg:text-5xl xl:text-[56.5px] leading-7 lg:leading-10 xl:leading-11.25 font-helvetica-neue-roman font-normal normal-case text-center text-footer-bg wrap-break-word"
+            className="text-2xl lg:text-5xl xl:text-[42px] leading-7 lg:leading-10 xl:leading-11.25 font-helvetica-neue-roman font-normal normal-case text-left text-footer-bg wrap-break-word"
             style={{ willChange: "filter" }}
         >
             {part1}{" "}
@@ -190,7 +190,7 @@ export default function AboutUs() {
 
     if (loading) {
         return (
-            <section id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-1 flex items-center justify-center py-20">
+            <section id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9  scroll-mt-6 md:scroll-mt-1 flex items-center justify-center py-20">
                 <Loader2 className="h-8 w-8 animate-spin text-slate-300" />
             </section>
         );
@@ -201,9 +201,38 @@ export default function AboutUs() {
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-1">
+        <section ref={sectionRef} id="about-us" className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9  scroll-mt-6 md:scroll-mt-1">
             {/* grid lg:grid-cols-[380px_1fr] gap-y-1 gap-x-10 items-start */}
             <header className="flex items-start gap-16">
+                {/* <div className="max-w-36">
+                    <Image
+                        src={"https://res.cloudinary.com/afdhm38k/image/upload/v1787231866/spotlight_website_left-side_rau405.png"}
+                        width={1000}
+                        height={1000}
+                        className="w-full h-full"
+                        alt={"spotlight_website_left-side"}
+                    />
+                </div> */}
+                <div className="">
+                    <h1 className="hidden">Eventify Entertainment</h1>
+                    <SubHeading part1={data.titlePartOne} part2={data.titlePartTwo} />
+                    <p className="mt-2 sm:mt-2.5 md:mt-3 lg:mt-4 text-sm lg:text-base font-helvetica-neue-roman leading-5 tracking-wider text-left text-slate-800 w-full">
+                        <ScrollReveal scrollContainerRef={undefined} baseOpacity={0.1} enableBlur baseRotation={3} blurStrength={4}>
+                            {data.description}
+                        </ScrollReveal>
+                    </p>
+                </div>
+                {/* <div className="max-w-36">
+                    <Image
+                        src={"https://res.cloudinary.com/afdhm38k/image/upload/v1787231866/spotlight_website_right-side_qqcqsq.png"}
+                        width={1000}
+                        height={1000}
+                        className="w-full h-full"
+                        alt={"spotlight_website_left-side"}
+                    />
+                </div> */}
+            </header>
+            {/* <header className="flex items-start gap-16">
                 <div className="max-w-36">
                     <Image
                         src={"https://res.cloudinary.com/afdhm38k/image/upload/v1787231866/spotlight_website_left-side_rau405.png"}
@@ -231,7 +260,7 @@ export default function AboutUs() {
                         alt={"spotlight_website_left-side"}
                     />
                 </div>
-            </header>
+            </header> */}
 
             {/* ── Content grid ─────────────────────────────────────────────── */}
             <div className="flex items-center justify-center flex-col-reverse lg:flex-row w-full mt-5 lg:mt-5 gap-2.5">

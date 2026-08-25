@@ -1,3 +1,5 @@
+// components/dashboard/layout/hero-section/HeroImageCard.tsx
+
 "use client";
 
 import { CheckCircle2, Edit, Trash2 } from "lucide-react";

@@ -207,7 +207,7 @@ export default function TopReads() {
         <div className="max-w-full md:max-w-75 lg:max-w-122.5 w-full relative">
             {/* ── Top bar ── */}
             <div className="flex items-center justify-between">
-                <div className="absolute md:-top-9 lg:-top-12 w-full flex items-end justify-between">
+                <div className="absolute -top-9.5 md:-top-9 lg:-top-12 w-full flex items-end justify-between">
                     <h2 className="shrink-0 text-xl lg:text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg">Top reads</h2>
                     <div className="flex items-center gap-2">
                         <button

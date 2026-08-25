@@ -222,7 +222,7 @@ export function EmblaCarousel() {
         return (
             <div className="flex gap-4">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="flex-[0_0_28.57%] h-130 bg-slate-200 rounded-lg animate-pulse" />
+                    <div key={i} className="flex-[0_0_100%] md:flex-[0_0_28.57%] h-130 bg-slate-200 rounded-lg animate-pulse" />
                 ))}
             </div>
         );
@@ -242,7 +242,7 @@ export function EmblaCarousel() {
                             }}
                             onMouseEnter={() => handleCardEnter(index)}
                             onMouseLeave={() => handleCardLeave(index)}
-                            className="flex-[0_0_100%] px-1.25 h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
+                            className="flex-[0_0_100%] px-1.25 h-100 sm:h-110 md:h-120 lg:h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
                             <Link href={`services/${item.url}`}>
                                 <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
@@ -272,7 +272,7 @@ export function EmblaCarousel() {
                 <button
                     onClick={scrollPrev}
                     disabled={prevBtnDisabled}
-                    className="w-12 h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,box-shadow,opacity] duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
+                    className="w-8 md:w-12 h-8 md:h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,box-shadow,opacity] duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
                     aria-label="Previous slide"
                 >
                     <ChevronLeft className="w-6 h-6 text-primary group-hover:text-white transition-colors duration-200" />
@@ -281,7 +281,7 @@ export function EmblaCarousel() {
                 <button
                     onClick={scrollNext}
                     disabled={nextBtnDisabled}
-                    className="w-12 h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,box-shadow,opacity] duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
+                    className="w-8 md:w-12 h-8 md:h-12 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,box-shadow,opacity] duration-200 flex items-center justify-center group hover:bg-primary disabled:hover:bg-white"
                     aria-label="Next slide"
                 >
                     <ChevronRight className="w-6 h-6 text-primary group-hover:text-white transition-colors duration-200" />

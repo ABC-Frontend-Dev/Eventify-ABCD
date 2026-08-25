@@ -219,7 +219,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
     const relatedBlogs = await getRelatedBlogs(blog.categoryId, blog.id);
 
     return (
-        <section className="mt-16 lg:mt-26 scroll-mt-1">
+        <section className="mt-16 lg:mt-26  scroll-mt-6 md:scroll-mt-1">
             <ViewTracker slug={slug} />
 
             <div className="relative max-w-300 w-full mx-auto px-2.5 lg:px-20 pb-9 z-20">

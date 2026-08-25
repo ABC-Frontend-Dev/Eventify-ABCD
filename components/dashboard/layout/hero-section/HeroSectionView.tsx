@@ -1,3 +1,4 @@
+// components/dashboard/layout/hero-section/HeroSectionView.tsx
 "use client";
 
 import { CheckCircle2, Play } from "lucide-react";

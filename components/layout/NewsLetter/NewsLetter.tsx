@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
@@ -8,6 +8,16 @@ export default function NewsLetter() {
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [message, setMessage] = useState("");
+
+    // ── Auto-reset success after 4 seconds ────────────────────────────────────
+    useEffect(() => {
+        if (status !== "success") return;
+        const timer = setTimeout(() => {
+            setStatus("idle");
+            setMessage("");
+        }, 4000);
+        return () => clearTimeout(timer);
+    }, [status]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,7 +57,7 @@ export default function NewsLetter() {
                     <div className="shrink-0 h-8 md:h-10 lg:h-14 w-8 md:w-10 lg:w-14 rounded-full bg-white/10 flex items-center justify-center">
                         <CheckCircle2 className="h-5 md:h-6.5 lg:h-8 w-5 md:w-6.5 lg:w-8 text-white" />
                     </div>
-                    <div className="">
+                    <div>
                         <p className="text-white font-helvetica md:font-helvetica-neue-roman text-xs md:text-base lg:text-lg font-semibold">{message}</p>
                         <p className="text-white/60 text-xs md:text-sm text-center">Check your inbox for a welcome email.</p>
                     </div>

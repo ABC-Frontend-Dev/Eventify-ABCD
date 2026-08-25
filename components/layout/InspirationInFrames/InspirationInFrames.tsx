@@ -37,7 +37,7 @@ function FrameItem({ index, post, onMouseEnter }: FrameItemProps) {
 
     return (
         <li
-            className="frame-item group w-full h-87.5 flex items-center justify-center relative overflow-hidden cursor-pointer"
+            className="frame-item group w-full h-50 md:h-87.5 flex items-center justify-center relative overflow-hidden cursor-pointer"
             style={{ aspectRatio: ratio }}
             onMouseEnter={(e) => {
                 setHovered(true);
@@ -364,7 +364,7 @@ export default function InspirationInFrames() {
     if (!loading && posts.length === 0) return null;
 
     return (
-        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9 scroll-mt-1">
+        <section ref={sectionRef} className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9  scroll-mt-6 md:scroll-mt-1">
             <header>
                 <SubHeading sectionType="SYL" showDescription />
             </header>

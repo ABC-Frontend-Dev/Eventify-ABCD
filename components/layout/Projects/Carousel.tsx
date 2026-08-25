@@ -113,12 +113,19 @@ export function EmblaCarousel({ media = [], className = "" }: EmblaCarouselProps
                         const isVideoFile = isVideo(mediaUrl);
 
                         return (
-                            <div key={`slide-${index}`} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-110 group">
-                                <div className="relative overflow-hidden h-110">
+                            <div key={`slide-${index}`} className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 h-80 sm:h-90 md:100 lg:h-110 group">
+                                <div className="relative overflow-hidden">
                                     {isVideoFile ? (
-                                        <video src={mediaUrl} className="w-full h-110 object-cover" controls playsInline preload="metadata" />
+                                        <video src={mediaUrl} className="w-full object-cover" controls playsInline preload="metadata" />
                                     ) : (
-                                        <Image src={mediaUrl} alt={`Slide ${index + 1}`} width={1000} height={1000} className="w-full h-110 object-cover" priority={index === 0} />
+                                        <Image
+                                            src={mediaUrl}
+                                            alt={`Slide ${index + 1}`}
+                                            width={1000}
+                                            height={1000}
+                                            className="w-full h-80 sm:h-90 md:100 lg:h-110 object-cover"
+                                            priority={index === 0}
+                                        />
                                     )}
                                 </div>
                             </div>

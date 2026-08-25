@@ -119,7 +119,7 @@ export function FlipCard({ data, className, disableFlip = false }: FlipCardProps
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
                     {/* Content */}
-                    <div className="absolute inset-0 px-3.5 py-2 flex flex-col justify-end text-white bg-gradient-to-t from-black/80 to-transparent">
+                    <div className="absolute inset-0 px-3 py-2 flex flex-col justify-end text-white bg-gradient-to-t from-black/80 to-transparent">
                         <p className="text-white font-helvetica-medium font-bold text-sm capitalize">{data.title}</p>
                         <p className="text-white font-helvetica text-xs capitalize">{data.description}</p>
                     </div>

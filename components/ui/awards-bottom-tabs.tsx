@@ -50,7 +50,7 @@ export function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props): React
     return (
         <TabsPrimitive.Tab
             className={cn(
-                "relative flex h-9 shrink-0 grow cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent px-[calc(--spacing(2.5)-1px)] font-medium text-base outline-none transition-[color,background-color,box-shadow,opacity,transform] duration-200 focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start",
+                "relative flex h-5 md:h-9 shrink-0 grow cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent :px-[calc(--spacing(1.5)-1px)] md:px-[calc(--spacing(2.5)-1px)] font-medium text-base outline-none transition-[color,background-color,box-shadow,opacity,transform] duration-200 focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start",
                 // Active state
                 "data-active:text-foreground data-active:opacity-100 data-active:scale-100",
                 // Inactive state - 50% opacity and 60% width (scale)
