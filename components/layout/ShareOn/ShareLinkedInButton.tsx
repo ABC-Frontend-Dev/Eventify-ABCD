@@ -24,7 +24,7 @@ const LinkedInIcon = ({ size = 16, className }: { size?: number; className?: str
     <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        className={cn("w-3 md:w-5 h-3 md:h-5 fill-footer-bg stroke-footer-bg", className)}
+        className={cn("w-4 md:w-5 h-4 md:h-5 fill-footer-bg stroke-footer-bg", className)}
         strokeWidth={1}
         strokeLinecap="round"
         strokeLinejoin="round"

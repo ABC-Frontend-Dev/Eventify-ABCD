@@ -118,7 +118,7 @@ export default function SubHeading({ titlePartOne: staticPartOne, titlePartTwo: 
                 {data.titlePartTwo && (
                     <>
                         {" "}
-                        <span className="font-abc-laica-a-italic-variable-trial font-semibold normal-case italic">{data.titlePartTwo}</span>
+                        <span className="font-abc-laica-a-italic-variable-trial font-medium normal-case italic">{data.titlePartTwo}</span>
                     </>
                 )}
             </h3>

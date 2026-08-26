@@ -81,7 +81,7 @@ function SubHeading({ part1, part2 }: SubHeadingProps) {
             {part1}{" "}
             {part2 && (
                 <>
-                    <span className="text-primary font-abc-laica-a-italic-variable-trial font-semibold normal-case italic">{part2}</span>
+                    <span className="text-primary font-abc-laica-a-italic-variable-trial font-medium normal-case italic">{part2}</span>
                 </>
             )}
         </h3>
@@ -263,10 +263,10 @@ export default function AboutUs() {
             </header> */}
 
             {/* ── Content grid ─────────────────────────────────────────────── */}
-            <div className="flex items-center justify-center flex-col-reverse lg:flex-row w-full mt-5 lg:mt-5 gap-2.5">
+            <div className="flex items-center justify-center flex-col-reverse xl:flex-row w-full mt-5 lg:mt-5 gap-2.5">
                 {/* Left — Flip cards */}
                 <div className="w-full">
-                    <div className="space-y-2.5 space-x-2.5 flex flex-col md:flex-row lg:flex-col">
+                    <div className="space-y-2.5 space-x-2.5 flex flex-col md:flex-row xl:flex-col">
                         {data.cards.map((card) => (
                             <CardFlip key={card.id} className="about-card w-full lg:w-[288px] h-48 lg:h-51.25 " title={card.frontFace} description={card.backFace} />
                         ))}
@@ -274,7 +274,7 @@ export default function AboutUs() {
                 </div>
 
                 {/* Right — Image with wipe-reveal */}
-                <div className="w-full lg:w-200 xl:w-245.5 md:h-100 lg:h-158.75 shrink-0">
+                <div className="w-full lg:w-full xl:w-245.5 md:h-100 lg:h-158.75 shrink-0">
                     <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-158.75 overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img

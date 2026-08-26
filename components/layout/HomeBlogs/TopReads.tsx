@@ -22,7 +22,7 @@ interface Blog {
 // ─── Visible rows per breakpoint ──────────────────────────────────────────────
 const VISIBLE_MOBILE = 3;
 const VISIBLE_DESKTOP = 4;
-const LG_BREAKPOINT = 1024; // matches Tailwind's `lg:`
+const XL_BREAKPOINT = 1280; // matches Tailwind's `xl:`
 
 // ─── Single blog card row ─────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ function BlogRow({ blog }: { blog: Blog }) {
     const truncatedDescription = blog.description?.substring(0, 80) + (blog.description?.length > 80 ? "..." : "");
 
     return (
-        <div className="blog-card group relative w-full h-28 lg:h-41 overflow-hidden cursor-pointer">
+        <div className="blog-card group relative w-full h-28 xl:h-41 overflow-hidden cursor-pointer">
             <Link href={`/blogs/${blog.slug}`} className="block w-full h-full">
                 {/* Thumbnail */}
                 <figure className="w-full h-full">
@@ -45,8 +45,8 @@ function BlogRow({ blog }: { blog: Blog }) {
 
                 {/* Hover overlay with title + description */}
                 <div className="absolute inset-0 z-20 translate-y-full opacity-100 transition-transform duration-500 ease-in-out group-hover:translate-y-0" style={{ willChange: "transform" }}>
-                    <div className="relative flex h-full w-full flex-col items-center justify-center bg-black/60 px-4 py-4 lg:px-12.75 lg:py-7.5">
-                        <p className="text-center text-sm lg:text-xl leading-4.5 lg:leading-6 font-abc-laica-a-italic-variable-trial text-white">{blog.title}</p>
+                    <div className="relative flex h-full w-full flex-col items-center justify-center bg-black/60 px-4 py-4 xl:px-12.75 xl:py-7.5">
+                        <p className="text-center text-sm xl:text-xl leading-4.5 xl:leading-6 font-abc-laica-a-italic-variable-trial text-white">{blog.title}</p>
                         {/* <p className="mt-3 text-center text-xs lg:text-sm leading-4 lg:leading-4.5 tracking-wider font-helvetica text-white">{truncatedDescription}</p> */}
                         <span className="text-white text-sm border-b border-white/60 hover:border-white mt-1">Read More</span>
                     </div>
@@ -99,8 +99,8 @@ export default function TopReads() {
 
     const measureAll = useCallback(() => {
         // 1. Update visible count based on window width
-        const isLg = window.innerWidth >= LG_BREAKPOINT;
-        const nextVisible = isLg ? VISIBLE_DESKTOP : VISIBLE_MOBILE;
+        const isXl = window.innerWidth >= XL_BREAKPOINT;
+        const nextVisible = isXl ? VISIBLE_DESKTOP : VISIBLE_MOBILE;
         setVisibleCount(nextVisible);
 
         // 2. Measure row step (height + gap)
@@ -176,18 +176,18 @@ export default function TopReads() {
     const canScrollUp = currentIndex > 0;
     const canScrollDown = currentIndex < maxIndex;
 
-    // ── Viewport height — 3 rows on mobile/tablet, 4 on desktop ─────────────
-    // Row heights: mobile h-28 (112px), desktop h-41 (164px)
+    // ── Viewport height — 3 rows below xl, 4 on xl+ (≥1280px) ────────────────
+    // Row heights: mobile/tablet h-28 (112px), xl h-41 (164px)
     // Gap: gap-1.5 = 6px
-    // mobile  : 3 × 112 + 2 × 6 = 348px
-    // desktop : 4 × 164 + 3 × 6 = 674px
+    // below xl : 3 × 112 + 2 × 6 = 348px
+    // xl+      : 4 × 164 + 3 × 6 = 674px
     // We drive this purely with Tailwind classes so SSR matches client.
 
     // ── Loading / empty ───────────────────────────────────────────────────────
 
     if (loading) {
         return (
-            <div className="w-full lg:flex-1 h-[348px] lg:h-[674px] flex items-center justify-center bg-slate-50">
+            <div className="w-full xl:flex-1 h-[348px] xl:h-[674px] flex items-center justify-center bg-slate-50">
                 <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
             </div>
         );
@@ -195,7 +195,7 @@ export default function TopReads() {
 
     if (blogs.length === 0) {
         return (
-            <div className="w-full lg:flex-1 h-[348px] lg:h-[674px] flex items-center justify-center bg-slate-50">
+            <div className="w-full xl:flex-1 h-[348px] xl:h-[674px] flex items-center justify-center bg-slate-50">
                 <p className="text-slate-400 text-sm">No more blogs available</p>
             </div>
         );
@@ -204,11 +204,11 @@ export default function TopReads() {
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <div className="max-w-full md:max-w-75 lg:max-w-122.5 w-full relative">
+        <div className="max-w-full md:max-w-75 xl:max-w-122.5 w-full relative">
             {/* ── Top bar ── */}
             <div className="flex items-center justify-between">
-                <div className="absolute -top-9.5 md:-top-9 lg:-top-12 w-full flex items-end justify-between">
-                    <h2 className="shrink-0 text-xl lg:text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg">Top reads</h2>
+                <div className="absolute -top-9.5 md:-top-9 xl:-top-12 w-full flex items-end justify-between">
+                    <h2 className="shrink-0 text-xl xl:text-4xl leading-8 font-helvetica-medium tracking-tight text-footer-bg">Top reads</h2>
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
@@ -235,10 +235,10 @@ export default function TopReads() {
             {/* ── Carousel viewport ── */}
             {/*
                 Height calculation (Tailwind h-* = 4px per unit):
-                Mobile  (h-28 rows, gap-1.5=6px): 3×112 + 2×6 = 348px  → h-[348px]
-                Desktop (h-41 rows, gap-1.5=6px): 4×164 + 3×6 = 674px  → lg:h-[674px]
+                Below xl (h-28 rows, gap-1.5=6px): 3×112 + 2×6 = 348px  → h-[348px]
+                xl+     (h-41 rows, gap-1.5=6px): 4×164 + 3×6 = 674px  → xl:h-[674px]
             */}
-            <div ref={viewportRef} className="relative overflow-hidden h-[348px] lg:h-[674px]">
+            <div ref={viewportRef} className="relative overflow-hidden h-[348px] 1-xl:h-[674px]">
                 <div ref={trackRef} className="absolute top-0 left-0 right-0 flex flex-col gap-1.5 will-change-transform" style={{ transform: "translate3d(0,0,0)" }}>
                     {blogs.map((blog) => (
                         <div key={blog.id} data-blog-row className="shrink-0">

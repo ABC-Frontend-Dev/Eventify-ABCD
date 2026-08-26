@@ -19,7 +19,7 @@ export async function GET() {
 
     try {
         const fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp";
-        const res = await fetch(`https://graph.instagram.com/me/media?fields=${fields}&access_token=${IG_TOKEN}`, {
+           const res = await fetch(`https://graph.instagram.com/v22.0/me/media?fields=${fields}&access_token=${IG_TOKEN}`, {
             next: { revalidate: 3600 }, // cache 1 hour — avoid hitting Instagram on every request
         });
 

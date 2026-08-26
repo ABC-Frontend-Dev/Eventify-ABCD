@@ -237,7 +237,7 @@ function TabletCarousel({ posts }: { posts: InstagramPost[] }) {
                 </ul>
             </div>
 
-            <div className="absolute top-1/2 -translate-y-1/2 -left-3.25 w-[103%] h-fit flex items-center justify-between pointer-events-none">
+            <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[103%] h-fit flex items-center justify-between pointer-events-none">
                 <button
                     onClick={scrollPrev}
                     disabled={prevDisabled}

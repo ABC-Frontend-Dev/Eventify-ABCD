@@ -47,7 +47,10 @@ export interface Project {
 export const isVideoFile = (url: string): boolean => {
     const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
     const lower = url.toLowerCase();
-    return videoExtensions.some((ext) => lower.endsWith(ext)) || lower.includes("/videos/");
+    return (
+        videoExtensions.some((ext) => lower.endsWith(ext)) ||
+        lower.includes("/videos/")
+    );
 };
 
 // ─── Breakpoint type ──────────────────────────────────────────────────────────
@@ -83,8 +86,12 @@ export default function Projects() {
     const [activeTab, setActiveTab] = useState("tab-all");
     const [activeInnerTab, setActiveInnerTab] = useState("");
 
-    const [breakpoint, setBreakpoint] = useState<Breakpoint>(() => getBreakpoint());
-    const [visibleCount, setVisibleCount] = useState<number>(() => COUNTS[getBreakpoint()].initial);
+    // ── Start with null so we know "not yet measured" ─────────────────────────
+    // We use null as the initial value to indicate the breakpoint hasn't been
+    // measured yet (window is unavailable during SSR). The first useEffect
+    // below immediately measures and sets the real breakpoint + visibleCount.
+    const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
+    const [visibleCount, setVisibleCount] = useState<number>(COUNTS["desktop"].initial);
 
     // ── Fetch ─────────────────────────────────────────────────────────────────
 
@@ -105,21 +112,28 @@ export default function Projects() {
         }
     };
 
-    // ── Breakpoint tracking ───────────────────────────────────────────────────
+    // ── Measure real breakpoint on mount + track resizes ─────────────────────
+    // This runs only on the client after hydration, so window is always
+    // available. We immediately correct breakpoint and visibleCount to the
+    // actual screen size, fixing the SSR "always desktop" bug.
 
     useEffect(() => {
-        const mobileQuery = window.matchMedia("(max-width: 767px)");
-        const tabletQuery = window.matchMedia("(max-width: 1023px)");
+        // Correct immediately on mount
+        const bp = getBreakpoint();
+        setBreakpoint(bp);
+        setVisibleCount(COUNTS[bp].initial);
 
-        const update = () => setBreakpoint(getBreakpoint());
-
-        mobileQuery.addEventListener("change", update);
-        tabletQuery.addEventListener("change", update);
-
-        return () => {
-            mobileQuery.removeEventListener("change", update);
-            tabletQuery.removeEventListener("change", update);
+        // Then keep tracking resizes
+        const handleResize = () => {
+            const next = getBreakpoint();
+            setBreakpoint((prev) => {
+                if (prev !== next) return next;
+                return prev;
+            });
         };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     // ── Reset visible count when tab or breakpoint changes ────────────────────
@@ -130,23 +144,34 @@ export default function Projects() {
 
     // ── Derived values ────────────────────────────────────────────────────────
 
-    const categories = useMemo(() => Array.from(new Map(projects.map((p) => [p.category.id, p.category])).values()), [projects]);
+    const categories = useMemo(
+        () =>
+            Array.from(
+                new Map(projects.map((p) => [p.category.id, p.category])).values()
+            ),
+        [projects]
+    );
 
-    const filteredProjects = activeTab === "tab-all" ? projects : projects.filter((p) => p.categoryId === Number(activeTab.replace("tab-", "")));
+    const filteredProjects =
+        activeTab === "tab-all"
+            ? projects
+            : projects.filter(
+                  (p) => p.categoryId === Number(activeTab.replace("tab-", ""))
+              );
 
     const { initial: initialCount, increment } = COUNTS[breakpoint];
 
     const visibleProjects = filteredProjects.slice(0, visibleCount);
     const allLoaded = visibleCount >= filteredProjects.length;
-
-    // Only show the button if there are more cards than the initial count
     const showLoadMoreButton = filteredProjects.length > initialCount;
 
     const handleLoadMoreClick = () => {
         if (allLoaded) {
             setVisibleCount(initialCount);
         } else {
-            setVisibleCount((prev) => Math.min(prev + increment, filteredProjects.length));
+            setVisibleCount((prev) =>
+                Math.min(prev + increment, filteredProjects.length)
+            );
         }
     };
 
@@ -183,20 +208,34 @@ export default function Projects() {
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-6 md:scroll-mt-1" id="projects">
+        <section
+            className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-6 md:scroll-mt-1"
+            id="projects"
+        >
             <MainTabs value={activeTab} onValueChange={setActiveTab}>
                 <header className="flex items-start md:items-start lg:items-end lg:justify-between flex-col lg:flex-row gap-y-5 lg:gap-x-5">
                     <div className="shrink-0">
-                        <HeadingWithLogo titlePart1="" titlePart2_1="proj" titlePart2_2="ts" />
+                        <HeadingWithLogo
+                            titlePart1=""
+                            titlePart2_1="proj"
+                            titlePart2_2="ts"
+                        />
                         <SubHeading sectionType="PROJECT" showDescription />
                     </div>
 
                     <TabsList className="py-0 px-0 rounded-none bg-white gap-1">
-                        <TabsTab value="tab-all" className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75">
+                        <TabsTab
+                            value="tab-all"
+                            className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75"
+                        >
                             All Projects
                         </TabsTab>
                         {categories.map((category) => (
-                            <TabsTab key={`tab-${category.id}`} value={`tab-${category.id}`} className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75">
+                            <TabsTab
+                                key={`tab-${category.id}`}
+                                value={`tab-${category.id}`}
+                                className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75"
+                            >
                                 {category.name}
                             </TabsTab>
                         ))}
@@ -222,7 +261,10 @@ export default function Projects() {
                                         },
                                     }}
                                 >
-                                    <ProjectCard project={project} onClick={() => openModal(project)} />
+                                    <ProjectCard
+                                        project={project}
+                                        onClick={() => openModal(project)}
+                                    />
                                 </motion.div>
                             ))}
                         </AnimatePresence>
@@ -230,12 +272,13 @@ export default function Projects() {
 
                     {showLoadMoreButton && (
                         <div
-                            className="absolute bottom-0 left-0 w-full h-85 flex items-end justify-end z-10 pointer-events-none"
+                            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100.50%] h-50 sm:h-60 md:h-70 lg:h-85 flex items-end justify-end z-10 pointer-events-none"
                             style={
                                 allLoaded
                                     ? undefined
                                     : {
-                                          background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.7) 60%, #FFFFFF 85%)",
+                                          background:
+                                              "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.7) 60%, #FFFFFF 85%)",
                                       }
                             }
                         >
@@ -243,7 +286,9 @@ export default function Projects() {
                                 type="button"
                                 onClick={handleLoadMoreClick}
                                 className={`relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 bg-primary text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto ${
-                                    allLoaded ? "translate-y-8 sm:translate-y-9.5 md:translate-y-11" : "translate-y-0"
+                                    allLoaded
+                                        ? "translate-y-8 sm:translate-y-9.5 md:translate-y-11"
+                                        : "translate-y-0"
                                 }`}
                             >
                                 {allLoaded ? "View less projects" : "View more projects"}
@@ -254,7 +299,13 @@ export default function Projects() {
             </MainTabs>
 
             {/* ── Modal ── */}
-            <ProjectModal isOpen={isModalOpen} onClose={closeModal} project={selectedProject} activeInnerTab={activeInnerTab} onActiveInnerTabChange={setActiveInnerTab} />
+            <ProjectModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                project={selectedProject}
+                activeInnerTab={activeInnerTab}
+                onActiveInnerTabChange={setActiveInnerTab}
+            />
         </section>
     );
 }

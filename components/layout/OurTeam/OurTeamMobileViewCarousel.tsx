@@ -165,7 +165,7 @@ export function EmblaCarousel() {
                                       </figure>
 
                                       <div className="absolute bottom-2.5 max-w-[92%] w-full left-1/2 -translate-x-1/2 p-2.5 bg-white rounded-[4px] overflow-hidden z-10">
-                                          <p className="text-base sm:text-[26px] leading-5 sm:leading-7.8 text-center font-helvetica-medium font-medium text-slate-950">{item.name}</p>
+                                          <p className="text-base sm:text-xl md:text-[22px] lg:text-2xl xl:text-[26px] leading-5 sm:leading-6 md:leading-7 lg:leading-7.8 text-center font-helvetica-medium font-medium text-slate-950">{item.name}</p>
                                           <p className="mt-1 text-xs sm:text-base leading-4 sm:leading-5 text-center font-helvetica font-medium text-slate-500">{item.role}</p>
                                       </div>
                                   </div>
