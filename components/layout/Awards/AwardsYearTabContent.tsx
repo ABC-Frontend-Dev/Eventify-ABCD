@@ -57,7 +57,7 @@ function AwardYearPanel({ images }: { images: AwardImage[] }) {
 
             {/* ── Title + Description (synced with current slide) ── */}
             {currentImage && (currentImage.title || currentImage.description) && (
-                <div className="absolute left-1.5 sm:left-2 md:left-3 lg:left-4 xl:left-5 1-xl:left-7.5 bottom-1 sm:bottom-3 md:bottom-4 lg:bottom-6 xl:bottom-8 1-xl:bottom-10 z-20 max-w-44 w-full sm:max-w-120 md:min-w-61.25">
+                <div className="absolute left-1 sm:left-3 md:left-4 lg:left-6 xl:left-8 1-xl:left-10 bottom-1 sm:bottom-3 md:bottom-4 lg:bottom-6 xl:bottom-8 1-xl:bottom-10 z-20 max-w-44 w-full sm:max-w-120 md:min-w-61.25">
                     {/* w-51.25 backdrop-blur-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] bg-white/10 */}
                     <div key={currentImage.id} className="transition-all duration-500">
                         {currentImage.title && (
@@ -93,7 +93,7 @@ export default function AwardsYearTabContent({ categories }: AwardsYearTabConten
 
     return (
         <AwardsTabs defaultValue={defaultValue}>
-            <div className="absolute right-1.25 sm:right-4 md:right-6 lg:right-8 xl:right-10 1-xl:right-14 bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 1-xl:bottom-10 z-100">
+            <div className="absolute right-1 sm:right-3 md:right-4 lg:right-6 xl:right-8 1-xl:right-10 bottom-1 sm:bottom-3 md:bottom-4 lg:bottom-6 xl:bottom-8 1-xl:bottom-10 z-100">
                 <AwardsTabsList variant="underline">
                     {categories.map((category) => (
                         <TabsTrigger key={category.id} value={category.id.toString()}>

@@ -311,7 +311,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                         transition={{ duration: 0.22, ease: easeOut }}
                     />
 
-                    <div className="relative flex min-h-[100dvh] items-start justify-center p-4 py-6 md:items-center md:p-6">
+                    <div className="relative flex min-h-dvh items-start justify-center p-4 py-6 md:items-center md:p-6">
                         <motion.div
                             layoutId="contact-modal-shell"
                             transition={{ layout: morphTransition }}
@@ -328,7 +328,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -4 }}
                                 transition={{ duration: 0.18, ease: easeOut }}
-                                className="absolute right-2.5 top-2.5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-black shadow-sm backdrop-blur-md transition hover:bg-white md:right-3 md:top-3"
+                                className="absolute right-2.5 top-2.5 z-10 flex h-8 md:h-11 w-8 md:w-11 items-center justify-center rounded-full bg-white/75 text-black shadow-sm backdrop-blur-md transition hover:bg-white md:right-3 md:top-3"
                             >
                                 <X className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.8} />
                             </motion.button>
@@ -350,8 +350,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                     <>
                                         <div>
                                             {/* <h3 className="text-4xl font-helvetica-neue-roman tracking-wider font-bold uppercase leading-11 text-primary">Get In Touch</h3> */}
-                                            <h2 className="text-4xl font-helvetica-neue-roman tracking-wider font-bold uppercase leading-11 text-footer-bg">Got A Project In Mind?</h2>
-                                            <p className="text-sm font-helvetica-neue-roman text-footer-bg md:text-lg">We're here to answer any question you may have.</p>
+                                            <h2 className="text-2xl md:text-4xl font-helvetica-neue-roman uppercase leading-7 md:leading-10 text-footer-bg">Got A Project In Mind?</h2>
+                                            <p className="mt-1.5 text-sm font-helvetica-neue-roman text-footer-bg md:text-lg">We're here to answer any question you may have.</p>
                                         </div>
 
                                         <form onSubmit={handleSubmit} className="mt-7.5 space-y-2">
@@ -363,7 +363,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                             <button
                                                 type="submit"
                                                 disabled={submitting}
-                                                className="relative max-w-50 w-fit mx-auto mt-4 overflow-hidden block text-center h-10 cursor-pointer rounded-[5px] px-6 py-2 text-sm bg-[#252525] text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="relative max-w-50 w-fit mx-auto mt-4 overflow-hidden block text-center h-10 cursor-pointer px-6 py-2 text-sm bg-[#252525] text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {/* className="max-w-50 mx-auto mt-4 block h-10 w-fit px-6 text-center rounded-[4px] bg-[#252525] font-helvetica-medium text-xl font-bold uppercase text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" */}
                                                 {submitting ? (

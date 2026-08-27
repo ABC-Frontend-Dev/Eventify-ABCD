@@ -103,12 +103,12 @@ export default function NavbarMenu({ isScrolled, activeSection }: NavbarMenuProp
                                 onClick={() => setOpen(true)}
                             >
                                 <span className="relative block overflow-hidden whitespace-nowrap text-center" style={{ minWidth: "90px" }}>
-                                    <span className="block transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-x-full">Let's Connect</span>
+                                    <span className="block transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-x-full"><span className="translate-y-px">Let's Connect</span></span>
                                     <span
                                         aria-hidden="true"
                                         className="absolute inset-0 flex items-center justify-center translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:translate-x-0"
                                     >
-                                        Let's Connect
+                                        <span className="translate-y-px">Let's Connect</span>
                                     </span>
                                 </span>
                             </button>

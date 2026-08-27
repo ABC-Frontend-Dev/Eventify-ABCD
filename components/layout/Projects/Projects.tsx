@@ -228,7 +228,7 @@ export default function Projects() {
                             value="tab-all"
                             className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75"
                         >
-                            All Projects
+                            <span className="translate-y-px">All Projects</span>
                         </TabsTab>
                         {categories.map((category) => (
                             <TabsTab
@@ -236,7 +236,7 @@ export default function Projects() {
                                 value={`tab-${category.id}`}
                                 className="rounded-none text-sm py-2 sm:py-4 px-2.75 sm:px-3.75"
                             >
-                                {category.name}
+                                <span className="translate-y-px">{category.name}</span>
                             </TabsTab>
                         ))}
                     </TabsList>

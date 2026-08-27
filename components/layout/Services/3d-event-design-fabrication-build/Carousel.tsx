@@ -313,25 +313,25 @@ export function ComparisonCarousel() {
 
                                     {/* Compare slider */}
                                     <div
-                                        data-compare-slider
-                                        className="h-full"
-                                        style={{ touchAction: "pan-y" }}
-                                        onPointerDownCapture={(e) => {
-                                            if (isMobileOrTabletViewport()) e.stopPropagation();
-                                        }}
-                                        onTouchStartCapture={(e) => {
-                                            if (isMobileOrTabletViewport()) e.stopPropagation();
-                                        }}
-                                        onMouseDownCapture={(e) => {
-                                            if (isMobileOrTabletViewport()) e.stopPropagation();
-                                        }}
-                                    >
-                                        <ReactCompareSlider
-                                            itemOne={<ReactCompareSliderImage src={item.beforeImage} alt={`${item.title} — Before`} />}
-                                            itemTwo={<ReactCompareSliderImage src={item.afterImage} alt={`${item.title} — After`} />}
-                                            handle={<ComparisonNudgeHandle nudgeKey={nudgeKeys[index] ?? 0} />}
-                                        />
-                                    </div>
+    data-compare-slider
+    className="h-full"
+    style={{ touchAction: "pan-y" }}
+    onPointerDown={(e) => {
+        if (isMobileOrTabletViewport()) e.stopPropagation();
+    }}
+    onTouchStart={(e) => {
+        if (isMobileOrTabletViewport()) e.stopPropagation();
+    }}
+    onMouseDown={(e) => {
+        if (isMobileOrTabletViewport()) e.stopPropagation();
+    }}
+>
+    <ReactCompareSlider
+        itemOne={<ReactCompareSliderImage src={item.beforeImage} alt={`${item.title} — Before`} />}
+        itemTwo={<ReactCompareSliderImage src={item.afterImage} alt={`${item.title} — After`} />}
+        handle={<ComparisonNudgeHandle nudgeKey={nudgeKeys[index] ?? 0} />}
+    />
+</div>
                                 </div>
                             </div>
                         </div>
