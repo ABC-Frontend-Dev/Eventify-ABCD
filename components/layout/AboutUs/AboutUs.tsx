@@ -81,7 +81,7 @@ function SubHeading({ part1, part2 }: SubHeadingProps) {
             {part1}{" "}
             {part2 && (
                 <>
-                    <span className="text-primary font-abc-laica-a-italic-variable-trial font-medium normal-case italic">{part2}</span>
+                    <span className="text-primary font-abc-laica-a-italic-variable-trial font-medium normal-case">{part2}</span>
                 </>
             )}
         </h3>

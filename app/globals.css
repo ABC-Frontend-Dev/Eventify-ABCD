@@ -475,7 +475,8 @@ body.custom-cursor-active * {
   border-left: 3px solid #cbd5e0;
   padding-left: 1rem;
   color: #4a5568;
-  font-style: italic;
+  font-style:italic;
+  /* font-style:italic; */
   margin: 1rem 0;
 }
 
