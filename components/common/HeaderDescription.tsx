@@ -1,12 +1,11 @@
 import ScrollReveal from "@/components/Animations/ScrollReveal";
 
 interface HeaderDescriptionProps {
-    description?: string | null; // ← now optional + nullable
+    description?: string | null;
     scrollContainerRef: any;
 }
 
 export default function HeaderDescription({ description, scrollContainerRef }: HeaderDescriptionProps) {
-    // If no description — render nothing
     if (!description || !description.trim()) return null;
 
     return (
