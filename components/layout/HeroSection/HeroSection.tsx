@@ -96,7 +96,7 @@ export default function HeroSection() {
         <section className="" id="home">
             <div className="">
                 {showVideo && (
-                    <video key={hero!.videoUrl} className="w-full h-[95vh] lg:h-screen object-cover" autoPlay loop muted playsInline preload="none">
+                    <video key={hero!.videoUrl} className="w-full h-[94vh] lg:h-screen object-cover" autoPlay loop muted playsInline preload="none">
                         <source src={hero!.videoUrl!} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>

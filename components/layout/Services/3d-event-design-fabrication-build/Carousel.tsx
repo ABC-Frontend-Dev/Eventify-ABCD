@@ -278,7 +278,7 @@ export function ComparisonCarousel() {
                             className="flex-[0_0_100%] first:ml-0 ml-2.5 min-w-0 group lg:flex-[0_0_100%]"
                         >
                             <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
-                                <div className="h-full sm:h-[500px] lg:h-[563.83px] relative">
+                                <div className="h-full sm:h-[500px] lg:h-[496.7px] 1-xl:h-[563.83px] relative">
                                     {/* Before label */}
                                     <span
                                         className="

@@ -91,7 +91,7 @@ const Menu = ({ list, currentPath, isScrolled, activeSection }: MenuProps) => {
     return (
         <MotionConfig transition={{ bounce: 0, type: "tween", duration: 0.3 }}>
             <nav className={"relative"}>
-                <ul className={"flex items-center gap-5"}>
+                <ul className={"flex items-center md:gap-2 lg:gap-2.5 1-xl:gap-5"}>
                     {list?.map((item) => {
                         const active = isActive(item);
 

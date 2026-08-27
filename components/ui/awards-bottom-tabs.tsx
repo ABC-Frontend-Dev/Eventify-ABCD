@@ -26,14 +26,15 @@ export function AwardsTabsList({
                 "data-[orientation=vertical]:flex-col",
                 variant === "default"
                     ? "rounded-lg bg-muted p-0.5 "
-                    : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 sm:data-[orientation=horizontal]:py-1.5 lg:data-[orientation=horizontal]:py-3",
+                    : "",
                 className,
             )}
+            // data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 sm:data-[orientation=horizontal]:py-1.5 lg:data-[orientation=horizontal]:py-3
             data-slot="tabs-list"
             {...props}
         >
             {children}
-            <TabsPrimitive.Indicator
+            {/* <TabsPrimitive.Indicator
                 className={cn(
                     "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
                     variant === "underline"
@@ -41,7 +42,7 @@ export function AwardsTabsList({
                         : "-z-1 rounded-md bg-background shadow-sm/5 dark:bg-input",
                 )}
                 data-slot="tab-indicator"
-            />
+            /> */}
         </TabsPrimitive.List>
     );
 }

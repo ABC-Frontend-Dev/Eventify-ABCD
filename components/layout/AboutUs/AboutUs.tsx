@@ -263,9 +263,9 @@ export default function AboutUs() {
             </header> */}
 
             {/* ── Content grid ─────────────────────────────────────────────── */}
-            <div className="flex items-center justify-center flex-col-reverse xl:flex-row w-full mt-5 lg:mt-5 gap-2.5">
+            <div className="flex items-center justify-center flex-col-reverse 1-xl:flex-row w-full mt-5 lg:mt-5 gap-2.5">
                 {/* Left — Flip cards */}
-                <div className="w-full">
+                <div className="w-full xl:w-fit xl:shrink">
                     <div className="space-y-2.5 space-x-2.5 flex flex-col md:flex-row xl:flex-col">
                         {data.cards.map((card) => (
                             <CardFlip key={card.id} className="about-card w-full lg:w-[288px] h-48 lg:h-51.25 " title={card.frontFace} description={card.backFace} />
@@ -274,7 +274,7 @@ export default function AboutUs() {
                 </div>
 
                 {/* Right — Image with wipe-reveal */}
-                <div className="w-full lg:w-full xl:w-245.5 md:h-100 lg:h-158.75 shrink-0">
+                <div className="w-full lg:w-full 2-2xl:w-245.5 md:h-100 lg:h-158.75 shrink-0 xl:shrink xl:w-full xl:max-w-full">
                     <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-158.75 overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -288,6 +288,28 @@ export default function AboutUs() {
                     </div>
                 </div>
             </div>
+            {/* <div className="flex items-center justify-center flex-col-reverse 1-xl:flex-row w-full mt-5 lg:mt-5 gap-2.5">
+                <div className="w-full xl:w-fit xl:shrink">
+                    <div className="space-y-2.5 space-x-2.5 flex flex-col md:flex-row xl:flex-col">
+                        {data.cards.map((card) => (
+                            <CardFlip key={card.id} className="about-card w-full lg:w-[288px] h-48 lg:h-51.25 " title={card.frontFace} description={card.backFace} />
+                        ))}
+                    </div>
+                </div>
+
+                <div className="w-full lg:w-full 2-2xl:w-245.5 md:h-100 lg:h-158.75 shrink-0 xl:shrink xl:w-full xl:max-w-full">
+                    <div ref={revealContainerRef} className="invisible relative w-full h-full lg:h-158.75 overflow-hidden">
+                        <img
+                            ref={revealImageRef}
+                            src={data.image}
+                            alt={data.imageAlt || "About Us"}
+                            loading="eager"
+                            className="w-full h-full object-cover will-change-transform"
+                            style={{ transformOrigin: "left" }}
+                        />
+                    </div>
+                </div>
+            </div> */}
         </section>
     );
 }

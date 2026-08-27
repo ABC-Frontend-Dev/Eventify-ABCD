@@ -232,7 +232,7 @@ export default async function BlogPage({ params }: { params: Promise<{ slug: str
                         <p className="font-helvetica-neue-roman font-normal text-footer-bg text-xs md:text-sm leading-4 md:leading-3.5">{blog.category.name}</p>
                     </div> */}
 
-                    <h1 className="max-w-200 w-full mt-3 md:mt-4.5 text-sm sm:text-lg md:text-2xl lg:text-[30px] leading-5 sm:leading-5.5 md:leading-7 lg:leading-9 tracking-normal font-abc-laica-a-italic-variable-trial font-semibold text-primary">
+                    <h1 className="max-w-200 w-full mt-3 md:mt-4.5 text-sm sm:text-lg md:text-2xl lg:text-[30px] leading-5 sm:leading-5.5 md:leading-7 lg:leading-9 tracking-normal font-abc-laica-a-italic-variable-trial font-medium text-primary">
                         {blog.title}
                     </h1>
 

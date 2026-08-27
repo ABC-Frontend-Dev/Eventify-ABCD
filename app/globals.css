@@ -123,6 +123,7 @@
   --breakpoint-xxs: 425px;
   --breakpoint-xs: 480px;
   --breakpoint-1-xl: 1180px;
+  --breakpoint-2-2xl: 1380px;
 
   @keyframes fade-spin {
     0% {
