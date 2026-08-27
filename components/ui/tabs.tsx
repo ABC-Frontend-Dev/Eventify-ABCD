@@ -1,7 +1,7 @@
 // components/ui/tabs.tsx
 "use client";
-
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type React from "react";
 
@@ -19,9 +19,18 @@ export function TabsList({
 }: TabsPrimitive.List.Props & {
     variant?: TabsVariant;
 }): React.ReactElement {
+    // Suppresses the indicator transition until after mount/hydration,
+    // so it never animates from (0, 0) on first paint.
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <TabsPrimitive.List
             className={cn(
+                // Named group: lets the indicator below disable its transition pre-mount
+                "group/tabs-list",
                 // ── Layout ───────────────────────────────────────────────────
                 "relative z-0",
                 "flex flex-nowrap",
@@ -40,17 +49,26 @@ export function TabsList({
                 className,
             )}
             data-slot="tabs-list"
+            data-mounted={mounted}
             {...props}
         >
             {children}
             <TabsPrimitive.Indicator
+                // Render the indicator before React hydrates so there's no
+                // "missing underline" gap right after server-side rendering
+                renderBeforeHydration
                 className={cn(
                     "absolute bottom-0 left-0 pointer-events-none",
                     "h-(--active-tab-height) w-(--active-tab-width) max-w-full max-h-full",
                     "translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom)",
-                    // Smooth slide + resize between tabs
-                    "transition-[width,height,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
-                    "will-change-[width,height,transform]",
+                    // Smooth slide + resize between tabs.
+                    // Tailwind v4 turns translate-x-*/translate-y-* into the native
+                    // `translate` property, so it MUST be in the transition list —
+                    // animating `transform` instead is what made the slide instant.
+                    "transition-[width,height,translate] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                    // Keep it static while initializing, then animate on user clicks
+                    "group-data-[mounted=false]/tabs-list:transition-none",
+                    "will-change-[width,height,translate]",
                     variant === "underline"
                         ? "z-10 bg-current data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
                         : "z-0 bg-primary border border-primary",
@@ -89,8 +107,10 @@ export function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props): R
                 "[&[hidden]]:!block [&[hidden]]:absolute [&[hidden]]:inset-x-0 [&[hidden]]:top-0",
                 "[&[hidden]]:opacity-0 [&[hidden]]:translate-y-2 [&[hidden]]:pointer-events-none",
                 "opacity-100 translate-y-0",
-                "transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
-                "will-change-[opacity,transform]",
+                // Same root-cause fix as the indicator: the slide uses the native
+                // `translate` property in v4, so it must be transitioned too.
+                "transition-[opacity,translate] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "will-change-[opacity,translate]",
                 "flex-1 outline-none relative",
                 className,
             )}

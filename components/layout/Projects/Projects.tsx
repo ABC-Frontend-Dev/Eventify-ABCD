@@ -218,7 +218,7 @@ export default function Projects() {
                         <HeadingWithLogo
                             titlePart1=""
                             titlePart2_1="proj"
-                            titlePart2_2="ts"
+                            titlePart2_2="cts"
                         />
                         <SubHeading sectionType="PROJECT" showDescription />
                     </div>
