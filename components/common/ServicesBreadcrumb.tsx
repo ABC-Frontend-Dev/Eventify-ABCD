@@ -39,7 +39,7 @@ export default function Breadcrumb({
 
                         {/* Last item */}
                         {isLast || !item.href ? (
-                            <span className="text-[10px] lg:text-xs leading-3.5 lg:leading-4 text-primary capitalize truncate block">
+                            <span className="text-[10px] lg:text-xs leading-3.5 lg:leading-4 text-primary normal-case truncate block">
                                 {item.label}
                             </span>
                         ) : (
