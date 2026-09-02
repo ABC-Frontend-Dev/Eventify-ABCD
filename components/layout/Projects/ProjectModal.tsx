@@ -76,7 +76,7 @@ export function ProjectModal({ isOpen, onClose, project, activeInnerTab, onActiv
                         {/* Content — desktop */}
                         <div className="p-5 shrink-0 hidden md:flex gap-5 items-center">
                             <div className="max-w-3/5 w-full shrink-0">
-                                <p className="font-helvetica-medium text-lg lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{project.title}</p>
+                                <p className="font-abc-laica-a-italic-variable-trial text-lg lg:text-[22px] font-medium leading-6.5 text-footer-bg">{project.title}</p>
 
                                 {project.description && <p className="mt-2 font-helvetica-neue-roman text-sm leading-4.5 tracking-wide text-footer-bg">{project.description}</p>}
                             </div>

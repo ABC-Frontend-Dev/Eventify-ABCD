@@ -285,7 +285,7 @@ export default function Projects() {
                             <button
                                 type="button"
                                 onClick={handleLoadMoreClick}
-                                className={`relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 bg-primary text-white font-helvetica-neue-roman hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto ${
+                                className={`relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 border border-footer-bg/20 bg-white text-primary font-helvetica-neue-roman hover:text-white hover:bg-primary hover:border-primary hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto transition-all duration-100 ${
                                     allLoaded
                                         ? "translate-y-8 sm:translate-y-9.5 md:translate-y-11"
                                         : "translate-y-0"

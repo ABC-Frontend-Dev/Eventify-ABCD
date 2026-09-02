@@ -68,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <RouteChangeScrollSync />
             <Navbar />
             <main>{children}</main>
-            <SmoothCursor />
+            {/* <SmoothCursor /> */}
             <Footer />
         </ReactLenis>
     );

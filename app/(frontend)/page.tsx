@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import NewsletterPage from "@/components/dashboard/layout/newsletter/NewsletterPage";
 import AboutUs from "@/components/layout/AboutUs/AboutUs";
 import Awards from "@/components/layout/Awards/Awards";
-import BeforeAndAfterComparision from "@/components/layout/Services/3d-event-design-fabrication-build/BeforeAndAfterComparision";
+import BeforeAndAfterComparision from "@/components/layout/Services/BeforeAndAfterComparision";
 import ContactModal from "@/components/layout/Contact/ContactModal";
 import HeroPageLoader from "@/components/layout/HeroPageLoader/HeroPageLoader";
 import HeroSection from "@/components/layout/HeroSection/HeroSection";

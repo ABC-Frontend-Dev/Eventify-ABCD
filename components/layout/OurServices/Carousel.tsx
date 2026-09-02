@@ -17,24 +17,19 @@ interface CarouselItem {
     id: number;
     url: string;
     title: string;
-    description: string;
-    image: string;
+    description: string | null;
+    bannerImage: string;        // ← was "image", now "bannerImage"
+    bannerImageAlt: string | null;
 }
 
 const AUTOPLAY_DELAY = 2500;
 
 export function EmblaCarousel() {
-    // ── Autoplay plugin ───────────────────────────────────────────────────────
-    // stopOnInteraction: false  → autoplay never permanently stops
-    // stopOnMouseEnter: true    → pauses while hovering
-    // After a manual button click we call autoplayPlugin.current.reset()
-    // which restarts the full delay from 0 — so the timer never fires
-    // 0.5s after a click because we reset it to the full 2500ms immediately.
     const autoplayPlugin = useRef(
         Autoplay({
             delay: AUTOPLAY_DELAY,
-            stopOnInteraction: false, // ← key fix: never permanently stop
-            stopOnMouseEnter: true, // pause on hover
+            stopOnInteraction: false,
+            stopOnMouseEnter: true,
             stopOnFocusIn: false,
             playOnInit: true,
         }),
@@ -78,45 +73,32 @@ export function EmblaCarousel() {
                 setLoading(false);
             }
         };
-
         fetchServices();
     }, []);
 
     // ── Navigation ────────────────────────────────────────────────────────────
-    // After scrolling we call autoplayPlugin.current.reset() which:
-    // 1. Stops the current tick
-    // 2. Restarts the timer from the full AUTOPLAY_DELAY (2500ms)
-    // This means clicking at t=2000ms resets to t=0, so the next
-    // auto-scroll happens at t=2000+2500ms — never at t=2000+500ms.
 
     const scrollPrev = useCallback(() => {
         if (!emblaApi) return;
         emblaApi.scrollPrev();
-        autoplayPlugin.current.reset(); // restart countdown from 0
+        autoplayPlugin.current.reset();
     }, [emblaApi]);
 
     const scrollNext = useCallback(() => {
         if (!emblaApi) return;
         emblaApi.scrollNext();
-        autoplayPlugin.current.reset(); // restart countdown from 0
+        autoplayPlugin.current.reset();
     }, [emblaApi]);
 
-    // ── Drag: also reset after drag ends ─────────────────────────────────────
+    // ── Reset autoplay after drag ─────────────────────────────────────────────
 
     useEffect(() => {
         if (!emblaApi) return;
-
         const onPointerUp = () => {
-            // Small timeout so embla finishes settling before we reset
-            setTimeout(() => {
-                autoplayPlugin.current.reset();
-            }, 50);
+            setTimeout(() => { autoplayPlugin.current.reset(); }, 50);
         };
-
         emblaApi.on("pointerUp", onPointerUp);
-        return () => {
-            emblaApi.off("pointerUp", onPointerUp);
-        };
+        return () => { emblaApi.off("pointerUp", onPointerUp); };
     }, [emblaApi]);
 
     // ── Select state ──────────────────────────────────────────────────────────
@@ -179,15 +161,12 @@ export function EmblaCarousel() {
         const ctx = gsap.context(() => {
             overlayRefs.current.forEach((overlay, index) => {
                 if (!overlay) return;
-
                 gsap.set(overlay, { opacity: 0 });
-
                 const tl = gsap.timeline({ paused: true }).to(overlay, {
                     opacity: 0.55,
                     duration: 0.45,
                     ease: "power2.out",
                 });
-
                 hoverTlsRef.current[index] = tl;
             });
         }, containerRef);
@@ -203,11 +182,8 @@ export function EmblaCarousel() {
         hoverTlsRef.current[index]?.reverse();
     }, []);
 
-    // Reset hover states when window loses focus
     useEffect(() => {
-        const resetAll = () => {
-            hoverTlsRef.current.forEach((tl) => tl?.reverse());
-        };
+        const resetAll = () => { hoverTlsRef.current.forEach((tl) => tl?.reverse()); };
         window.addEventListener("blur", resetAll);
         document.addEventListener("visibilitychange", resetAll);
         return () => {
@@ -222,8 +198,21 @@ export function EmblaCarousel() {
         return (
             <div className="flex gap-4">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="flex-[0_0_100%] md:flex-[0_0_28.57%] h-130 bg-slate-200 rounded-lg animate-pulse" />
+                    <div
+                        key={i}
+                        className="flex-[0_0_100%] md:flex-[0_0_28.57%] h-130 bg-slate-200 rounded-lg animate-pulse"
+                    />
                 ))}
+            </div>
+        );
+    }
+
+    // ── Empty state ───────────────────────────────────────────────────────────
+
+    if (services.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-64 text-slate-400 text-sm">
+                No services available
             </div>
         );
     }
@@ -237,28 +226,39 @@ export function EmblaCarousel() {
                     {services.map((item, index) => (
                         <div
                             key={item.id}
-                            ref={(el) => {
-                                slidesRef.current[index] = el;
-                            }}
+                            ref={(el) => { slidesRef.current[index] = el; }}
                             onMouseEnter={() => handleCardEnter(index)}
                             onMouseLeave={() => handleCardLeave(index)}
                             className="flex-[0_0_100%] px-1.25 h-100 sm:h-110 md:h-120 lg:h-130 sm:flex-[0_0_50%] lg:flex-[0_0_28.57%] group"
                         >
-                            <Link href={`services/${item.url}`}>
+                            <Link href={`/services/${item.url}`}>
                                 <div className="slide-reveal-inner relative overflow-hidden h-full will-change-[clip-path,transform]">
                                     <div className="w-full h-full">
-                                        <Image src={item.image} alt={item.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                                        {item.bannerImage ? (
+                                            <Image
+                                                src={item.bannerImage}
+                                                alt={item.bannerImageAlt || item.title}
+                                                width={1000}
+                                                height={1000}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            /* fallback placeholder if no banner uploaded yet */
+                                            <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                                                <span className="text-slate-400 text-xs">No image</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div
-                                        ref={(el) => {
-                                            overlayRefs.current[index] = el;
-                                        }}
+                                        ref={(el) => { overlayRefs.current[index] = el; }}
                                         className="absolute inset-0 bg-black opacity-0 pointer-events-none"
                                     />
 
                                     <div className="absolute w-full h-82.5 bottom-0 bg-linear-to-t from-black to-black/0 text-white p-6 flex flex-col justify-end">
-                                        <h3 className="mb-2 text-xl md:text-2xl leading-6.5 tracking-wide font-helvetica-medium text-white">{item.title}</h3>
+                                        <h3 className="mb-2 text-xl md:text-2xl leading-6.5 font-abc-laica-a-italic-variable-trial text-white">
+                                            {item.title}
+                                        </h3>
                                     </div>
                                 </div>
                             </Link>

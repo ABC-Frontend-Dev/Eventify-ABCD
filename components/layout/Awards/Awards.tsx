@@ -1,3 +1,4 @@
+// components/layout/Awards/Awards.tsx
 "use client";
 
 import { useEffect, useState } from "react";

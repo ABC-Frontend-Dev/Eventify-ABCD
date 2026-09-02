@@ -1,4 +1,3 @@
-// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -6,6 +5,21 @@ const nextConfig: NextConfig = {
         serverActions: {
             bodySizeLimit: "1000mb",
         },
+    },
+
+    async redirects() {
+        return [
+            {
+                source: "/blogs",
+                destination: "/#blogs",
+                permanent: false,
+            },
+            {
+                source: "/services",
+                destination: "/#services",
+                permanent: false,
+            },
+        ];
     },
 
     images: {

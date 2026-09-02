@@ -15,88 +15,63 @@ model Model {
   updatedAt DateTime @updatedAt
 }
 
-enum SectionType {
-  CLIENT
-  SERVICE
-  TEAM
-  PROJECT
-  AWARD
-  BLOG
-  SYL //See You Later
-}
-
 model SectionTD {
   id           Int         @id @default(autoincrement())
   type         SectionType @unique
   titlePartOne String
   titlePartTwo String?
-  description  String?     @db.Text
+  description  String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
 
 model HeroSection {
-  id        Int    @id @default(autoincrement())
-  mediaType String // "video" or "image"
-
-  // Video fields
+  id         Int         @id @default(autoincrement())
+  mediaType  String
   videoUrl   String?
   videoTitle String?
   videoDesc  String?
-
-  // Image fields (multiple)
-  images HeroImage[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  images     HeroImage[]
 }
 
 model AboutUs {
-  id Int @id @default(autoincrement())
-
-  titlePartOne String  @db.VarChar(50)
-  titlePartTwo String? @db.VarChar(50)
-
-  description String @db.Text
-
-  image    String  @db.Text
-  imageAlt String? @default("Eventify Banner Image")
-
-  cards AboutUsCard[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int           @id @default(autoincrement())
+  titlePartOne String        @db.VarChar(50)
+  titlePartTwo String?       @db.VarChar(50)
+  description  String
+  image        String
+  imageAlt     String?       @default("Eventify Banner Image")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  cards        AboutUsCard[]
 }
 
 model AboutUsCard {
-  id Int @id @default(autoincrement())
-
-  frontFacePartOne String? @db.Text
-  frontFacePartTwo String? @db.Text
-  backFace         String  @db.Text
+  id               Int      @id @default(autoincrement())
+  backFace         String
   sortOrder        Int
-
-  aboutUsId Int
-  aboutUs   AboutUs @relation(fields: [aboutUsId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  aboutUsId        Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  frontFacePartOne String?
+  frontFacePartTwo String?
+  aboutUs          AboutUs  @relation(fields: [aboutUsId], references: [id], onDelete: Cascade)
 }
 
 model HeroImage {
-  id     Int         @id @default(autoincrement())
-  heroId Int
-  hero   HeroSection @relation(fields: [heroId], references: [id], onDelete: Cascade)
-
+  id          Int         @id @default(autoincrement())
+  heroId      Int
   imageUrl    String
   altText     String?
   title       String?
   description String?
-  isActive    Boolean @default(false)
-  order       Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive    Boolean     @default(false)
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  hero        HeroSection @relation(fields: [heroId], references: [id], onDelete: Cascade)
 
   @@index([heroId])
 }
@@ -106,10 +81,10 @@ model Clients {
   name        String
   description String?
   image       String
-  order       Int       @default(0)
-  projects    Project[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
+  order       Int       @default(0)
+  projects    Project[]
 }
 
 model Project {
@@ -119,17 +94,15 @@ model Project {
   bannerImage       String
   images            String[]
   categoryId        Int
-  order             Int             @default(0)
   hasTabs           Boolean         @default(false)
   clientId          Int?
+  createdAt         DateTime        @default(now())
   projectClientLogo String?
+  updatedAt         DateTime        @default(now()) @updatedAt
+  order             Int             @default(0)
   category          ProjectCategory @relation(fields: [categoryId], references: [id])
   client            Clients?        @relation(fields: [clientId], references: [id])
   tabs              ProjectTab[]
-  createdAt         DateTime        @default(now())
-
-  // FIX: Add @default(now()) so existing 23 rows get filled with the current time
-  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([categoryId])
   @@index([clientId])
@@ -156,10 +129,10 @@ model ProjectCategory {
 model Author {
   id     Int     @id @default(autoincrement())
   name   String
-  email  String  @unique
-  role   String  @default("Author")
   bio    String?
+  email  String  @unique
   avatar String?
+  role   String  @default("Author")
   blogs  Blog[]
 }
 
@@ -216,11 +189,6 @@ model BlogView {
   @@index([viewedAt])
 }
 
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-}
-
 model User {
   id        Int      @id @default(autoincrement())
   firstName String
@@ -248,36 +216,19 @@ model ContactSubmission {
 }
 
 model Service {
-  id               Int                      @id @default(autoincrement())
-  title            String
-  url              String                   @unique
-  breadcrumb       String
-  description      String?
-  content          String                   @db.Text
-  bannerImage      String
-  bannerImageAlt   String?
-  mediaType        String                   @default("image")
-  videoUrl         String?
-  videoPoster      String?
-  order            Int                      @default(0)
-  createdAt        DateTime                 @default(now())
-  updatedAt        DateTime                 @updatedAt
-  comparisonImages ServiceComparisonImage[]
+  id             Int              @id @default(autoincrement())
+  title          String
+  url            String           @unique
+  description    String
+  content        String
+  image          String
+  bannerImage    String?
+  order          Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  service_images service_images[]
 
   @@map("services")
-}
-
-model ServiceComparisonImage {
-  id          Int     @id @default(autoincrement())
-  serviceId   Int
-  beforeImage String  @db.Text
-  beforeAlt   String?
-  afterImage  String  @db.Text
-  afterAlt    String?
-  order       Int     @default(0)
-  service     Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  @@map("service_comparison_images")
 }
 
 model Award {
@@ -331,13 +282,12 @@ model Comparison {
 }
 
 model TeamMember {
-  id        Int      @id @default(autoincrement())
-  name      String
-  role      String
-  image     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id         Int              @id @default(autoincrement())
+  name       String
+  role       String
+  image      String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
   gridLayout TeamsGridLayout?
 }
 
@@ -351,17 +301,6 @@ model TeamsGridLayout {
   teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
 
   @@unique([x, y])
-}
-
-enum BlogStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum ContactSubmissionStatus {
-  NEW
-  READ
 }
 
 model NewsletterSubscriber {
@@ -388,12 +327,47 @@ model NewsletterSend {
 model InstagramPost {
   id          Int      @id @default(autoincrement())
   url         String   @unique
-  imageWidth  Int?
-  imageHeight Int?
   image       String?
   title       String?
   isEnabled   Boolean  @default(false)
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  imageHeight Int?
+  imageWidth  Int?
+}
+
+model service_images {
+  id        Int     @id @default(autoincrement())
+  serviceId Int
+  image     String
+  title     String?
+  order     Int     @default(0)
+  services  Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+enum SectionType {
+  CLIENT
+  SERVICE
+  TEAM
+  PROJECT
+  AWARD
+  BLOG
+  SYL
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContactSubmissionStatus {
+  NEW
+  READ
 }

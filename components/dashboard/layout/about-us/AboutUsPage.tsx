@@ -1,3 +1,4 @@
+// components/dashboard/layout/about-us
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -6,10 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useToasts } from "@/components/ui/toast";
-import { Loader2, X, AlertCircle, CheckCircle2, Eye, RefreshCw, Plus, Trash2, Pencil, ChevronDown, ChevronUp, FileText, Image as ImageIcon, LayoutGrid } from "lucide-react";
+import {
+    Loader2, X, AlertCircle, CheckCircle2, Eye, RefreshCw,
+    Plus, Trash2, Pencil, ChevronDown, ChevronUp,
+    FileText, Image as ImageIcon, LayoutGrid,
+} from "lucide-react";
 import Image from "next/image";
 import DashboardHeader from "../common/Header";
-import CardFlip from "@/components/ui/flip-card";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -20,7 +24,8 @@ const MAX_CARDS = 3;
 
 interface AboutUsCard {
     id?: number;
-    frontFace: string;
+    frontFacePartOne: string;   // required
+    frontFacePartTwo: string;   // optional but string for controlled input
     backFace: string;
     sortOrder: number;
 }
@@ -37,7 +42,15 @@ interface AboutUsData {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
+function FieldLabel({
+    children,
+    required,
+    ok,
+}: {
+    children: React.ReactNode;
+    required?: boolean;
+    ok?: boolean;
+}) {
     return (
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
             {children}
@@ -50,7 +63,9 @@ function FieldLabel({ children, required, ok }: { children: React.ReactNode; req
 function SectionHeading({ label }: { label: string }) {
     return (
         <div className="flex items-center gap-2 mb-4">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">{label}</span>
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+                {label}
+            </span>
             <div className="flex-1 h-px bg-slate-100" />
         </div>
     );
@@ -65,47 +80,65 @@ function CurrentDataPreview({ data }: { data: AboutUsData }) {
             <div className="bg-white border border-slate-200 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-4">
                     <FileText className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Heading & Description</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+                        Heading & Description
+                    </span>
                 </div>
 
                 <div className="space-y-3">
-                    {/* Title preview */}
                     <div>
                         <p className="text-[11px] text-slate-400 mb-1">Title</p>
                         <p className="text-lg font-bold text-slate-800 leading-tight">
-                            {data.titlePartOne || <span className="text-slate-300 font-normal text-sm">No title set</span>}
+                            {data.titlePartOne || (
+                                <span className="text-slate-300 font-normal text-sm">
+                                    No title set
+                                </span>
+                            )}
                             {data.titlePartTwo && (
                                 <>
                                     {" "}
-                                    <span className="italic font-semibold">{data.titlePartTwo}</span>
+                                    <span className="italic font-semibold">
+                                        {data.titlePartTwo}
+                                    </span>
                                 </>
                             )}
                         </p>
                     </div>
 
-                    {/* Divider */}
                     <div className="h-px bg-slate-100" />
 
-                    {/* Description */}
                     <div>
                         <p className="text-[11px] text-slate-400 mb-1">Description</p>
-                        {data.description ? <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">{data.description}</p> : <p className="text-sm text-slate-300">No description set</p>}
+                        {data.description ? (
+                            <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">
+                                {data.description}
+                            </p>
+                        ) : (
+                            <p className="text-sm text-slate-300">No description set</p>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Image + Cards — side by side on md+ */}
+            {/* Image + Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Image */}
                 <div className="bg-white border border-slate-200 rounded-xl p-5">
                     <div className="flex items-center gap-2 mb-4">
                         <ImageIcon className="h-3.5 w-3.5 text-slate-400" />
-                        <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Section Image</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+                            Section Image
+                        </span>
                     </div>
 
                     {data.image ? (
                         <div className="relative w-full h-44 rounded-lg overflow-hidden border border-slate-100">
-                            <Image src={data.image} alt={data.imageAlt || "About Us image"} fill className="object-cover" />
+                            <Image
+                                src={data.image}
+                                alt={data.imageAlt || "About Us image"}
+                                fill
+                                className="object-cover"
+                            />
                         </div>
                     ) : (
                         <div className="w-full h-44 rounded-lg bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center">
@@ -118,7 +151,8 @@ function CurrentDataPreview({ data }: { data: AboutUsData }) {
 
                     {data.imageAlt && (
                         <p className="mt-2 text-[11px] text-slate-400 truncate">
-                            Alt: <span className="text-slate-500">{data.imageAlt}</span>
+                            Alt:{" "}
+                            <span className="text-slate-500">{data.imageAlt}</span>
                         </p>
                     )}
                 </div>
@@ -142,11 +176,41 @@ function CurrentDataPreview({ data }: { data: AboutUsData }) {
                     ) : (
                         <div className="space-y-2">
                             {data.cards.map((card, i) => (
-                                <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 shrink-0 w-10">Card {i + 1}</span>
+                                <div
+                                    key={i}
+                                    className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100"
+                                >
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 shrink-0 w-10">
+                                        Card {i + 1}
+                                    </span>
                                     <div className="min-w-0">
-                                        <p className="text-xs font-medium text-slate-700 truncate">{card.frontFace || <span className="text-slate-300">No front text</span>}</p>
-                                        <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">{card.backFace || <span className="text-slate-300">No back text</span>}</p>
+                                        {/* ✅ Fixed: use frontFacePartOne / frontFacePartTwo */}
+                                        <p className="text-xs font-medium text-slate-700 truncate">
+                                            {card.frontFacePartOne || card.frontFacePartTwo ? (
+                                                <>
+                                                    {card.frontFacePartOne}
+                                                    {card.frontFacePartOne &&
+                                                        card.frontFacePartTwo &&
+                                                        " "}
+                                                    {card.frontFacePartTwo && (
+                                                        <span className="italic text-primary">
+                                                            {card.frontFacePartTwo}
+                                                        </span>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <span className="text-slate-300">
+                                                    No front text
+                                                </span>
+                                            )}
+                                        </p>
+                                        <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">
+                                            {card.backFace || (
+                                                <span className="text-slate-300">
+                                                    No back text
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -171,30 +235,83 @@ function CardEditor({
     onChange: (index: number, field: keyof AboutUsCard, value: string) => void;
     onDelete: (index: number) => void;
 }) {
+    const frontPreview = [card.frontFacePartOne, card.frontFacePartTwo]
+        .filter(Boolean)
+        .join(" ");
+
     return (
         <div className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50/50">
+            {/* Header */}
             <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Card {index + 1}</span>
-                <button type="button" onClick={() => onDelete(index)} className="p-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Remove card">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                    Card {index + 1}
+                </span>
+                <button
+                    type="button"
+                    onClick={() => onDelete(index)}
+                    className="p-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    title="Remove card"
+                >
                     <Trash2 className="h-3.5 w-3.5" />
                 </button>
             </div>
 
+            {/* Front face part 1 — REQUIRED */}
             <div>
-                <FieldLabel required ok={!!card.frontFace.trim()}>
-                    Front Face (title shown on card front)
+                <FieldLabel required ok={!!card.frontFacePartOne.trim()}>
+                    Front Face — Part 1
                 </FieldLabel>
                 <Textarea
-                    value={card.frontFace}
-                    onChange={(e) => onChange(index, "frontFace", e.target.value)}
-                    placeholder="e.g. What makes Eventify different is simple, people come back."
-                    rows={3}
+                    value={card.frontFacePartOne}
+                    onChange={(e) => onChange(index, "frontFacePartOne", e.target.value)}
+                    placeholder='e.g. "What makes Eventify different"'
+                    rows={2}
                     className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
                     maxLength={200}
                 />
-                <p className="mt-1 text-[11px] text-slate-400 text-right">{card.frontFace.length}/200</p>
+                <p className="mt-1 text-[11px] text-slate-400 text-right">
+                    {card.frontFacePartOne.length}/200
+                </p>
             </div>
 
+            {/* Front face part 2 — optional */}
+            <div>
+                <FieldLabel ok={!!card.frontFacePartTwo.trim()}>
+                    Front Face — Part 2{" "}
+                    <span className="ml-1 text-slate-300 font-normal">
+                        (optional · shown in accent colour)
+                    </span>
+                </FieldLabel>
+                <Textarea
+                    value={card.frontFacePartTwo}
+                    onChange={(e) => onChange(index, "frontFacePartTwo", e.target.value)}
+                    placeholder='e.g. "is simple, people come back."'
+                    rows={2}
+                    className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
+                    maxLength={200}
+                />
+                <p className="mt-1 text-[11px] text-slate-400 text-right">
+                    {card.frontFacePartTwo.length}/200
+                </p>
+            </div>
+
+            {/* Front preview */}
+            {frontPreview && (
+                <div className="px-3 py-2 bg-white border border-slate-100 rounded-lg">
+                    <p className="text-[11px] text-slate-400 mb-1">Front preview</p>
+                    <p className="text-xs font-medium text-slate-700 leading-relaxed">
+                        {card.frontFacePartOne}
+                        {card.frontFacePartOne && card.frontFacePartTwo && " "}
+                        {card.frontFacePartTwo && (
+                            <span className="text-primary italic">
+                                {card.frontFacePartTwo}
+                            </span>
+                        )}
+                    </p>
+                </div>
+            )}
+
+            {/* Back face — REQUIRED */}
             <div>
                 <FieldLabel required ok={!!card.backFace.trim()}>
                     Back Face (description shown on hover)
@@ -207,15 +324,10 @@ function CardEditor({
                     className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
                     maxLength={400}
                 />
-                <p className="mt-1 text-[11px] text-slate-400 text-right">{card.backFace.length}/400</p>
+                <p className="mt-1 text-[11px] text-slate-400 text-right">
+                    {card.backFace.length}/400
+                </p>
             </div>
-
-            {/* {(card.frontFace || card.backFace) && (
-                <div className="mt-2">
-                    <p className="text-[11px] text-slate-400 mb-2">Preview (hover to flip)</p>
-                    <CardFlip className="w-full h-40" title={card.frontFace || "Front text…"} description={card.backFace || "Back text…"} />
-                </div>
-            )} */}
         </div>
     );
 }
@@ -268,7 +380,11 @@ export default function AboutUsPage() {
             },
             {
                 label: `Cards (${formData.cards.length}/${MAX_CARDS})`,
-                ok: formData.cards.length > 0 && formData.cards.every((c) => c.frontFace.trim() && c.backFace.trim()),
+                ok:
+                    formData.cards.length > 0 &&
+                    formData.cards.every(
+                        (c) => c.frontFacePartOne.trim() && c.backFace.trim()
+                    ),
                 required: false,
             },
         ],
@@ -276,7 +392,9 @@ export default function AboutUsPage() {
     );
 
     const requiredItems = completion.filter((c) => c.required);
-    const completionPct = Math.round((completion.filter((c) => c.ok).length / completion.length) * 100);
+    const completionPct = Math.round(
+        (completion.filter((c) => c.ok).length / completion.length) * 100,
+    );
     const isFormValid = requiredItems.every((c) => c.ok);
 
     // ── Fetch ─────────────────────────────────────────────────────────────────
@@ -296,17 +414,18 @@ export default function AboutUsPage() {
                     description: d.description || "",
                     image: d.image || "",
                     imageAlt: d.imageAlt || "Eventify Banner Image",
+                    // ✅ Fixed: map frontFacePartOne / frontFacePartTwo correctly
                     cards: (d.cards || []).map((c: any) => ({
                         id: c.id,
-                        frontFace: c.frontFace,
-                        backFace: c.backFace,
+                        frontFacePartOne: c.frontFacePartOne || "",
+                        frontFacePartTwo: c.frontFacePartTwo || "",
+                        backFace: c.backFace || "",
                         sortOrder: c.sortOrder,
                     })),
                 });
                 setIsNew(false);
             } else {
                 setIsNew(true);
-                // Auto-open form if no data exists yet
                 setShowEditForm(true);
             }
         } catch {
@@ -368,11 +487,23 @@ export default function AboutUsPage() {
         }
         setFormData((p) => ({
             ...p,
-            cards: [...p.cards, { frontFace: "", backFace: "", sortOrder: p.cards.length }],
+            cards: [
+                ...p.cards,
+                {
+                    frontFacePartOne: "",
+                    frontFacePartTwo: "",
+                    backFace: "",
+                    sortOrder: p.cards.length,
+                },
+            ],
         }));
     };
 
-    const handleCardChange = (index: number, field: keyof AboutUsCard, value: string) => {
+    const handleCardChange = (
+        index: number,
+        field: keyof AboutUsCard,
+        value: string,
+    ) => {
         setFormData((p) => {
             const cards = [...p.cards];
             cards[index] = { ...cards[index], [field]: value };
@@ -383,7 +514,9 @@ export default function AboutUsPage() {
     const handleCardDelete = (index: number) => {
         setFormData((p) => ({
             ...p,
-            cards: p.cards.filter((_, i) => i !== index).map((c, i) => ({ ...c, sortOrder: i })),
+            cards: p.cards
+                .filter((_, i) => i !== index)
+                .map((c, i) => ({ ...c, sortOrder: i })),
         }));
     };
 
@@ -395,9 +528,13 @@ export default function AboutUsPage() {
             return;
         }
 
-        const incompleteCard = formData.cards.find((c) => !c.frontFace.trim() || !c.backFace.trim());
+        const incompleteCard = formData.cards.find(
+            (c) => !c.frontFacePartOne.trim() || !c.backFace.trim(),
+        );
         if (incompleteCard) {
-            toast.warning("Please complete all card fields or remove incomplete cards");
+            toast.warning(
+                "Each card must have Front Face Part 1 and a Back Face. Remove or complete all cards.",
+            );
             return;
         }
 
@@ -411,7 +548,8 @@ export default function AboutUsPage() {
                 imageAlt: formData.imageAlt.trim() || "Eventify Banner Image",
                 cards: formData.cards.map((c, i) => ({
                     ...(c.id ? { id: c.id } : {}),
-                    frontFace: c.frontFace.trim(),
+                    frontFacePartOne: c.frontFacePartOne.trim(),
+                    frontFacePartTwo: c.frontFacePartTwo.trim() || undefined,
                     backFace: c.backFace.trim(),
                     sortOrder: i,
                 })),
@@ -427,7 +565,7 @@ export default function AboutUsPage() {
             if (result.success) {
                 toast.success(isNew ? "About Us created!" : "About Us updated!");
                 setIsNew(false);
-                setShowEditForm(false); // collapse form after save
+                setShowEditForm(false);
                 fetchAboutUs();
             } else {
                 toast.error(result.error || "Failed to save");
@@ -439,7 +577,8 @@ export default function AboutUsPage() {
         }
     };
 
-    const inp = "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
+    const inp =
+        "h-9 text-sm border-slate-200 bg-white focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300";
 
     // ── Loading ───────────────────────────────────────────────────────────────
 
@@ -455,70 +594,114 @@ export default function AboutUsPage() {
 
     return (
         <div className="space-y-6 max-w-full">
-            {/* ── Header row ── */}
+            {/* Header */}
             <div className="flex items-start justify-between gap-4">
-                <DashboardHeader title="About Us" description="Manage the About Us section shown on the homepage." />
-                <Button variant="outline" size="sm" onClick={() => fetchAboutUs(true)} disabled={refreshing || saving} className="h-8 text-xs gap-1.5 shrink-0 mt-1">
-                    <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                <DashboardHeader
+                    title="About Us"
+                    description="Manage the About Us section shown on the homepage."
+                />
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchAboutUs(true)}
+                    disabled={refreshing || saving}
+                    className="h-8 text-xs gap-1.5 shrink-0 mt-1"
+                >
+                    <RefreshCw
+                        className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`}
+                    />
                     Refresh
                 </Button>
             </div>
 
-            {/* ── No data banner ── */}
+            {/* No data banner */}
             {isNew && (
                 <div className="flex items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
                     <AlertCircle className="h-4 w-4 shrink-0" />
-                    No About Us content found. Click <strong className="mx-0.5">Update Content</strong> below to create it.
+                    No About Us content found. Click{" "}
+                    <strong className="mx-0.5">Update Content</strong> below to
+                    create it.
                 </div>
             )}
 
-            {/* ── Current data preview ── */}
+            {/* Current data preview */}
             {!isNew && <CurrentDataPreview data={formData} />}
 
-            {/* ── Update toggle button ── */}
+            {/* Accordion toggle */}
             <div className="space-y-0">
                 <button
                     type="button"
                     onClick={() => setShowEditForm((v) => !v)}
                     className={`w-full flex items-center justify-between px-5 py-3.5 bg-white border border-slate-200 transition-all duration-200 text-left group ${
-                        showEditForm ? "rounded-t-xl border-b-slate-100" : "rounded-xl hover:border-slate-300"
+                        showEditForm
+                            ? "rounded-t-xl border-b-slate-100"
+                            : "rounded-xl hover:border-slate-300"
                     }`}
                 >
                     <div className="flex items-center gap-2.5">
-                        <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${showEditForm ? "bg-slate-900" : "bg-slate-100 group-hover:bg-slate-200"}`}>
-                            <Pencil className={`h-3 w-3 transition-colors ${showEditForm ? "text-white" : "text-slate-600"}`} />
+                        <div
+                            className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
+                                showEditForm
+                                    ? "bg-slate-900"
+                                    : "bg-slate-100 group-hover:bg-slate-200"
+                            }`}
+                        >
+                            <Pencil
+                                className={`h-3 w-3 transition-colors ${
+                                    showEditForm ? "text-white" : "text-slate-600"
+                                }`}
+                            />
                         </div>
                         <div>
-                            <p className="text-xs font-semibold text-slate-700">{isNew ? "Create About Us Content" : "Update Content"}</p>
+                            <p className="text-xs font-semibold text-slate-700">
+                                {isNew ? "Create About Us Content" : "Update Content"}
+                            </p>
                             <p className="text-[11px] text-slate-400">
-                                {showEditForm ? "Click to collapse the editor" : isNew ? "Fill in the form to create your About Us section" : "Edit title, description, image and flip cards"}
+                                {showEditForm
+                                    ? "Click to collapse the editor"
+                                    : isNew
+                                    ? "Fill in the form to create your About Us section"
+                                    : "Edit title, description, image and flip cards"}
                             </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         {!showEditForm && !isNew && (
                             <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                                <Pencil className="h-3 w-3" />
-                                Edit
+                                <Pencil className="h-3 w-3" /> Edit
                             </span>
                         )}
-                        {showEditForm ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                        {showEditForm ? (
+                            <ChevronUp className="h-4 w-4 text-slate-400" />
+                        ) : (
+                            <ChevronDown className="h-4 w-4 text-slate-400" />
+                        )}
                     </div>
                 </button>
 
-                {/* ── Collapsible edit form ── */}
-                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${showEditForm ? "max-h-[9999px] opacity-100" : "max-h-0 opacity-0"}`}>
+                {/* Collapsible form */}
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        showEditForm
+                            ? "max-h-[9999px] opacity-100"
+                            : "max-h-0 opacity-0"
+                    }`}
+                >
                     <div className="border border-t-0 border-slate-200 rounded-b-xl">
-                        {/* Form body + sidebar */}
                         <div className="flex flex-col xl:flex-row gap-0">
-                            {/* ── Main form column ── */}
+                            {/* Main form */}
                             <div className="flex-1 min-w-0 p-5 space-y-5">
-                                {/* Completion progress — mobile only */}
+                                {/* Mobile progress */}
                                 <div className="flex xl:hidden items-center gap-3 px-4 py-3 bg-slate-50 border border-slate-100 rounded-lg">
                                     <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-emerald-500 rounded-full transition-all duration-300" style={{ width: `${completionPct}%` }} />
+                                        <div
+                                            className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                                            style={{ width: `${completionPct}%` }}
+                                        />
                                     </div>
-                                    <span className="text-[11px] text-slate-500 font-medium shrink-0">{completionPct}% complete</span>
+                                    <span className="text-[11px] text-slate-500 font-medium shrink-0">
+                                        {completionPct}% complete
+                                    </span>
                                 </div>
 
                                 {/* SECTION 1: Heading & Description */}
@@ -526,7 +709,10 @@ export default function AboutUsPage() {
                                     <SectionHeading label="Heading & Description" />
                                     <div className="space-y-4">
                                         <div>
-                                            <FieldLabel required ok={!!formData.titlePartOne.trim()}>
+                                            <FieldLabel
+                                                required
+                                                ok={!!formData.titlePartOne.trim()}
+                                            >
                                                 Title — Part 1
                                             </FieldLabel>
                                             <Input
@@ -542,14 +728,16 @@ export default function AboutUsPage() {
                                                 maxLength={50}
                                             />
                                             <p className="mt-1 text-[11px] text-slate-400 text-right">
-                                                {formData.titlePartOne.length}
-                                                /50
+                                                {formData.titlePartOne.length}/50
                                             </p>
                                         </div>
 
                                         <div>
                                             <FieldLabel ok={!!formData.titlePartTwo.trim()}>
-                                                Title — Part 2<span className="ml-1 text-slate-300 font-normal">(optional)</span>
+                                                Title — Part 2{" "}
+                                                <span className="ml-1 text-slate-300 font-normal">
+                                                    (optional)
+                                                </span>
                                             </FieldLabel>
                                             <Input
                                                 value={formData.titlePartTwo}
@@ -564,21 +752,25 @@ export default function AboutUsPage() {
                                                 maxLength={50}
                                             />
                                             <p className="mt-1 text-[11px] text-slate-400 text-right">
-                                                {formData.titlePartTwo.length}
-                                                /50
+                                                {formData.titlePartTwo.length}/50
                                             </p>
                                         </div>
 
                                         {/* Title preview */}
-                                        {(formData.titlePartOne || formData.titlePartTwo) && (
+                                        {(formData.titlePartOne ||
+                                            formData.titlePartTwo) && (
                                             <div className="px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-lg">
-                                                <p className="text-[11px] text-slate-400 mb-1">Preview</p>
+                                                <p className="text-[11px] text-slate-400 mb-1">
+                                                    Preview
+                                                </p>
                                                 <p className="text-lg font-bold text-primary leading-tight">
                                                     {formData.titlePartOne}
                                                     {formData.titlePartTwo && (
                                                         <>
                                                             {" "}
-                                                            <span className="font-semibold italic">{formData.titlePartTwo}</span>
+                                                            <span className="font-semibold italic">
+                                                                {formData.titlePartTwo}
+                                                            </span>
                                                         </>
                                                     )}
                                                 </p>
@@ -586,7 +778,10 @@ export default function AboutUsPage() {
                                         )}
 
                                         <div>
-                                            <FieldLabel required ok={!!formData.description.trim()}>
+                                            <FieldLabel
+                                                required
+                                                ok={!!formData.description.trim()}
+                                            >
                                                 Description
                                             </FieldLabel>
                                             <Textarea
@@ -609,7 +804,11 @@ export default function AboutUsPage() {
                                 <section className="bg-white border border-slate-200 rounded-xl p-5">
                                     <SectionHeading label="Section Image" />
                                     <p className="text-[11px] text-slate-400 mb-3">
-                                        Max size: <span className="font-medium text-slate-600">{MAX_IMAGE_SIZE_MB}MB</span> · Accepted: JPG, PNG, WebP
+                                        Max size:{" "}
+                                        <span className="font-medium text-slate-600">
+                                            {MAX_IMAGE_SIZE_MB}MB
+                                        </span>{" "}
+                                        · Accepted: JPG, PNG, WebP
                                     </p>
 
                                     <ImageUploader
@@ -633,7 +832,15 @@ export default function AboutUsPage() {
                                     {formData.image && !uploading && (
                                         <div className="mt-3 relative group rounded-lg overflow-hidden border border-slate-100 bg-slate-50">
                                             <div className="relative w-full h-56">
-                                                <Image src={formData.image} alt={formData.imageAlt || "About Us image"} fill className="object-cover" />
+                                                <Image
+                                                    src={formData.image}
+                                                    alt={
+                                                        formData.imageAlt ||
+                                                        "About Us image"
+                                                    }
+                                                    fill
+                                                    className="object-cover"
+                                                />
                                             </div>
                                             <button
                                                 type="button"
@@ -653,8 +860,10 @@ export default function AboutUsPage() {
 
                                     <div className="mt-4">
                                         <FieldLabel ok={!!formData.imageAlt.trim()}>
-                                            Image Alt Text
-                                            <span className="ml-1 text-slate-300 font-normal">(optional)</span>
+                                            Image Alt Text{" "}
+                                            <span className="ml-1 text-slate-300 font-normal">
+                                                (optional)
+                                            </span>
                                         </FieldLabel>
                                         <Input
                                             value={formData.imageAlt}
@@ -673,13 +882,17 @@ export default function AboutUsPage() {
                                 {/* SECTION 3: Cards */}
                                 <section className="bg-white border border-slate-200 rounded-xl p-5">
                                     <div className="flex items-center justify-between mb-4">
-                                        <SectionHeading label={`Flip Cards (${formData.cards.length}/${MAX_CARDS})`} />
+                                        <SectionHeading
+                                            label={`Flip Cards (${formData.cards.length}/${MAX_CARDS})`}
+                                        />
                                         <Button
                                             type="button"
                                             size="sm"
                                             variant="outline"
                                             onClick={handleAddCard}
-                                            disabled={formData.cards.length >= MAX_CARDS}
+                                            disabled={
+                                                formData.cards.length >= MAX_CARDS
+                                            }
                                             className="h-7 text-xs gap-1.5 shrink-0"
                                         >
                                             <Plus className="h-3.5 w-3.5" />
@@ -689,8 +902,16 @@ export default function AboutUsPage() {
 
                                     {formData.cards.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-10 rounded-lg border-2 border-dashed border-slate-200 bg-slate-50/50">
-                                            <p className="text-sm text-slate-400 mb-3">No cards yet — add up to {MAX_CARDS}</p>
-                                            <Button type="button" size="sm" variant="outline" onClick={handleAddCard} className="h-7 text-xs gap-1.5">
+                                            <p className="text-sm text-slate-400 mb-3">
+                                                No cards yet — add up to {MAX_CARDS}
+                                            </p>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={handleAddCard}
+                                                className="h-7 text-xs gap-1.5"
+                                            >
                                                 <Plus className="h-3.5 w-3.5" />
                                                 Add First Card
                                             </Button>
@@ -698,15 +919,25 @@ export default function AboutUsPage() {
                                     ) : (
                                         <div className="space-y-4">
                                             {formData.cards.map((card, index) => (
-                                                <CardEditor key={index} card={card} index={index} onChange={handleCardChange} onDelete={handleCardDelete} />
+                                                <CardEditor
+                                                    key={index}
+                                                    card={card}
+                                                    index={index}
+                                                    onChange={handleCardChange}
+                                                    onDelete={handleCardDelete}
+                                                />
                                             ))}
                                         </div>
                                     )}
 
-                                    <p className="mt-3 text-[11px] text-slate-400">Cards appear on the left side of the About Us section. Hover to flip.</p>
+                                    <p className="mt-3 text-[11px] text-slate-400">
+                                        Cards appear on the left side of the About Us
+                                        section. Hover to flip. Part 2 of the front
+                                        face is shown in the accent colour.
+                                    </p>
                                 </section>
 
-                                {/* ── Form action row ── */}
+                                {/* Form actions */}
                                 <div className="flex items-center gap-3 pt-1 pb-2">
                                     <Button
                                         type="button"
@@ -715,10 +946,21 @@ export default function AboutUsPage() {
                                         disabled={saving || uploading || !isFormValid}
                                         className="h-9 text-xs bg-slate-900 hover:bg-slate-700 text-white px-5"
                                     >
-                                        {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
+                                        {saving ? (
+                                            <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                                        ) : (
+                                            <Eye className="h-3.5 w-3.5 mr-1.5" />
+                                        )}
                                         {isNew ? "Create" : "Save Changes"}
                                     </Button>
-                                    <Button type="button" size="sm" variant="outline" onClick={() => setShowEditForm(false)} disabled={saving} className="h-9 text-xs">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setShowEditForm(false)}
+                                        disabled={saving}
+                                        className="h-9 text-xs"
+                                    >
                                         Cancel
                                     </Button>
                                     {!isFormValid && (
@@ -730,34 +972,52 @@ export default function AboutUsPage() {
                                 </div>
                             </div>
 
-                            {/* ── Sidebar ── */}
+                            {/* Sidebar */}
                             <aside className="w-full xl:w-60 shrink-0 border-t xl:border-t-0 xl:border-l border-slate-100">
                                 <div className="xl:sticky xl:top-6 p-5 space-y-4">
                                     {/* Completion */}
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className="text-xs font-medium text-slate-600">Completion</span>
+                                            <span className="text-xs font-medium text-slate-600">
+                                                Completion
+                                            </span>
                                             <span className="text-[11px] text-slate-400">
-                                                {completion.filter((c) => c.ok).length}/{completion.length}
+                                                {completion.filter((c) => c.ok).length}/
+                                                {completion.length}
                                             </span>
                                         </div>
                                         <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
                                             <div
                                                 className="h-full bg-emerald-500 transition-all duration-300 rounded-full"
-                                                style={{
-                                                    width: `${completionPct}%`,
-                                                }}
+                                                style={{ width: `${completionPct}%` }}
                                             />
                                         </div>
                                         <div className="space-y-1.5">
                                             {completion.map((item) => (
-                                                <div key={item.label} className="flex items-center gap-2">
+                                                <div
+                                                    key={item.label}
+                                                    className="flex items-center gap-2"
+                                                >
                                                     {item.ok ? (
                                                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                                                     ) : (
-                                                        <AlertCircle className={`h-3.5 w-3.5 shrink-0 ${item.required ? "text-red-300" : "text-slate-200"}`} />
+                                                        <AlertCircle
+                                                            className={`h-3.5 w-3.5 shrink-0 ${
+                                                                item.required
+                                                                    ? "text-red-300"
+                                                                    : "text-slate-200"
+                                                            }`}
+                                                        />
                                                     )}
-                                                    <span className={`text-[11px] ${item.ok ? "text-slate-600" : "text-slate-400"}`}>{item.label}</span>
+                                                    <span
+                                                        className={`text-[11px] ${
+                                                            item.ok
+                                                                ? "text-slate-600"
+                                                                : "text-slate-400"
+                                                        }`}
+                                                    >
+                                                        {item.label}
+                                                    </span>
                                                 </div>
                                             ))}
                                         </div>
@@ -767,7 +1027,9 @@ export default function AboutUsPage() {
 
                                     {/* Tips */}
                                     <div>
-                                        <span className="text-xs font-medium text-slate-600 block mb-2">Tips</span>
+                                        <span className="text-xs font-medium text-slate-600 block mb-2">
+                                            Tips
+                                        </span>
                                         <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                             <li className="flex items-start gap-1.5">
                                                 <span className="text-slate-300 mt-px">·</span>
@@ -779,15 +1041,21 @@ export default function AboutUsPage() {
                                             </li>
                                             <li className="flex items-start gap-1.5">
                                                 <span className="text-slate-300 mt-px">·</span>
-                                                Keep image under {MAX_IMAGE_SIZE_MB}MB — portrait works best.
+                                                Keep image under {MAX_IMAGE_SIZE_MB}MB — portrait
+                                                works best.
                                             </li>
                                             <li className="flex items-start gap-1.5">
                                                 <span className="text-slate-300 mt-px">·</span>
-                                                Add up to {MAX_CARDS} flip cards. Hover to see back face.
+                                                Add up to {MAX_CARDS} flip cards. Hover to see
+                                                back face.
                                             </li>
                                             <li className="flex items-start gap-1.5">
                                                 <span className="text-slate-300 mt-px">·</span>
-                                                Front = bold statement. Back = explanation.
+                                                Front Part 1 = plain. Part 2 = accent colour.
+                                            </li>
+                                            <li className="flex items-start gap-1.5">
+                                                <span className="text-slate-300 mt-px">·</span>
+                                                Back face = detailed description on hover.
                                             </li>
                                         </ul>
                                     </div>
@@ -797,9 +1065,16 @@ export default function AboutUsPage() {
                                         <>
                                             <div className="h-px bg-slate-100" />
                                             <div>
-                                                <span className="text-xs font-medium text-slate-600 block mb-2">Current Image</span>
+                                                <span className="text-xs font-medium text-slate-600 block mb-2">
+                                                    Current Image
+                                                </span>
                                                 <div className="relative w-full h-28 rounded-lg overflow-hidden border border-slate-100">
-                                                    <Image src={formData.image} alt="preview" fill className="object-cover" />
+                                                    <Image
+                                                        src={formData.image}
+                                                        alt="preview"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
                                                 </div>
                                             </div>
                                         </>

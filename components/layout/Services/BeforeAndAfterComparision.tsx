@@ -6,7 +6,7 @@ import HeaderDescription from "@/components/common/HeaderDescription";
 import SubHeading from "@/components/common/SubHeading";
 import { ComparisonCarousel } from "./Carousel";
 import HeadingWithoutLogo from "@/components/common/HeadingWithoutLogo";
-import Breadcrumb from "@/components/common/Breadcrumb";
+import Breadcrumb from "@/components/common/ServicesBreadcrumb";
 import SectionPageHeader from "@/components/common/SectionPageHeader";
 
 export default function BeforeAndAfterComparision() {
@@ -18,6 +18,20 @@ export default function BeforeAndAfterComparision() {
         return () => clearTimeout(timer);
     }, []);
 
+
+    const servicesBreadcrumb = [
+    {
+        label: "Home",
+        href: "/",
+    },
+    {
+        label: "Services",
+        href: "/#services",
+    },
+    {
+        label: "3D Event Design, Fabrication & Build",
+    },
+];
     return (
         <section id="our-services" className="max-w-360 w-full mx-auto mt-16 lg:mt-26 px-3.5 lg:px-20 pb-9 xl:pb-13 scroll-mt-6 md:scroll-mt-1 lg:mb-22 xl:mb-0">
             {/* <header>
@@ -28,7 +42,7 @@ export default function BeforeAndAfterComparision() {
                     scrollContainerRef={undefined}
                 />
             </header> */}
-            <Breadcrumb props={{ className: "mt-1.5 md:mt-3.5 text-white" }} />
+            <Breadcrumb items={servicesBreadcrumb} />
 
             <div className="mt-3 lg:mt-7.5 flex flex-col xl:flex-row gap-y-5 xl: gap-x-8 1-xl:gap-x-16 2xl:gap-x-20 items-center">
                 <div className="w-full xl:w-2/3 shrink-0">

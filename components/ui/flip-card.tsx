@@ -5,7 +5,7 @@ import { ArrowRight, Code2, Copy, Rocket, Zap } from "lucide-react";
 import { useState } from "react";
 
 export interface CardFlipProps {
-    title?: string;
+   title: React.ReactNode;
     description?: string;
     bgColor?: string;
     className?: string;
@@ -51,7 +51,7 @@ export default function CardFlip({ title: title, description: description, bgCol
                     {/* Background gradient effect */}
                     <div className="w-full h-full flex items-center justify-center">
                         {/* Bottom content */}
-                        <h2 className="w-56.75 text-base lg:text-lg text-center leading-5 lg:leading-6 font-bold font-helvetica-neue-roman tracking-wide normal-case text-zinc-900 dark:text-white">
+                        <h2 className="w-56.75 text-base lg:text-lg text-center leading-5 lg:leading-6 font-bold font-helvetica-thin tracking-wide normal-case text-zinc-900 dark:text-white">
                             {title}
                         </h2>
                     </div>
