@@ -69,8 +69,9 @@ interface ServiceFormProps {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MAX_BANNER_MB = 5;
-const MAX_COMPARISON_MB = 5;
+const MAX_BANNER_MB = 1;          // matches API's services/banners limit (1MB)
+const MAX_COMPARISON_MB = 2;      // matches API's services/comparisons limit (2MB)
+const MAX_POSTER_MB = 0.5;        // matches API's services/posters limit (500KB)
 const MAX_VIDEO_MB = 100;
 
 const NAV = [
@@ -302,8 +303,8 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
     const handlePosterUpload = async (files: File[]) => {
         if (!files.length) return;
         const file = files[0];
-        if (file.size > MAX_BANNER_MB * 1024 * 1024) {
-            toast.error(`Poster must be under ${MAX_BANNER_MB}MB`);
+        if (file.size > MAX_POSTER_MB * 1024 * 1024) {
+            toast.error(`Poster must be under ${MAX_POSTER_MB * 1024}KB`);
             setPosterFiles([]);
             return;
         }
@@ -780,12 +781,12 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
 
                                         {/* Poster */}
                                         <div className="border-t border-slate-100 pt-4">
-                                            <SectionHeading label={`Video Poster / Thumbnail · optional · max ${MAX_BANNER_MB}MB`} />
+                                            <SectionHeading label={`Video Poster / Thumbnail · optional · max ${MAX_POSTER_MB * 1024}KB`} />
                                             <ImageUploader
                                                 files={posterFiles}
                                                 onChange={(f) => { setPosterFiles(f); handlePosterUpload(f); }}
                                                 maxFiles={1}
-                                                maxSize={MAX_BANNER_MB}
+                                                maxSize={MAX_POSTER_MB}
                                                 accept="image/jpeg,image/jpg,image/png,image/webp"
                                             />
                                             {uploadingPoster && (
@@ -921,7 +922,12 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                                 <li>Choose <strong className="text-slate-500">Video</strong> or <strong className="text-slate-500">Image Comparison</strong> — not both.</li>
                                 <li>Before/after pairs use a drag slider on the frontend.</li>
                                 <li>Video poster shows before the video plays.</li>
-                                <li>Max image size: <strong className="text-slate-500">{MAX_BANNER_MB}MB</strong> · Max video: <strong className="text-slate-500">{MAX_VIDEO_MB}MB</strong>.</li>
+                                <li>
+                                    Max sizes: banner <strong className="text-slate-500">{MAX_BANNER_MB}MB</strong> · comparison images{" "}
+                                    <strong className="text-slate-500">{MAX_COMPARISON_MB}MB</strong> · poster{" "}
+                                    <strong className="text-slate-500">{MAX_POSTER_MB * 1024}KB</strong> · video{" "}
+                                    <strong className="text-slate-500">{MAX_VIDEO_MB}MB</strong>.
+                                </li>
                             </ul>
                         </div>
 
@@ -945,8 +951,6 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
         </div>
     );
 }
-
-// ─── Comparison Pair Editor ───────────────────────────────────────────────────
 
 // ─── Comparison Pair Editor ───────────────────────────────────────────────────
 
@@ -988,7 +992,7 @@ function ComparisonPairEditor({
                 <ImageUploader
                     files={beforeFiles}
                     onChange={(f) => { setBeforeFiles(f); onUploadImage("before", f); }}
-                    maxFiles={1} maxSize={5}
+                    maxFiles={1} maxSize={2}
                     accept="image/jpeg,image/jpg,image/png,image/webp"
                 />
                 {pair._uploadingBefore && (
@@ -1028,7 +1032,7 @@ function ComparisonPairEditor({
                     <ImageUploader
                         files={afterFiles}
                         onChange={(f) => { setAfterFiles(f); onUploadImage("after", f); }}
-                        maxFiles={1} maxSize={5}
+                        maxFiles={1} maxSize={2}
                         accept="image/jpeg,image/jpg,image/png,image/webp"
                     />
                     {pair._uploadingAfter && (

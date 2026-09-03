@@ -16,7 +16,7 @@ interface TeamCardProps {
 
 export function TeamCard({ id, name, role, image, onDelete }: TeamCardProps) {
     return (
-        <div className="rounded-lg border overflow-hidden bg-card">
+        <div className="border border-slate-200 rounded-xl overflow-hidden bg-card">
             <div className="relative aspect-square bg-muted">
                 <Image src={image} alt={name} fill className="object-cover object-top" />
             </div>

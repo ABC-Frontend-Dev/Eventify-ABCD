@@ -20,9 +20,13 @@ const FOLDER_MAP: Record<string, string> = {
     comparisons: "eventify/comparisons",
     "about-us": "eventify/about-us",
     awards: "eventify/awards",
+    "services/banners": "eventify/services/banners",
+    "services/comparisons": "eventify/services/comparisons",
+    "services/posters": "eventify/services/posters",
+    "services/videos": "eventify/services/videos",
 };
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB fallback
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const FOLDER_SIZE_LIMITS: Record<string, { image?: number; video?: number }> = {
     hero: {
@@ -38,14 +42,24 @@ const FOLDER_SIZE_LIMITS: Record<string, { image?: number; video?: number }> = {
     awards: {
         image: 1 * 1024 * 1024,
     },
-    // ✅ blogs: images only, 1 MB cap
     blogs: {
         image: 1 * 1024 * 1024, // 1 MB
     },
-    // ✅ projects: 1 MB images, 1 GB videos
     projects: {
         image: 1 * 1024 * 1024,
         video: 1 * 1024 * 1024 * 1024,
+    },
+    "services/banners": {
+        image: 1 * 1024 * 1024, // 1 MB
+    },
+    "services/comparisons": {
+        image: 2 * 1024 * 1024, // 2 MB
+    },
+    "services/posters": {
+        image: 500 * 1024, // 500 KB
+    },
+    "services/videos": {
+        video: 100 * 1024 * 1024,
     },
 };
 
@@ -58,8 +72,12 @@ function formatSize(bytes: number): string {
         const gb = bytes / (1024 * 1024 * 1024);
         return `${gb % 1 === 0 ? gb.toFixed(0) : gb.toFixed(1)}GB`;
     }
-    const mb = bytes / (1024 * 1024);
-    return `${mb % 1 === 0 ? mb.toFixed(0) : mb.toFixed(1)}MB`;
+    if (bytes >= 1024 * 1024) {
+        const mb = bytes / (1024 * 1024);
+        return `${mb % 1 === 0 ? mb.toFixed(0) : mb.toFixed(1)}MB`;
+    }
+    const kb = bytes / 1024;
+    return `${kb % 1 === 0 ? kb.toFixed(0) : kb.toFixed(1)}KB`;
 }
 
 function uploadStream(buffer: Buffer, options: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -101,9 +119,12 @@ export async function POST(request: NextRequest) {
 
         const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
 
-        // ── blogs folder: reject videos entirely ──────────────────────────────
         if (folderKey === "blogs" && isVideo) {
             return NextResponse.json({ success: false, error: "Video uploads are not allowed for blog images." }, { status: 400 });
+        }
+
+        if (folderKey === "services/posters" && isVideo) {
+            return NextResponse.json({ success: false, error: "Video poster must be an image, not a video." }, { status: 400 });
         }
 
         const folderLimits = FOLDER_SIZE_LIMITS[folderKey];

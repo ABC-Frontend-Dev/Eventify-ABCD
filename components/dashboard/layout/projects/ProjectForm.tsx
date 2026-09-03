@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageUploader } from "@/components/ui/image-uploader";
+import { ImageCropper, blobToFile } from "@/components/ui/image-cropper";
 import { Switch } from "@/components/ui/switch";
 import { useToasts } from "@/components/ui/toast";
 import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, AlertCircle, CheckCircle2, Plus, Edit, Trash2, Layers, ChevronRight, Eye } from "lucide-react";
 import Link from "next/link";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const IMAGE_MAX_BYTES = 1 * 1024 * 1024; // 1 MB
@@ -115,6 +116,15 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     const [currentTab, setCurrentTab] = useState<ProjectTab | null>(null);
     const [tabImageFiles, setTabImageFiles] = useState<File[]>([]);
     const [uploadingTabImages, setUploadingTabImages] = useState(false);
+
+    // ─── Cropping (shared across gallery / client logo / tab images) ──────────
+    type CropTarget = "gallery" | "logo" | "tab";
+    const [cropQueue, setCropQueue] = useState<File[]>([]);
+    const [croppedFiles, setCroppedFiles] = useState<File[]>([]);
+    const [passthroughFiles, setPassthroughFiles] = useState<File[]>([]); // videos, uploaded as-is (gallery only)
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
+    const [cropAspect, setCropAspect] = useState<number | undefined>(undefined);
 
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
@@ -247,7 +257,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
         });
     };
 
-    // ─── Banner ───────────────────────────────────────────────────────────────
+    // ─── Banner (no cropping — untouched) ──────────────────────────────────────
     const handleBannerUpload = async (files: File[]) => {
         if (!files.length) return;
 
@@ -322,6 +332,91 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
             toast.success(`${paths.length} image(s) uploaded`);
         }
         if (paths.length < valid.length) toast.warning("Some images failed to upload");
+    };
+
+    // ─── Shared cropping flow — gallery, client logo, tab images ──────────────
+    const dispatchUpload = (target: CropTarget, files: File[]) => {
+        if (!files.length) return;
+        if (target === "gallery") handleGalleryUpload(files);
+        else if (target === "logo") handleProjectLogoUpload(files);
+        else if (target === "tab") handleTabImageUpload(files);
+    };
+
+    const resetUploaderState = (target: CropTarget) => {
+        if (target === "gallery") setGalleryFiles([]);
+        else if (target === "logo") setProjectLogoFiles([]);
+        else if (target === "tab") setTabImageFiles([]);
+    };
+
+    const startCropFlow = (files: File[], target: CropTarget, aspect?: number) => {
+        if (!files.length) return;
+
+        const valid = validateFiles(files);
+        if (!valid.length) return;
+
+        // Only the gallery accepts video; logo/tab uploaders are image-only,
+        // but filtering here is harmless either way.
+        const images = valid.filter((f) => !isVideoFile(f));
+        const videos = valid.filter(isVideoFile);
+
+        setCropTarget(target);
+        setCropAspect(aspect);
+        setCroppedFiles([]);
+        setPassthroughFiles(videos);
+        setCropQueue(images);
+
+        if (images.length) {
+            setCropSrc(URL.createObjectURL(images[0]));
+        } else if (videos.length) {
+            // no images to crop — upload videos immediately
+            dispatchUpload(target, videos);
+            resetUploaderState(target);
+        }
+    };
+
+    const handleCropComplete = (blob: Blob) => {
+        const currentFile = cropQueue[0];
+        const cropped = blobToFile(blob, currentFile);
+        const nextQueue = cropQueue.slice(1);
+        const nextCropped = [...croppedFiles, cropped];
+
+        if (cropSrc) URL.revokeObjectURL(cropSrc);
+
+        if (nextQueue.length) {
+            setCropQueue(nextQueue);
+            setCroppedFiles(nextCropped);
+            setCropSrc(URL.createObjectURL(nextQueue[0]));
+        } else {
+            const target = cropTarget!;
+            setCropQueue([]);
+            setCroppedFiles([]);
+            setCropSrc(null);
+            setCropTarget(null);
+            resetUploaderState(target);
+            dispatchUpload(target, [...nextCropped, ...passthroughFiles]);
+            setPassthroughFiles([]);
+        }
+    };
+
+    const handleCropCancel = () => {
+        const nextQueue = cropQueue.slice(1);
+        if (cropSrc) URL.revokeObjectURL(cropSrc);
+
+        if (nextQueue.length) {
+            setCropQueue(nextQueue);
+            setCropSrc(URL.createObjectURL(nextQueue[0]));
+        } else {
+            const target = cropTarget!;
+            setCropQueue([]);
+            setCropSrc(null);
+            setCropTarget(null);
+            resetUploaderState(target);
+            if (croppedFiles.length || passthroughFiles.length) {
+                dispatchUpload(target, [...croppedFiles, ...passthroughFiles]);
+            }
+            setCroppedFiles([]);
+            setPassthroughFiles([]);
+        }
     };
 
     // ─── Tab CRUD ─────────────────────────────────────────────────────────────
@@ -524,7 +619,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 </div>
                             )}
 
-                            {/* Custom logo upload — images only, 1 MB max */}
+                            {/* Custom logo upload — images only, 1 MB max, cropped before upload */}
                             <div>
                                 <FieldLabel ok={!!formData.projectClientLogo}>
                                     Custom Client Logo <span className="text-slate-400 text-[10px]">(Optional - Not visible to clients)</span>
@@ -537,7 +632,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                     files={projectLogoFiles}
                                     onChange={(f) => {
                                         setProjectLogoFiles(f);
-                                        handleProjectLogoUpload(f);
+                                        startCropFlow(f, "logo");
                                     }}
                                     maxFiles={1}
                                     maxSize={IMAGE_MAX_MB}
@@ -572,7 +667,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </div>
                     </section>
 
-                    {/* ── Banner Image ── */}
+                    {/* ── Banner Image (no cropping) ── */}
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Banner Image" />
                         <p className="text-[11px] text-slate-400 mb-3">
@@ -698,7 +793,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 files={galleryFiles}
                                 onChange={(f) => {
                                     setGalleryFiles(f);
-                                    handleGalleryUpload(f);
+                                    startCropFlow(f, "gallery", 4 / 3);
                                 }}
                                 maxFiles={10 - formData.images.length}
                                 maxSize={IMAGE_MAX_MB}
@@ -842,12 +937,12 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                     Images ({currentTab.images.length})
                                 </FieldLabel>
 
-                                {/* Tab images are images-only → 1 MB cap */}
+                                {/* Tab images are images-only → 1 MB cap, cropped before upload */}
                                 <ImageUploader
                                     files={tabImageFiles}
                                     onChange={(f) => {
                                         setTabImageFiles(f);
-                                        handleTabImageUpload(f);
+                                        startCropFlow(f, "tab", 4 / 3);
                                     }}
                                     maxFiles={20 - currentTab.images.length}
                                     maxSize={IMAGE_MAX_MB}
@@ -907,6 +1002,18 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* ── Shared Image Cropper (gallery / client logo / tab images) ── */}
+            {cropSrc && (
+                <ImageCropper
+                    open={!!cropSrc}
+                    image={cropSrc}
+                    aspectRatio={cropAspect}
+                    title={cropTarget === "logo" ? "Crop client logo" : `Crop image (${croppedFiles.length + 1} of ${croppedFiles.length + cropQueue.length})`}
+                    onCropComplete={handleCropComplete}
+                    onCancel={handleCropCancel}
+                />
             )}
         </div>
     );

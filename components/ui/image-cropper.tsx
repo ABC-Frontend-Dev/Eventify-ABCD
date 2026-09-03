@@ -1,146 +1,107 @@
-// "use client";
+// components/ui/image-cropper.tsx
+// components/ui/image-cropper.tsx
+"use client";
 
-// import * as React from "react";
-// import Cropper from "react-easy-crop";
-// import { Button } from "@/components/ui/button";
-// import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-// import { Slider } from "@/components/ui/slider";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
+import { useRef } from "react";
+import Cropper, { type ReactCropperElement } from "react-cropper";
+import "cropperjs/dist/cropper.css";
+import { Button } from "@/components/ui/button";
+import { X, Crop as CropIcon, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 
-// // /lib/cropImage.ts
-// export async function getCroppedImg(imageSrc: string, pixelCrop: any): Promise<string> {
-//   const image = new Image();
-//   image.src = imageSrc;
-//   await new Promise((resolve) => (image.onload = resolve));
+interface ImageCropperProps {
+    /** Object URL or data URL of the image to crop */
+    image: string;
+    /** e.g. 1 for square, 16/9, 4/3 — omit for free-form cropping */
+    aspectRatio?: number;
+    open: boolean;
+    onCancel: () => void;
+    onCropComplete: (blob: Blob) => void;
+    outputType?: string;
+    quality?: number;
+    title?: string;
+}
 
-//   const canvas = document.createElement("canvas");
-//   canvas.width = pixelCrop.width;
-//   canvas.height = pixelCrop.height;
-//   const ctx = canvas.getContext("2d");
+export function ImageCropper({ image, aspectRatio, open, onCancel, onCropComplete, outputType = "image/jpeg", quality = 0.92, title = "Crop Image" }: ImageCropperProps) {
+    const cropperRef = useRef<ReactCropperElement>(null);
 
-//   ctx!.drawImage(
-//     image,
-//     pixelCrop.x,
-//     pixelCrop.y,
-//     pixelCrop.width,
-//     pixelCrop.height,
-//     0,
-//     0,
-//     pixelCrop.width,
-//     pixelCrop.height
-//   );
+    if (!open) return null;
 
-//   return new Promise((resolve) => {
-//     canvas.toBlob((blob) => {
-//       const url = URL.createObjectURL(blob!);
-//       resolve(url);
-//     }, "image/png");
-//   });
-// }
+    const handleConfirm = () => {
+        const cropper = cropperRef.current?.cropper;
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: "high" });
+        if (!canvas) return;
+        canvas.toBlob(
+            (blob) => {
+                if (blob) onCropComplete(blob);
+            },
+            outputType,
+            quality,
+        );
+    };
 
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+                    <p className="text-sm font-semibold text-slate-800">{title}</p>
+                    <button type="button" onClick={onCancel} className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                        <X className="h-4 w-4" />
+                    </button>
+                </div>
 
-// export default function ImageCropper() {
-//   const [imageSrc, setImageSrc] = React.useState<string | null>(null);
-//   const [crop, setCrop] = React.useState({ x: 0, y: 0 });
-//   const [zoom, setZoom] = React.useState(1);
-//   const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<any>(null);
-//   const [aspect, setAspect] = React.useState<number | undefined>(1);
-//   const [croppedImage, setCroppedImage] = React.useState<string | null>(null);
+                <div className="flex-1 overflow-hidden bg-slate-900">
+                    <Cropper
+                        ref={cropperRef}
+                        src={image}
+                        style={{ height: 420, width: "100%" }}
+                        aspectRatio={aspectRatio}
+                        viewMode={1}
+                        dragMode="move"
+                        background={false}
+                        responsive
+                        autoCropArea={1}
+                        checkOrientation={false}
+                        guides
+                    />
+                </div>
 
-//   const onCropComplete = React.useCallback((_, croppedAreaPixels) => {
-//     setCroppedAreaPixels(croppedAreaPixels);
-//   }, []);
+                <div className="flex items-center justify-between gap-2 px-5 py-3 border-t border-slate-100 shrink-0">
+                    <div className="flex items-center gap-1">
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => cropperRef.current?.cropper.zoom(0.1)}>
+                            <ZoomIn className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => cropperRef.current?.cropper.zoom(-0.1)}>
+                            <ZoomOut className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => cropperRef.current?.cropper.rotate(90)}>
+                            <RotateCcw className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" className="h-8 text-xs" onClick={() => cropperRef.current?.cropper.reset()}>
+                            Reset
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button type="button" variant="outline" size="sm" onClick={onCancel} className="h-8 text-xs">
+                            Cancel
+                        </Button>
+                        <Button type="button" size="sm" onClick={handleConfirm} className="h-8 text-xs bg-slate-900 hover:bg-slate-700 text-white">
+                            <CropIcon className="h-3.5 w-3.5 mr-1.5" /> Apply Crop
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
 
-//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     if (e.target.files && e.target.files.length > 0) {
-//       const reader = new FileReader();
-//       reader.readAsDataURL(e.target.files[0]);
-//       reader.onload = () => {
-//         setImageSrc(reader.result as string);
-//         setCroppedImage(null);
-//       };
-//     }
-//   };
+/** Converts a cropped Blob back into a File, preserving the original name/type
+ *  so it survives your existing upload pipeline (FormData, size checks, etc). */
+export function blobToFile(blob: Blob, originalFile: File): File {
+    return new File([blob], originalFile.name, {
+        type: blob.type || originalFile.type,
+        lastModified: Date.now(),
+    });
+}
 
-//   const handleCrop = async () => {
-//     if (!imageSrc || !croppedAreaPixels) return;
-//     const cropped = await getCroppedImg(imageSrc, croppedAreaPixels);
-//     setCroppedImage(cropped);
-//   };
-
-//   return (
-//     <Card className="p-3 w-xl mx-auto">
-//       <CardHeader className="p-2">
-//         <CardTitle>Image Cropper</CardTitle>
-//       </CardHeader>
-//       <CardContent className="flex flex-col gap-4 p-2">
-//         <Input type="file" accept="image/*" onChange={handleFileChange} />
-
-//         {imageSrc && (
-//           <div className="relative w-full h-[400px] bg-gray-100">
-//             <Cropper
-//               image={imageSrc}
-//               crop={crop}
-//               zoom={zoom}
-//               aspect={aspect}
-//               onCropChange={setCrop}
-//               onZoomChange={setZoom}
-//               onCropComplete={onCropComplete}
-//             />
-//           </div>
-//         )}
-
-//         {imageSrc && (
-//           <div className="flex flex-col gap-2 mt-2">
-//             <div className="flex items-center gap-2">
-//               <span>Zoom:</span>
-//               <Slider
-//                 value={[zoom]}
-//                 onValueChange={(v) => setZoom(v[0])}
-//                 min={1}
-//                 max={3}
-//                 step={0.01}
-//               />
-//             </div>
-
-//             <div className="flex items-center gap-2">
-//               <span>Aspect Ratio:</span>
-//               <Select value={aspect?.toString()} onValueChange={(v) => setAspect(Number(v))}>
-//                 <SelectTrigger className="w-[140px]">
-//                   <SelectValue />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   <SelectItem value="1">1:1 (Square)</SelectItem>
-//                   <SelectItem value={(4 / 3).toString()}>4:3</SelectItem>
-//                   <SelectItem value={(16 / 9).toString()}>16:9</SelectItem>
-//                   <SelectItem value="undefined">Free</SelectItem>
-//                 </SelectContent>
-//               </Select>
-//             </div>
-
-//             <Button className="mt-2" onClick={handleCrop}>
-//               Crop Image
-//             </Button>
-//           </div>
-//         )}
-
-//         {croppedImage && (
-//           <div className="flex flex-col gap-2 mt-4">
-//             <h4 className="font-medium">Cropped Image Preview:</h4>
-//             <img src={croppedImage} alt="Cropped" className="max-w-full rounded-md border" />
-//             <Button
-//               as="a"
-//               href={croppedImage}
-//               download="cropped.png"
-//               variant="outline"
-//               className="mt-2"
-//             >
-//               Download
-//             </Button>
-//           </div>
-//         )}
-//       </CardContent>
-//     </Card>
-//   );
-// }
+export default ImageCropper;

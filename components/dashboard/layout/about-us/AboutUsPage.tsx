@@ -88,7 +88,7 @@ function CurrentDataPreview({ data }: { data: AboutUsData }) {
                 <div className="space-y-3">
                     <div>
                         <p className="text-[11px] text-slate-400 mb-1">Title</p>
-                        <p className="text-lg font-bold text-slate-800 leading-tight">
+                        <p className="text-lg font-bold text-footer-bg normal-case leading-tight">
                             {data.titlePartOne || (
                                 <span className="text-slate-300 font-normal text-sm">
                                     No title set
@@ -97,7 +97,7 @@ function CurrentDataPreview({ data }: { data: AboutUsData }) {
                             {data.titlePartTwo && (
                                 <>
                                     {" "}
-                                    <span className="italic font-semibold">
+                                    <span className="font-abc-laica-a-italic-variable-trial text-primary">
                                         {data.titlePartTwo}
                                     </span>
                                 </>
@@ -299,11 +299,11 @@ function CardEditor({
             {frontPreview && (
                 <div className="px-3 py-2 bg-white border border-slate-100 rounded-lg">
                     <p className="text-[11px] text-slate-400 mb-1">Front preview</p>
-                    <p className="text-xs font-medium text-slate-700 leading-relaxed">
+                    <p className="text-xs font-medium text-footer-bg normal-case leading-relaxed">
                         {card.frontFacePartOne}
                         {card.frontFacePartOne && card.frontFacePartTwo && " "}
                         {card.frontFacePartTwo && (
-                            <span className="text-primary italic">
+                            <span className="font-abc-laica-a-italic-variable-trial text-primary">
                                 {card.frontFacePartTwo}
                             </span>
                         )}
@@ -763,12 +763,12 @@ export default function AboutUsPage() {
                                                 <p className="text-[11px] text-slate-400 mb-1">
                                                     Preview
                                                 </p>
-                                                <p className="text-lg font-bold text-primary leading-tight">
+                                                <p className="text-lg font-bold text-footer-bg normal-case leading-tight">
                                                     {formData.titlePartOne}
                                                     {formData.titlePartTwo && (
                                                         <>
                                                             {" "}
-                                                            <span className="font-semibold italic">
+                                                            <span className="font-abc-laica-a-italic-variable-trial text-primary">
                                                                 {formData.titlePartTwo}
                                                             </span>
                                                         </>

@@ -192,11 +192,11 @@ export function DashboardSidebar() {
     const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
 
     return (
-        <Sidebar className="border-r border-slate-200/80 bg-white">
+        <Sidebar className="border-r border-slate-200/70 bg-white">
             {/* ── Logo ──────────────────────────────────── */}
             <SidebarHeader className="border-b border-slate-100 px-4 py-3.5">
                 <Link href="/dashboard" className="flex items-center gap-2.5 group">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-primary rounded-sm p-0.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-primary/25 bg-primary/5 p-1 transition-colors group-hover:border-primary/40">
                         <NextImage
                             src={"https://res.cloudinary.com/afdhm38k/image/upload/v1785845462/favicon_xneik8.png"}
                             alt="Eventify"
@@ -205,12 +205,10 @@ export function DashboardSidebar() {
                             priority
                             className="w-full h-full object-contain"
                         />
-                        {/* Type '{ src: string; alt: string; width: number; height: number; priority: true; className: string; }' is not assignable to type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'.
-  Property 'src' does not exist on type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'. */}
                     </div>
                     <div>
                         <p className="text-sm font-semibold leading-none text-slate-900 tracking-tight">Eventify</p>
-                        <p className="mt-0.5 text-[11px] text-slate-400">Admin console</p>
+                        <p className="mt-1 text-[11px] text-slate-400">Admin console</p>
                     </div>
                 </Link>
             </SidebarHeader>
@@ -218,7 +216,7 @@ export function DashboardSidebar() {
             {/* ── Nav ───────────────────────────────────── */}
             <SidebarContent className="px-2 py-3">
                 <SidebarGroup className="p-0">
-                    <p className="px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Menu</p>
+                    <p className="px-2.5 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Menu</p>
                     <SidebarGroupContent>
                         <SidebarMenu className="space-y-0.5">
                             {menuItems.map((item) => {
@@ -233,19 +231,31 @@ export function DashboardSidebar() {
                                                         isActive={isActive}
                                                         tooltip={item.title}
                                                         className={`
-                                                            h-8 rounded-md text-xs font-medium transition-colors
+                                                            h-8 rounded-md text-xs font-medium
+                                                            transition-colors duration-150
                                                             text-slate-600 hover:bg-slate-100 hover:text-slate-900
-                                                            data-[active=true]:bg-slate-100 data-[active=true]:text-slate-900 data-[active=true]:font-semibold
+                                                            data-[active=true]:bg-primary data-[active=true]:text-white
+                                                            data-[active=true]:font-semibold data-[active=true]:shadow-sm
+                                                            data-[active=true]:shadow-primary/20
+                                                            data-[active=true]:hover:bg-primary
                                                         `}
                                                     >
-                                                        <item.icon className="h-[15px] w-[15px] shrink-0" />
+                                                        <item.icon
+                                                            className={`h-[15px] w-[15px] shrink-0 transition-colors ${isActive ? "text-white" : "text-slate-400 group-hover/collapsible:text-slate-600"}`}
+                                                        />
                                                         <span>{item.title}</span>
-                                                        <ChevronRight className="ml-auto h-3.5 w-3.5 text-slate-400 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                                        <ChevronRight
+                                                            className={`
+                                                                ml-auto h-3.5 w-3.5 transition-transform duration-200
+                                                                group-data-[state=open]/collapsible:rotate-90
+                                                                ${isActive ? "text-white/70" : "text-slate-400"}
+                                                            `}
+                                                        />
                                                     </SidebarMenuButton>
                                                 </CollapsibleTrigger>
 
-                                                <CollapsibleContent>
-                                                    <SidebarMenuSub className="ml-2 mt-0.5 space-y-0.5 border-l border-slate-100 pl-3">
+                                                <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+                                                    <SidebarMenuSub className="ml-[18px] mt-0.5 space-y-0.5 border-l border-slate-200 pl-3">
                                                         {item.subItems.map((sub) => {
                                                             const isSubActive = pathname === sub.href || (sub.href !== item.href && pathname.startsWith(sub.href));
 
@@ -255,13 +265,15 @@ export function DashboardSidebar() {
                                                                         asChild
                                                                         isActive={isSubActive}
                                                                         className={`
-                                                                            h-7 rounded-md text-[11px] font-medium transition-colors
+                                                                            h-7 rounded-md text-[11px] font-medium
+                                                                            transition-colors duration-150
                                                                             text-slate-500 hover:bg-slate-100 hover:text-slate-900
-                                                                            data-[active=true]:bg-slate-100 data-[active=true]:text-slate-900 data-[active=true]:font-semibold
+                                                                            data-[active=true]:bg-primary/10 data-[active=true]:text-primary
+                                                                            data-[active=true]:font-semibold
                                                                         `}
                                                                     >
                                                                         <Link href={sub.href}>
-                                                                            <sub.icon className="h-3 w-3 shrink-0" />
+                                                                            <sub.icon className={`h-3 w-3 shrink-0 ${isSubActive ? "text-primary" : "text-slate-400"}`} />
                                                                             <span>{sub.title}</span>
                                                                         </Link>
                                                                     </SidebarMenuSubButton>
@@ -282,18 +294,22 @@ export function DashboardSidebar() {
                                             isActive={isActive}
                                             tooltip={item.title}
                                             className={`
-                                                h-8 rounded-md text-xs font-medium transition-colors
+                                                h-8 rounded-md text-xs font-medium
+                                                transition-colors duration-150
                                                 text-slate-600 hover:bg-slate-100 hover:text-slate-900
-                                                data-[active=true]:bg-slate-100 data-[active=true]:text-slate-900 data-[active=true]:font-semibold
+                                                data-[active=true]:bg-primary data-[active=true]:text-white
+                                                data-[active=true]:font-semibold data-[active=true]:shadow-sm
+                                                data-[active=true]:shadow-primary/20
+                                                data-[active=true]:hover:bg-primary
                                             `}
                                         >
                                             <Link href={item.href}>
-                                                <item.icon className="h-[15px] w-[15px] shrink-0" />
+                                                <item.icon className={`h-[15px] w-[15px] shrink-0 transition-colors ${isActive ? "text-white" : "text-slate-400"}`} />
                                                 <span>{item.title}</span>
 
                                                 {item.live && (
-                                                    <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-emerald-500">
-                                                        <span className="h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                                                    <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-emerald-400">
+                                                        <span className="h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                                                     </span>
                                                 )}
                                             </Link>
@@ -308,8 +324,13 @@ export function DashboardSidebar() {
 
             {/* ── Footer / user ─────────────────────────── */}
             <SidebarFooter className="border-t border-slate-100 p-3">
-                <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5 hover:bg-slate-50 transition-colors">
-                    <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white ${isSuperAdmin ? "bg-purple-600" : "bg-slate-900"}`}>
+                <div className="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-slate-50">
+                    <div
+                        className={`
+                            flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white
+                            ${isSuperAdmin ? "bg-purple-600" : "bg-primary"}
+                        `}
+                    >
                         {initials}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -323,7 +344,7 @@ export function DashboardSidebar() {
                         type="button"
                         onClick={() => signOut({ callbackUrl: "/login" })}
                         aria-label="Sign out"
-                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-500"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
                     >
                         <LogOut className="h-3.5 w-3.5" />
                     </button>

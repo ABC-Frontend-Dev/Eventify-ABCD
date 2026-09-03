@@ -20,7 +20,7 @@ interface ClientCardProps {
 export function ClientCard({ id, name, description, image, onDelete, isRearranging = false, dragHandleProps }: ClientCardProps) {
     return (
         <div
-            className={`group relative overflow-hidden rounded-lg border bg-card p-4 transition-all
+            className={`group relative overflow-hidden border border-slate-200 rounded-xl bg-card p-4 transition-all
                 ${isRearranging ? "hover:shadow-lg border-slate-300 cursor-default select-none" : "hover:shadow-lg"}`}
         >
             {/* Drag handle — only visible in rearrange mode */}
@@ -62,7 +62,7 @@ export function ClientCard({ id, name, description, image, onDelete, isRearrangi
             )}
 
             <div className={`flex flex-col items-center space-y-3 ${isRearranging ? "pl-6" : ""}`}>
-                <div className="h-20 w-full overflow-hidden border-b pb-2">
+                <div className="h-20 w-full overflow-hidden border-b border-slate-400 pb-2">
                     <img src={image} alt={name} className="h-full w-full object-contain" />
                 </div>
                 <div className="text-center space-y-1">

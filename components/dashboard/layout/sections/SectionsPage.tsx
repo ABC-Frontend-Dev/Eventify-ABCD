@@ -166,12 +166,12 @@ function SectionCard({ type, data, onSaved }: SectionCardProps) {
             {hasData && !open && (
                 <div className="px-5 pb-4 border-t border-slate-100 pt-3 space-y-1">
                     {/* Title preview — mimics SubHeading font style */}
-                    <p className="text-base font-bold text-primary uppercase leading-tight">
+                    <p className="text-base font-bold text-footer-bg normal-case leading-tight">
                         {data!.titlePartOne}
                         {data!.titlePartTwo && (
                             <>
                                 {" "}
-                                <span className="italic font-bold">{data!.titlePartTwo}</span>
+                                <span className="font-abc-laica-a-italic-variable-trial text-primary">{data!.titlePartTwo}</span>
                             </>
                         )}
                     </p>
@@ -248,12 +248,12 @@ function SectionCard({ type, data, onSaved }: SectionCardProps) {
                     {(form.titlePartOne || form.titlePartTwo) && (
                         <div className="px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-lg">
                             <p className="text-[11px] text-slate-400 mb-1">Heading preview</p>
-                            <p className="text-lg font-bold uppercase text-primary leading-tight">
+                            <p className="text-lg font-bold normal-case leading-tight text-footer-bg">
                                 {form.titlePartOne}
                                 {form.titlePartTwo && (
                                     <>
                                         {" "}
-                                        <span className="italic">{form.titlePartTwo}</span>
+                                        <span className="font-abc-laica-a-italic-variable-trial text-primary">{form.titlePartTwo}</span>
                                     </>
                                 )}
                             </p>

@@ -5,6 +5,7 @@ import HeadingWithLogo from "@/components/common/HeadingWithLogo";
 import SubHeading from "@/components/common/SubHeading";
 import { Tabs as MainTabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import axios from "axios";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ProjectCard } from "./ProjectCard";
@@ -86,10 +87,6 @@ export default function Projects() {
     const [activeTab, setActiveTab] = useState("tab-all");
     const [activeInnerTab, setActiveInnerTab] = useState("");
 
-    // ── Start with null so we know "not yet measured" ─────────────────────────
-    // We use null as the initial value to indicate the breakpoint hasn't been
-    // measured yet (window is unavailable during SSR). The first useEffect
-    // below immediately measures and sets the real breakpoint + visibleCount.
     const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
     const [visibleCount, setVisibleCount] = useState<number>(COUNTS["desktop"].initial);
 
@@ -113,17 +110,12 @@ export default function Projects() {
     };
 
     // ── Measure real breakpoint on mount + track resizes ─────────────────────
-    // This runs only on the client after hydration, so window is always
-    // available. We immediately correct breakpoint and visibleCount to the
-    // actual screen size, fixing the SSR "always desktop" bug.
 
     useEffect(() => {
-        // Correct immediately on mount
         const bp = getBreakpoint();
         setBreakpoint(bp);
         setVisibleCount(COUNTS[bp].initial);
 
-        // Then keep tracking resizes
         const handleResize = () => {
             const next = getBreakpoint();
             setBreakpoint((prev) => {
@@ -197,7 +189,7 @@ export default function Projects() {
 
     if (loading) {
         return (
-            <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-6 md:scroll-mt-1">
+            <section className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 pb-9 scroll-mt-6 md:scroll-mt-1">
                 <div className="flex items-center justify-center py-20">
                     <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900" />
                 </div>
@@ -208,8 +200,13 @@ export default function Projects() {
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <section
-            className="max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 lg:py-9 scroll-mt-6 md:scroll-mt-1"
+         <section
+            // Bottom padding only grows once "View less projects" is showing —
+            // otherwise the section keeps its original py-9 spacing exactly
+            // as before.
+            className={`max-w-360 w-full mx-auto px-3.5 lg:px-20 pt-9 scroll-mt-6 md:scroll-mt-1 ${
+                allLoaded ? "pb-16 sm:pb-20 lg:pb-20" : "pb-9"
+            }`}
             id="projects"
         >
             <MainTabs value={activeTab} onValueChange={setActiveTab}>
@@ -282,17 +279,27 @@ export default function Projects() {
                                       }
                             }
                         >
-                            <button
-                                type="button"
-                                onClick={handleLoadMoreClick}
-                                className={`relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 border border-footer-bg/20 bg-white text-primary font-helvetica-neue-roman hover:text-white hover:bg-primary hover:border-primary hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto transition-all duration-100 ${
-                                    allLoaded
-                                        ? "translate-y-8 sm:translate-y-9.5 md:translate-y-11"
-                                        : "translate-y-0"
-                                }`}
-                            >
-                                {allLoaded ? "View less projects" : "View more projects"}
-                            </button>
+                            {allLoaded ? (
+                                // "View less projects" — now a real anchor to #projects, so it
+                                // navigates/scrolls back up to the section (handled by the
+                                // site's existing Lenis hash system), while still collapsing
+                                // the grid via the same handleLoadMoreClick logic.
+                                <Link
+                                    href="/#projects"
+                                    onClick={handleLoadMoreClick}
+                                    className="relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 border border-footer-bg/20 bg-white text-primary font-helvetica-neue-roman hover:text-white hover:bg-primary hover:border-primary hover:opacity-95 pointer-events-auto transition-all duration-100 translate-y-14 sm:translate-y-16 md:translate-y-18"
+                                >
+                                    View less projects
+                                </Link>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={handleLoadMoreClick}
+                                    className="relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 border border-footer-bg/20 bg-white text-primary font-helvetica-neue-roman hover:text-white hover:bg-primary hover:border-primary hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto transition-all duration-100 translate-y-0"
+                                >
+                                    View more projects
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

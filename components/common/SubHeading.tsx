@@ -111,14 +111,14 @@ export default function SubHeading({ titlePartOne: staticPartOne, titlePartTwo: 
         <div>
             <h3
                 ref={textRef}
-                className="text-xl md:text-2xl lg:text-4xl leading-6 md:leading-7 lg:leading-10 font-helvetica normal-case text-primary wrap-break-word"
+                className="text-xl md:text-2xl lg:text-4xl leading-6 md:leading-7 lg:leading-10 font-helvetica normal-case text-footer-bg wrap-break-word"
                 style={{ willChange: "filter" }}
             >
                 {data.titlePartOne}
                 {data.titlePartTwo && (
                     <>
                         {" "}
-                        <span className="font-abc-laica-a-italic-variable-trial font-medium normal-case">{data.titlePartTwo}</span>
+                        <span className="font-abc-laica-a-italic-variable-trial font-medium normal-case text-primary">{data.titlePartTwo}</span>
                     </>
                 )}
             </h3>

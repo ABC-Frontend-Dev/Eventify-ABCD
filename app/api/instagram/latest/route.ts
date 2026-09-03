@@ -1,3 +1,4 @@
+// app/api/instagram/latest/route.ts
 import { NextResponse } from "next/server";
 
 const IG_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
