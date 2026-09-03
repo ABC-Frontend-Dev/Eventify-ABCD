@@ -287,7 +287,7 @@ export default function Projects() {
                                 <Link
                                     href="/#projects"
                                     onClick={handleLoadMoreClick}
-                                    className="relative max-w-50 w-fit mx-auto overflow-hidden block text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 border border-footer-bg/20 bg-white text-primary font-helvetica-neue-roman hover:text-white hover:bg-primary hover:border-primary hover:opacity-95 pointer-events-auto transition-all duration-100 translate-y-14 sm:translate-y-16 md:translate-y-18"
+                                    className="relative max-w-50 w-fit mx-auto overflow-hidden text-center h-7 sm:h-8 md:h-10 cursor-pointer px-2 sm:px-4 md:px-5 lg:px-6 py-2 text-xs md:text-sm leading-3 md:leading-3.5 border border-footer-bg/20 bg-white text-primary font-helvetica-neue-roman flex items-center justify-center hover:text-white hover:bg-primary hover:border-primary hover:opacity-95 pointer-events-auto transition-all duration-100 translate-y-14 sm:translate-y-16 md:translate-y-18"
                                 >
                                     View less projects
                                 </Link>
