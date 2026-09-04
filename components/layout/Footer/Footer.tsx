@@ -8,7 +8,7 @@ export default function Footer() {
     return (
         <footer className="bg-footer-bg">
             <div className="max-w-360 w-full mx-auto px-5 lg:px-20 py-4.5 lg:py-9">
-                <div className="flex items-start lg:items-center justify-between md:justify-between flex-col md:flex-row gap-y-2.5">
+                <div className="flex items-start lg:items-center justify-between md:justify-between flex-col 740px:flex-row md:flex-row gap-y-2.5">
                     <figure className="shrink-0 w-56 lg:w-58 h-9 lg:h-12">
                         <Image
                             src="https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-light-logo-with-uae-ksa_m8nbd3.png"
@@ -45,15 +45,15 @@ export default function Footer() {
 
                     <div className="mt-3 sm:mt-4 md:6 lg:mt-7 xl:mt-8 1-xl:mt-11 flex items-start flex-col sm:flex-row justify-between w-full">
                         <div className="flex items-start flex-col lg:flex-row gap-5.25 w-full shrink xl:shrink-0">
-                            <div className="flex flex-col sm:flex-row w-full lg:w-3/5 1-xl:w-1/2 gap-0 md:gap-5.25 shrink-0">
-                                <div className="w-full sm:w-1/4 md:w-1/2 shrink-0 md:shrink xl:shrink-0">
+                            <div className="flex flex-col sm:flex-row w-full 740px:w-full lg:w-3/5 1-xl:w-1/2 gap-0 740px:gap-4 md:gap-5.25 shrink-0">
+                                <div className="w-full 740px:w-1/2 md:w-1/2 shrink-0 md:shrink xl:shrink-0">
                                     <p className="text-lg lg:text-2xl font-abc-laica-a-italic-variable-trial font-medium leading-6 lg:leading-7.5 uppercase mb-1 lg:mb-1">uae</p>
                                     {/* <p className="text-sm lg:text-xl leading-4.5 font-helvetica-neue-roman lg:font-helvetica-medium tracking-[1px] font-bold lg:leading-6 mb-1.5 lg:mb-2.25">Address:</p> */}
                                     <p className="text-xs lg:text-xl font-helvetica-thin font-light leading-4 lg:leading-6 tracking-wider lg:tracking-wide mb-2.25">
                                         508, API Business Suite, Al Barsha 1, PO Box 449832, Dubai, UAE
                                     </p>
                                 </div>
-                                <div className="w-full sm:w-1/4 md:w-1/2 shrink-0 md:shrink xl:shrink-0">
+                                <div className="w-full 740px:w-1/2 md:w-1/2 shrink-0 md:shrink xl:shrink-0">
                                     <p className="text-lg lg:text-2xl font-abc-laica-a-italic-variable-trial font-medium leading-6 lg:leading-7.5 uppercase mb-1 lg:mb-1">ksa</p>
                                     {/* <p className="text-sm lg:text-xl font-helvetica-neue-roman lg:font-helvetica-medium tracking-[1px] font-bold leading-4.5 lg:leading-6  mb-1.5 lg:mb-2.25">Address:</p> */}
                                     <p className="text-xs lg:text-xl font-helvetica-thin font-light leading-4 lg:leading-6 tracking-wider lg:tracking-wide mb-0 md:mb-2.25">

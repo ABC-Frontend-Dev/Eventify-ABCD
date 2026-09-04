@@ -233,12 +233,12 @@ export default function AboutUs() {
             <div className="flex items-center justify-center flex-col-reverse 1-xl:flex-col-reverse xl:flex-row w-full mt-5 lg:mt-5 gap-2.5 lg:items-stretch">
                 {/* Left — Flip cards */}
                 <div className="w-full xl:w-fit xl:shrink">
-                    <div className="space-y-2.5 space-x-2.5 flex flex-col md:flex-row xl:flex-col h-full">
+                    <div className="space-y-2.5 space-x-2.5 flex flex-col 740px:flex-row md:flex-row xl:flex-col h-full">
                         {data.cards.map((card) => (
                         //    lg:h-1/3 
                            <CardFlip
                                 key={card.id}
-                                className="about-card font-helvetica-thin w-full 1-xl:w-1/3 xl:w-[288px] h-48 1-xl:h-48 xl:h-1/3 "
+                                className="about-card font-helvetica-thin w-full 740px:w-1/3 1-xl:w-1/3 xl:w-[288px] h-48 1-xl:h-48 xl:h-1/3 "
                                 title={<CardFrontTitle partOne={card.frontFacePartOne} partTwo={card.frontFacePartTwo} />}
                                 description={card.backFace}
                             />
