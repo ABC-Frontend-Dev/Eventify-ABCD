@@ -260,6 +260,12 @@ model Service {
   videoUrl         String?
   videoPoster      String?
   order            Int                      @default(0)
+  metaTitle        String?
+  metaDescription  String?
+  keywords         String[]                 @default([])
+  canonical        String?
+  schemaScript     String?                  @db.Text
+
   createdAt        DateTime                 @default(now())
   updatedAt        DateTime                 @updatedAt
   comparisonImages ServiceComparisonImage[]

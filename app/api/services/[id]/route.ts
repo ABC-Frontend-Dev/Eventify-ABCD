@@ -109,6 +109,27 @@ export async function PUT(request: NextRequest, { params }: Params) {
                         ? body.videoPoster || null
                         : existing.videoPoster,
                 order: body.order ?? existing.order,
+                // ── SEO ──────────────────────────────────────────────────────
+                metaTitle:
+                    body.metaTitle !== undefined
+                        ? body.metaTitle || null
+                        : existing.metaTitle,
+                metaDescription:
+                    body.metaDescription !== undefined
+                        ? body.metaDescription || null
+                        : existing.metaDescription,
+                keywords:
+                    body.keywords !== undefined
+                        ? body.keywords
+                        : existing.keywords,
+                canonical:
+                    body.canonical !== undefined
+                        ? body.canonical || null
+                        : existing.canonical,
+                schemaScript:
+                    body.schemaScript !== undefined
+                        ? body.schemaScript || null
+                        : existing.schemaScript,
                 ...(body.comparisonImages !== undefined && {
                     comparisonImages: {
                         createMany: {

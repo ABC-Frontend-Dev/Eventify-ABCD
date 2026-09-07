@@ -1,3 +1,4 @@
+// components/dashboard/layout/services/ServiceForm.tsx
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -40,6 +41,12 @@ interface ServiceFormData {
     videoUrl: string;
     videoPoster: string;
     comparisonImages: ComparisonPair[];
+    // ── SEO — all optional ──────────────────────────────────────────────────
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
+    canonical: string;
+    schemaScript: string;
 }
 
 interface ServiceFormProps {
@@ -64,6 +71,11 @@ interface ServiceFormProps {
             afterImage: string;
             afterAlt: string | null;
         }[];
+        metaTitle?: string | null;
+        metaDescription?: string | null;
+        keywords?: string[];
+        canonical?: string | null;
+        schemaScript?: string | null;
     };
 }
 
@@ -79,6 +91,7 @@ const NAV = [
     { id: "banner", label: "Banner" },
     { id: "content", label: "Content" },
     { id: "media", label: "Media" },
+    { id: "seo", label: "SEO" },
 ] as const;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -150,6 +163,9 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
     // ── Editor content ────────────────────────────────────────────────────────
     const [editorContent, setEditorContent] = useState("");
 
+    // ── Keywords input ────────────────────────────────────────────────────────
+    const [keywordInput, setKeywordInput] = useState("");
+
     // ── Form state ────────────────────────────────────────────────────────────
     const [form, setForm] = useState<ServiceFormData>({
         title: "",
@@ -163,6 +179,11 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
         videoUrl: "",
         videoPoster: "",
         comparisonImages: [],
+        metaTitle: "",
+        metaDescription: "",
+        keywords: [],
+        canonical: "",
+        schemaScript: "",
     });
 
     // ── Populate form in edit mode ─────────────────────────────────────────
@@ -187,6 +208,11 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                     afterImage: img.afterImage,
                     afterAlt: img.afterAlt || "",
                 })),
+                metaTitle: initialData.metaTitle || "",
+                metaDescription: initialData.metaDescription || "",
+                keywords: initialData.keywords || [],
+                canonical: initialData.canonical || "",
+                schemaScript: initialData.schemaScript || "",
             };
             setForm(data);
             setEditorContent(initialData.content);
@@ -222,6 +248,11 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                         afterImage: img.afterImage,
                         afterAlt: img.afterAlt || "",
                     })),
+                    metaTitle: s.metaTitle || "",
+                    metaDescription: s.metaDescription || "",
+                    keywords: s.keywords || [],
+                    canonical: s.canonical || "",
+                    schemaScript: s.schemaScript || "",
                 };
                 setForm(formData);
                 setEditorContent(s.content);
@@ -402,7 +433,18 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
         }
     };
 
+    // ── Keywords helpers ─────────────────────────────────────────────────────
+    const handleAddKeyword = () => {
+        const kw = keywordInput.trim();
+        if (kw && !form.keywords.includes(kw)) {
+            setForm((p) => ({ ...p, keywords: [...p.keywords, kw] }));
+            setKeywordInput("");
+        }
+    };
+
     // ── Completion / validation ────────────────────────────────────────────
+    // Note: SEO fields are intentionally excluded — they're optional and
+    // must never block saving, same as BlogForm's non-required fields.
     const completion = useMemo(() => [
         { label: "Title", ok: !!form.title.trim() },
         { label: "URL Slug", ok: !!form.url.trim() && urlAvailable === true },
@@ -444,6 +486,12 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                           afterAlt: p.afterAlt || undefined,
                       }))
                     : [],
+                // ── SEO — fall back to base title/description server-side too ──
+                metaTitle: form.metaTitle.trim() || undefined,
+                metaDescription: form.metaDescription.trim() || undefined,
+                keywords: form.keywords.length ? form.keywords : undefined,
+                canonical: form.canonical.trim() || undefined,
+                schemaScript: form.schemaScript.trim() || undefined,
             };
 
             const url = isEdit ? `/api/services/${form.id}` : "/api/services";
@@ -856,6 +904,124 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                         )}
                     </section>
 
+                    {/* ── SECTION 5: SEO ── */}
+                    <section id="seo" className="scroll-mt-32 bg-white border border-slate-200 rounded-xl p-5">
+                        <SectionHeading label="SEO" />
+
+                        <div className="space-y-4">
+                            {/* Meta title */}
+                            <div>
+                                <FieldLabel>
+                                    Meta title
+                                    <span className="ml-1 text-slate-300 font-normal">(optional)</span>
+                                </FieldLabel>
+                                <Input
+                                    value={form.metaTitle}
+                                    onChange={(e) => setForm((p) => ({ ...p, metaTitle: e.target.value }))}
+                                    placeholder={form.title || "Leave blank to inherit service title"}
+                                    className={inp}
+                                    maxLength={60}
+                                />
+                                <p className="mt-1 text-[11px] text-slate-400 text-right">{form.metaTitle.length}/60</p>
+                            </div>
+
+                            {/* Meta description */}
+                            <div>
+                                <FieldLabel>
+                                    Meta description
+                                    <span className="ml-1 text-slate-300 font-normal">(optional)</span>
+                                </FieldLabel>
+                                <Textarea
+                                    value={form.metaDescription}
+                                    onChange={(e) => setForm((p) => ({ ...p, metaDescription: e.target.value }))}
+                                    placeholder={form.description || "Leave blank to inherit service description"}
+                                    rows={2}
+                                    className="text-sm border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
+                                    maxLength={160}
+                                />
+                                <p className="mt-1 text-[11px] text-slate-400 text-right">{form.metaDescription.length}/160</p>
+                            </div>
+
+                            {/* Keywords */}
+                            <div>
+                                <FieldLabel>
+                                    Keywords
+                                    <span className="ml-1 text-slate-300 font-normal">(optional)</span>
+                                </FieldLabel>
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={keywordInput}
+                                        onChange={(e) => setKeywordInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                handleAddKeyword();
+                                            }
+                                        }}
+                                        placeholder="Add a keyword and press Enter"
+                                        className={inp}
+                                    />
+                                    <Button type="button" variant="outline" size="sm" onClick={handleAddKeyword} className="h-9 text-xs shrink-0">
+                                        Add
+                                    </Button>
+                                </div>
+                                {form.keywords.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {form.keywords.map((kw, i) => (
+                                            <span key={`${kw}-${i}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] rounded-full">
+                                                {kw}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setForm((p) => ({
+                                                            ...p,
+                                                            keywords: p.keywords.filter((k) => k !== kw),
+                                                        }))
+                                                    }
+                                                    className="hover:text-red-500 transition-colors"
+                                                >
+                                                    <X className="h-2.5 w-2.5" />
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Canonical */}
+                            <div>
+                                <FieldLabel>
+                                    Canonical URL
+                                    <span className="ml-1 text-slate-300 font-normal">(optional)</span>
+                                </FieldLabel>
+                                <Input
+                                    value={form.canonical}
+                                    onChange={(e) => setForm((p) => ({ ...p, canonical: e.target.value }))}
+                                    placeholder={`https://yoursite.com/services/${form.url || "your-slug"}`}
+                                    className={`${inp} font-mono text-[12px]`}
+                                />
+                            </div>
+
+                            {/* Schema */}
+                            <div>
+                                <FieldLabel>
+                                    Schema markup (JSON-LD)
+                                    <span className="ml-1 text-slate-300 font-normal">(optional)</span>
+                                </FieldLabel>
+                                <Textarea
+                                    value={form.schemaScript}
+                                    onChange={(e) => setForm((p) => ({ ...p, schemaScript: e.target.value }))}
+                                    placeholder={'{"@context":"https://schema.org",...}'}
+                                    rows={5}
+                                    className="text-[11px] font-mono border-slate-200 resize-none focus:border-slate-400 focus:ring-0 rounded-md placeholder:text-slate-300"
+                                />
+                                <p className="mt-1 text-[11px] text-slate-400">
+                                    Leave blank to auto-generate a basic Service schema from the title, description, and banner image.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
                     {/* Mobile action footer */}
                     <div className="flex sm:hidden gap-2 pb-2">
                         <Button
@@ -928,6 +1094,7 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                                     <strong className="text-slate-500">{MAX_POSTER_MB * 1024}KB</strong> · video{" "}
                                     <strong className="text-slate-500">{MAX_VIDEO_MB}MB</strong>.
                                 </li>
+                                <li>SEO fields are optional — blank fields fall back to the title/description automatically.</li>
                             </ul>
                         </div>
 

@@ -1,3 +1,4 @@
+// app/api/services/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -21,6 +22,12 @@ type ServiceBody = {
     videoPoster?: string;
     order?: number;
     comparisonImages?: ComparisonImageInput[];
+    // ── SEO — all optional ──────────────────────────────────────────────────
+    metaTitle?: string;
+    metaDescription?: string;
+    keywords?: string[];
+    canonical?: string;
+    schemaScript?: string;
 };
 
 export async function GET() {
@@ -112,6 +119,12 @@ export async function POST(request: NextRequest) {
                 videoUrl: body.videoUrl || null,
                 videoPoster: body.videoPoster || null,
                 order: body.order ?? (maxOrder?.order ?? -1) + 1,
+                // ── SEO ──────────────────────────────────────────────────────
+                metaTitle: body.metaTitle || null,
+                metaDescription: body.metaDescription || null,
+                keywords: body.keywords?.length ? body.keywords : [],
+                canonical: body.canonical || null,
+                schemaScript: body.schemaScript || null,
                 comparisonImages:
                     body.comparisonImages?.length
                         ? {
