@@ -64,17 +64,17 @@ export default function Footer() {
                             <div className="block sm:hidden">
                                 <ul className="flex gap-2 sm:gap-2 md:gap-1">
                                     <li>
-                                        <Link href={"https://www.facebook.com/Eventifyentertainment/"}>
+                                        <Link href={"https://www.facebook.com/Eventifyentertainment/"} target="_blank">
                                             <FacebookIcon />
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href={"https://www.instagram.com/eventifyentertainment/"}>
+                                        <Link href={"https://www.instagram.com/eventifyentertainment/"} target="_blank">
                                             <InstagramIcon />
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href={"https://ae.linkedin.com/company/eventifyentertainment"}>
+                                        <Link href={"https://ae.linkedin.com/company/eventifyentertainment"} target="_blank">
                                             <LinkedInIcon />
                                         </Link>
                                     </li>

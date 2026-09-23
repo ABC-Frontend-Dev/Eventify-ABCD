@@ -235,7 +235,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
                             <X className="h-4 w-4 text-footer-bg group-hover:text-white transition-colors duration-200" />
                         </motion.button>
 
-                        <nav className="min-h-screen pl-6 pr-6 flex flex-col items-start justify-between">
+                        <nav className="min-h-screen pl-6 pr-6 flex flex-col items-start justify-between h-screen overflow-y-auto overflow-x-hidden">
                             <div className="w-full">
                                 <ul className="space-y-3 mt-18 w-full">
                                     {menuItems.map((menu, index) => {
