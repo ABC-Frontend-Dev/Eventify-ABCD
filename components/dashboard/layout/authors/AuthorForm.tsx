@@ -70,32 +70,43 @@ export default function AuthorForm({ initialData, authorId, mode }: AuthorFormPr
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // ── Avatar upload ─────────────────────────────────────────────────────────
-    const handleFileUpload = async (uploadedFiles: File[]) => {
-        if (!uploadedFiles.length) return;
-        setUploading(true);
-        try {
-            const fd = new FormData();
-            fd.append("file", uploadedFiles[0]);
-            const response = await fetch("/api/upload?folder=authors", {
-                method: "POST",
-                body: fd,
-            });
-            const result = await response.json();
-            if (result.success) {
-                setFormData((prev) => ({ ...prev, avatar: result.path }));
-                toast.success("Avatar uploaded successfully!");
-            } else {
-                toast.error(result.error || "Failed to upload avatar");
-                setFiles([]);
-            }
-        } catch {
-            toast.error("Failed to upload avatar");
+    // ── Avatar upload ─────────────────────────────────────────────────────────────
+const handleFileUpload = async (uploadedFiles: File[]) => {
+    if (!uploadedFiles.length) return;
+
+    const file = uploadedFiles[0];
+
+    // ── Client-side 1 MB guard ────────────────────────────────────────────
+    const MAX_AVATAR_SIZE = 1 * 1024 * 1024; // 1 MB
+    if (file.size > MAX_AVATAR_SIZE) {
+        toast.error(`Avatar must be 1 MB or less. Your file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+        setFiles([]); // reset the uploader
+        return;
+    }
+
+    setUploading(true);
+    try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const response = await fetch("/api/upload?folder=authors", {   // ← folder=authors
+            method: "POST",
+            body: fd,
+        });
+        const result = await response.json();
+        if (result.success) {
+            setFormData((prev) => ({ ...prev, avatar: result.path }));
+            toast.success("Avatar uploaded successfully!");
+        } else {
+            toast.error(result.error || "Failed to upload avatar");
             setFiles([]);
-        } finally {
-            setUploading(false);
         }
-    };
+    } catch {
+        toast.error("Failed to upload avatar");
+        setFiles([]);
+    } finally {
+        setUploading(false);
+    }
+};
 
     // ── Submit ────────────────────────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
@@ -212,27 +223,28 @@ export default function AuthorForm({ initialData, authorId, mode }: AuthorFormPr
                 </div>
 
                 {/* Avatar uploader */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-slate-600">
-                        Author Avatar <span className="text-red-400">*</span>
-                    </label>
-                    <ImageUploader
-                        files={files}
-                        onChange={(newFiles) => {
-                            setFiles(newFiles);
-                            handleFileUpload(newFiles);
-                        }}
-                        maxFiles={1}
-                        maxSize={4}
-                        accept="image/*"
-                    />
-                    {uploading && (
-                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-1">
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Uploading image…
-                        </p>
-                    )}
-                </div>
+                {/* Avatar uploader */}
+<div className="space-y-1.5">
+    <label className="text-xs font-medium text-slate-600">
+        Author Avatar <span className="text-red-400">*</span>
+    </label>
+    <ImageUploader
+        files={files}
+        onChange={(newFiles) => {
+            setFiles(newFiles);
+            handleFileUpload(newFiles);
+        }}
+        maxFiles={1}
+        maxSize={1}       
+        accept="image/*"
+    />
+    {uploading && (
+        <p className="text-xs text-slate-500 flex items-center gap-2 mt-1">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Uploading image…
+        </p>
+    )}
+</div>
 
                 {/* Avatar preview */}
                 {formData.avatar && !uploading && (

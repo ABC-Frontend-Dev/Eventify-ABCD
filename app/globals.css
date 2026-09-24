@@ -121,6 +121,8 @@
 
   /* breakpoint */
   --breakpoint-xxs: 425px;
+  --breakpoint-375:375px;
+  --breakpoint-425:425px;
   --breakpoint-xs: 480px;
   --breakpoint-740px: 740px;
   --breakpoint-1-xl: 1180px;
