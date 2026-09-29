@@ -128,17 +128,28 @@ export default function ServicesPageContent({ service }: ServicesPageContentProp
 
 function ServicesVideo({ src, poster }: { src: string; poster?: string }) {
     return (
-        <video
-            className="w-full h-full object-cover"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            poster={poster}
-        >
-            <source src={src} type="video/mp4" />
-            Your browser does not support the video tag.
-        </video>
+        <div className="relative w-full aspect-video overflow-hidden bg-black">
+            {poster && (
+                <img
+                    src={poster}
+                    alt="Video preview"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    fetchPriority="high"
+                />
+            )}
+
+            <video
+                className="absolute inset-0 w-full h-full object-cover"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                poster={poster}
+            >
+                <source src={src} type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+        </div>
     );
 }

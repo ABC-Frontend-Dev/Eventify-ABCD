@@ -81,9 +81,9 @@ interface ServiceFormProps {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MAX_BANNER_MB = 1;          // matches API's services/banners limit (1MB)
+const MAX_BANNER_MB = 2;          // matches API's services/banners limit (2MB)
 const MAX_COMPARISON_MB = 2;      // matches API's services/comparisons limit (2MB)
-const MAX_POSTER_MB = 0.5;        // matches API's services/posters limit (500KB)
+const MAX_POSTER_MB = 2;        // matches API's services/posters limit (2MB)
 const MAX_VIDEO_MB = 100;
 
 const NAV = [
@@ -335,7 +335,7 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
         if (!files.length) return;
         const file = files[0];
         if (file.size > MAX_POSTER_MB * 1024 * 1024) {
-            toast.error(`Poster must be under ${MAX_POSTER_MB * 1024}KB`);
+            toast.error(`Poster must be under ${MAX_POSTER_MB}MB`);
             setPosterFiles([]);
             return;
         }
@@ -1091,7 +1091,7 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                                 <li>
                                     Max sizes: banner <strong className="text-slate-500">{MAX_BANNER_MB}MB</strong> · comparison images{" "}
                                     <strong className="text-slate-500">{MAX_COMPARISON_MB}MB</strong> · poster{" "}
-                                    <strong className="text-slate-500">{MAX_POSTER_MB * 1024}KB</strong> · video{" "}
+                                    <strong className="text-slate-500">{MAX_POSTER_MB}MB</strong> · video{" "}
                                     <strong className="text-slate-500">{MAX_VIDEO_MB}MB</strong>.
                                 </li>
                                 <li>SEO fields are optional — blank fields fall back to the title/description automatically.</li>

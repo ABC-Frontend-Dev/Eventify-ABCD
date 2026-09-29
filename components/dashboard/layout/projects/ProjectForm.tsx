@@ -14,10 +14,10 @@ import Link from "next/link";
 import { ImageUploader } from "@/components/ui/image-uploader";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-const IMAGE_MAX_BYTES = 1 * 1024 * 1024; // 1 MB
+const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
 const VIDEO_MAX_BYTES = 1 * 1024 * 1024 * 1024; // 1 GB
 
-const IMAGE_MAX_MB = 1; // passed to ImageUploader (in MB)
+const IMAGE_MAX_MB = 2; // passed to ImageUploader (in MB)
 const VIDEO_MAX_MB = 1024; // 1 GB in MB
 
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg", "video/quicktime", "video/x-msvideo"];
@@ -34,7 +34,7 @@ function validateFileSize(file: File): string | null {
         }
     } else {
         if (file.size > IMAGE_MAX_BYTES) {
-            return `"${file.name}" exceeds the 1 MB image limit.`;
+            return `"${file.name}" exceeds the 2 MB image limit.`;
         }
     }
     return null;
@@ -229,7 +229,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
     // ─── Upload helpers ───────────────────────────────────────────────────────
     /**
      * Upload a single file to /api/upload?folder=projects
-     * The server will apply the correct size limit (1 MB image / 1 GB video).
+     * The server will apply the correct size limit (2 MB image / 1 GB video).
      */
     const uploadFile = async (file: File): Promise<string | null> => {
         const fd = new FormData();
@@ -619,13 +619,13 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 </div>
                             )}
 
-                            {/* Custom logo upload — images only, 1 MB max, cropped before upload */}
+                            {/* Custom logo upload — images only, 2 MB max, cropped before upload */}
                             <div>
                                 <FieldLabel ok={!!formData.projectClientLogo}>
                                     Custom Client Logo <span className="text-slate-400 text-[10px]">(Optional - Not visible to clients)</span>
                                 </FieldLabel>
                                 <p className="text-[11px] text-slate-400 mb-2">
-                                    Upload a custom logo if the client doesn't exist in the list above. Max size: <strong>1 MB</strong>.
+                                    Upload a custom logo if the client doesn't exist in the list above. Max size: <strong>2 MB</strong>.
                                 </p>
 
                                 <ImageUploader
@@ -671,7 +671,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                     <section className="bg-white border border-slate-200 rounded-xl p-5">
                         <SectionHeading label="Banner Image" />
                         <p className="text-[11px] text-slate-400 mb-3">
-                            Images: max <strong>1 MB</strong> · Videos: max <strong>1 GB</strong>
+                            Images: max <strong>2 MB</strong> · Videos: max <strong>1 GB</strong>
                         </p>
 
                         <ImageUploader
@@ -786,7 +786,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                         <section className="bg-white border border-slate-200 rounded-xl p-5">
                             <SectionHeading label="Project Gallery" />
                             <p className="text-[11px] text-slate-400 mb-3">
-                                Images: max <strong>1 MB</strong> each · Videos: max <strong>1 GB</strong> each
+                                Images: max <strong>2 MB</strong> each · Videos: max <strong>1 GB</strong> each
                             </p>
 
                             <ImageUploader
@@ -891,7 +891,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                 <li>Banner: 1200×630 works great for all viewports.</li>
                                 <li>Use tabs to split images by room, area, or phase.</li>
                                 <li>
-                                    Images must be under <strong className="text-slate-500">1 MB</strong> each.
+                                    Images must be under <strong className="text-slate-500">2 MB</strong> each.
                                 </li>
                                 <li>
                                     Videos must be under <strong className="text-slate-500">1 GB</strong> each.
@@ -911,7 +911,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                             <div>
                                 <p className="text-sm font-semibold text-slate-800">{tabs.find((t) => t.tempId === currentTab.tempId) ? "Edit Tab" : "Add Tab"}</p>
                                 <p className="text-[11px] text-slate-400 mt-0.5">
-                                    Name this section and upload its images (max <strong>1 MB</strong> each)
+                                    Name this section and upload its images (max <strong>2 MB</strong> each)
                                 </p>
                             </div>
                             <button type="button" onClick={closeModal} className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
@@ -937,7 +937,7 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                     Images ({currentTab.images.length})
                                 </FieldLabel>
 
-                                {/* Tab images are images-only → 1 MB cap, cropped before upload */}
+                                {/* Tab images are images-only → 2 MB cap, cropped before upload */}
                                 <ImageUploader
                                     files={tabImageFiles}
                                     onChange={(f) => {

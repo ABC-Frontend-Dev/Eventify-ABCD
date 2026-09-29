@@ -137,15 +137,15 @@ const menuItems: MenuItem[] = [
             { title: "Authors", icon: List, href: "/dashboard/authors" },
         ],
     },
-    {
-        title: "Comparisons",
-        icon: Layers,
-        href: "/dashboard/comparisons",
-        subItems: [
-            { title: "All Comparisons", icon: List, href: "/dashboard/comparisons" },
-            { title: "Add New Comparison", icon: Plus, href: "/dashboard/comparisons/new" },
-        ],
-    },
+    // {
+    //     title: "Comparisons",
+    //     icon: Layers,
+    //     href: "/dashboard/comparisons",
+    //     subItems: [
+    //         { title: "All Comparisons", icon: List, href: "/dashboard/comparisons" },
+    //         { title: "Add New Comparison", icon: Plus, href: "/dashboard/comparisons/new" },
+    //     ],
+    // },
     {
         title: "Contacts",
         icon: Mail,

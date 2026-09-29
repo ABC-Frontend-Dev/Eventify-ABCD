@@ -100,11 +100,22 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
 
     const handleFileUpload = async (uploadedFiles: File[]) => {
         if (!uploadedFiles.length) return;
+
+        const file = uploadedFiles[0];
+
+        // ── Client-side 4 MB guard (matches backend FOLDER_SIZE_LIMITS.team) ──
+        const MAX_TEAM_PHOTO_SIZE = 4 * 1024 * 1024; // 4 MB
+        if (file.size > MAX_TEAM_PHOTO_SIZE) {
+            toast.error(`Team photo must be 4 MB or less. Your file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+            setFiles([]); // reset the uploader
+            return;
+        }
+
         setUploading(true);
         try {
             const fd = new FormData();
-            fd.append("file", uploadedFiles[0]);
-            const res = await fetch("/api/upload", {
+            fd.append("file", file);
+            const res = await fetch("/api/upload?folder=team", { // ✅ folder=team
                 method: "POST",
                 body: fd,
             });
@@ -114,9 +125,11 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                 toast.success("Photo uploaded");
             } else {
                 toast.error(result.error || "Failed to upload photo");
+                setFiles([]);
             }
         } catch {
             toast.error("Failed to upload photo");
+            setFiles([]);
         } finally {
             setUploading(false);
         }
@@ -322,7 +335,7 @@ export default function TeamForm({ initialData, memberId, mode }: TeamFormProps)
                             <span className="text-xs font-medium text-slate-600 block mb-3">Tips</span>
                             <ul className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                 <li>Use square photos for best grid display.</li>
-                                <li>Keep photos under 200 KB for fast load.</li>
+                                <li>Keep photos under 4 MB for optimal performance.</li> {/* ✅ Updated tip */}
                                 <li>Use uppercase names to match the team style.</li>
                                 <li>Rearrange positions from the Team overview page.</li>
                             </ul>

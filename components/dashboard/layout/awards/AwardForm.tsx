@@ -35,6 +35,11 @@ interface AwardFormProps {
     mode: "create" | "edit";
 }
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const MAX_IMAGE_SIZE_MB = 2; // ✅ 2 MB for all images (awards & category icons)
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+
 // ─── Small helpers ────────────────────────────────────────────────────────────
 
 function FieldLabel({ children, required, ok, optional }: { children: React.ReactNode; required?: boolean; ok?: boolean; optional?: boolean }) {
@@ -68,9 +73,13 @@ async function uploadToCloudinary(file: File): Promise<string | null> {
 }
 
 function validateAwardImage(file: File): string | null {
-    const MB = file.size / (1024 * 1024);
-    if (MB > 1) return `"${file.name}" is ${MB.toFixed(2)}MB — max 1MB allowed.`;
-    if (!file.type.startsWith("image/")) return `"${file.name}" is not an image.`;
+    if (!file.type.startsWith("image/")) {
+        return `"${file.name}" is not an image.`;
+    }
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        const mb = (file.size / (1024 * 1024)).toFixed(2);
+        return `"${file.name}" is ${mb} MB — max ${MAX_IMAGE_SIZE_MB} MB allowed.`;
+    }
     return null;
 }
 
@@ -167,7 +176,7 @@ function AwardImageRow({ image, index, onUpdate, onRemove }: { image: AwardImage
                                 <div className="flex-1 text-[11px] text-slate-500 leading-relaxed">
                                     <p className="font-medium text-emerald-600 mb-1">✓ Image uploaded</p>
                                     <p>Hover image to replace or remove.</p>
-                                    <p className="text-amber-600 mt-1">Max 1MB per image</p>
+                                    <p className="text-amber-600 mt-1">Max {MAX_IMAGE_SIZE_MB} MB per image</p>
                                 </div>
                             </div>
                         ) : (
@@ -186,7 +195,7 @@ function AwardImageRow({ image, index, onUpdate, onRemove }: { image: AwardImage
                                     <>
                                         <Upload className="h-6 w-6 text-slate-300" />
                                         <span className="text-xs text-slate-400">Click to upload image</span>
-                                        <span className="text-[11px] text-amber-500 font-medium">Max 1MB</span>
+                                        <span className="text-[11px] text-amber-500 font-medium">Max {MAX_IMAGE_SIZE_MB} MB</span>
                                     </>
                                 )}
                             </button>
@@ -239,8 +248,9 @@ function AwardCategorySection({ category, catIndex, onUpdate, onRemove }: { cate
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.size > 2 * 1024 * 1024) {
-            toast.error("Category icon must be under 2MB");
+        const err = validateAwardImage(file);
+        if (err) {
+            toast.error(err);
             return;
         }
 
@@ -356,7 +366,7 @@ function AwardCategorySection({ category, catIndex, onUpdate, onRemove }: { cate
                                     ) : (
                                         <>
                                             <Upload className="h-4 w-4" />
-                                            Upload tab icon
+                                            Upload tab icon (max {MAX_IMAGE_SIZE_MB} MB)
                                         </>
                                     )}
                                 </button>
@@ -378,7 +388,7 @@ function AwardCategorySection({ category, catIndex, onUpdate, onRemove }: { cate
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <p className="text-xs font-semibold text-slate-700">Award Images</p>
-                                <p className="text-[11px] text-slate-400 mt-0.5">Each image has a title + optional description · max 1MB per image</p>
+                                <p className="text-[11px] text-slate-400 mt-0.5">Each image has a title + optional description · max {MAX_IMAGE_SIZE_MB} MB per image</p>
                             </div>
                             <Button type="button" size="sm" onClick={addImage} className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white shrink-0">
                                 <Plus className="h-3.5 w-3.5 mr-1" />
@@ -737,7 +747,7 @@ export default function AwardForm({ awardId, mode }: AwardFormProps) {
                                 </li>
                                 <li className="flex items-start gap-1.5">
                                     <span className="text-slate-300 shrink-0 mt-0.5">4.</span>
-                                    Add award images (max 1MB each) with title &amp; optional description
+                                    Add award images (max {MAX_IMAGE_SIZE_MB} MB each) with title &amp; optional description
                                 </li>
                                 <li className="flex items-start gap-1.5">
                                     <span className="text-slate-300 shrink-0 mt-0.5">5.</span>

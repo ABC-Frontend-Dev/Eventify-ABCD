@@ -40,6 +40,13 @@ interface AwardCategoryModalProps {
     awardId?: number;
 }
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const MAX_ICON_SIZE_MB = 2; // ✅ 2 MB for category icons
+const MAX_CAROUSEL_SIZE_MB = 2; // ✅ 2 MB for carousel images
+
+// ─── Helper Components ────────────────────────────────────────────────────────
+
 function FieldLabel({ children, required, ok }: { children: React.ReactNode; required?: boolean; ok?: boolean }) {
     return (
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 mb-1.5">
@@ -85,6 +92,8 @@ export default function AwardCategoryModal({ isOpen, category, onClose, onSave, 
 
     if (!isOpen || !category) return null;
 
+    // ─── Upload Helpers ───────────────────────────────────────────────────────
+
     const uploadFile = async (file: File): Promise<string | null> => {
         const fd = new FormData();
         fd.append("file", file);
@@ -98,22 +107,46 @@ export default function AwardCategoryModal({ isOpen, category, onClose, onSave, 
 
     const handleIconUpload = async (files: File[]) => {
         if (!files.length) return;
+
+        const file = files[0];
+        
+        // ✅ Client-side validation for 2 MB limit
+        if (file.size > MAX_ICON_SIZE_MB * 1024 * 1024) {
+            toast.error(`Icon must be under ${MAX_ICON_SIZE_MB} MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+            setIconFile([]);
+            return;
+        }
+
         setUploadingIcon(true);
-        const path = await uploadFile(files[0]).catch(() => null);
+        const path = await uploadFile(file).catch(() => null);
         setUploadingIcon(false);
         setIconFile([]);
+
         if (path) {
             setFormData((p) => ({ ...p, icon: path }));
             toast.success("Icon uploaded");
-        } else toast.error("Failed to upload icon");
+        } else {
+            toast.error("Failed to upload icon");
+        }
     };
 
     const handleCarouselImageUpload = async (files: File[]) => {
         if (!files.length) return;
+
+        // ✅ Client-side validation for 2 MB limit per image
+        const invalidFiles = files.filter(f => f.size > MAX_CAROUSEL_SIZE_MB * 1024 * 1024);
+        if (invalidFiles.length > 0) {
+            const fileNames = invalidFiles.map(f => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`).join(", ");
+            toast.error(`These files exceed the ${MAX_CAROUSEL_SIZE_MB} MB limit: ${fileNames}`);
+            setImageFile([]);
+            return;
+        }
+
         setUploadingImage(true);
         const paths = (await Promise.all(files.map(uploadFile))).filter(Boolean) as string[];
         setUploadingImage(false);
         setImageFile([]);
+
         if (paths.length) {
             const newImages = paths.map((path) => ({
                 tempId: `temp-${Date.now()}-${Math.random()}`,
@@ -125,7 +158,12 @@ export default function AwardCategoryModal({ isOpen, category, onClose, onSave, 
             }));
             toast.success(`${paths.length} image(s) uploaded`);
         }
+        if (paths.length < files.length) {
+            toast.warning("Some images failed to upload");
+        }
     };
+
+    // ─── Award Item Handlers ──────────────────────────────────────────────────
 
     const handleAddItem = () => {
         setCurrentItem({
@@ -264,6 +302,7 @@ export default function AwardCategoryModal({ isOpen, category, onClose, onSave, 
                             <FieldLabel required ok={!!formData.icon}>
                                 Category Icon
                             </FieldLabel>
+                            <p className="text-[11px] text-slate-400 mb-2">Max {MAX_ICON_SIZE_MB} MB · PNG, JPG, WebP</p>
 
                             <ImageUploader
                                 files={iconFile}
@@ -272,7 +311,7 @@ export default function AwardCategoryModal({ isOpen, category, onClose, onSave, 
                                     handleIconUpload(f);
                                 }}
                                 maxFiles={1}
-                                maxSize={2}
+                                maxSize={MAX_ICON_SIZE_MB}
                                 accept="image/*"
                             />
 
@@ -378,7 +417,7 @@ export default function AwardCategoryModal({ isOpen, category, onClose, onSave, 
                         <div className="pt-4 border-t border-slate-100">
                             <div>
                                 <p className="text-xs font-semibold text-slate-700 mb-1">Carousel Images</p>
-                                <p className="text-[11px] text-slate-400 mb-3">Upload award showcase images (at least 1 required)</p>
+                                <p className="text-[11px] text-slate-400 mb-3">Upload award showcase images · max {MAX_CAROUSEL_SIZE_MB} MB each · at least 1 required</p>
                             </div>
 
                             <ImageUploader
@@ -388,7 +427,7 @@ export default function AwardCategoryModal({ isOpen, category, onClose, onSave, 
                                     handleCarouselImageUpload(f);
                                 }}
                                 maxFiles={20 - formData.carouselImages.length}
-                                maxSize={5}
+                                maxSize={MAX_CAROUSEL_SIZE_MB}
                                 accept="image/*"
                             />
 

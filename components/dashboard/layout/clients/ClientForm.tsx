@@ -13,7 +13,7 @@ import Link from "next/link";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MAX_IMAGE_SIZE_MB = 1; // 1 MB max for client logos
+const MAX_IMAGE_SIZE_MB = 2; // 2 MB max for client logos
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,7 +103,7 @@ export default function ClientForm({ initialData, clientId, mode }: ClientFormPr
         setFormData((p) => ({ ...p, [name]: value }));
     };
 
-    // ── Upload — enforces 1 MB limit ──────────────────────────────────────────
+    // ── Upload — enforces 2 MB limit ──────────────────────────────────────────
 
     const handleFileUpload = async (uploadedFiles: File[]) => {
         if (!uploadedFiles.length) return;

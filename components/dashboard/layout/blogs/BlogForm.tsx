@@ -26,8 +26,8 @@ import TableOfContents, {
 } from "@/components/Editor/TableOfContents";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const IMAGE_MAX_BYTES = 1 * 1024 * 1024; // 1 MB
-const IMAGE_MAX_MB = 1;
+const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // ✅ 2 MB (matches API's blogs limit)
+const IMAGE_MAX_MB = 2;
 
 const DEFAULT_AUTHOR_NAME = "Eventify";
 const DEFAULT_CATEGORY_NAME = "Activations";
@@ -119,7 +119,7 @@ function SectionHeading({ label }: { label: string }) {
 // ─── Client-side image size guard ─────────────────────────────────────────────
 function validateImageFile(file: File): string | null {
   if (file.size > IMAGE_MAX_BYTES) {
-    return `"${file.name}" exceeds the 1 MB image limit.`;
+    return `"${file.name}" exceeds the ${IMAGE_MAX_MB} MB image limit.`; // ✅ Dynamic
   }
   return null;
 }
@@ -464,52 +464,6 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     <div className="min-h-screen bg-slate-50/60">
       {/* ── Sticky top bar ── */}
       <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
-        {/* <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-12 flex items-center gap-3">
-                    <Button variant="ghost" size="icon" asChild className="h-7 w-7 text-slate-500 hover:text-slate-900">
-                        <Link href="/dashboard/blogs">
-                            <ArrowLeft className="h-4 w-4" />
-                        </Link>
-                    </Button>
-
-                    <div className="h-4 w-px bg-slate-200" />
-
-                    <span className="text-xs text-slate-400">Blogs</span>
-                    <ChevronRight className="h-3 w-3 text-slate-300" />
-                    <span className="text-xs font-medium text-slate-700 truncate max-w-[200px]">{mode === "create" ? "New post" : formData.title || "Edit post"}</span>
-
-                    <div className="hidden md:flex items-center gap-2 ml-3">
-                        <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${completionPct}%` }} />
-                        </div>
-                        <span className="text-[11px] text-slate-400">{completionPct}%</span>
-                    </div>
-
-                    <div className="flex-1" />
-
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => handleSubmit(e, BlogStatus.DRAFT)}
-                        disabled={loading || !isFormValid}
-                        className="h-7 text-xs text-slate-600 hover:text-slate-900 hidden sm:inline-flex"
-                    >
-                        <Save className="h-3.5 w-3.5 mr-1.5" />
-                        Save draft
-                    </Button>
-
-                    <Button
-                        type="button"
-                        size="sm"
-                        onClick={(e) => handleSubmit(e, BlogStatus.PUBLISHED)}
-                        disabled={loading || uploadingThumbnail || uploadingBanner || !isFormValid}
-                        className="h-7 text-xs bg-slate-900 hover:bg-slate-700 text-white"
-                    >
-                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Eye className="h-3.5 w-3.5 mr-1.5" />}
-                        {mode === "create" ? "Publish" : "Update"}
-                    </Button>
-                </div> */}
-
         {/* Section tabs */}
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 flex justify-between items-center gap-0 border-t border-slate-100">
           <div className="">
@@ -638,27 +592,6 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
 
               {/* Reading time only — category & author are commented out */}
               <div className="grid grid-cols-1 gap-3">
-                {/* ── COMMENTED OUT: Category & Author dropdowns ── Admin doesn't need to set these; they are auto-filled server-side ("Activations" + "Eventify"). Un-comment the block
-                                below to restore the UI pickers. */}
-                {/* <div>
-                                    <FieldLabel required ok={formData.categoryId !== 0}>
-                                        Category
-                                    </FieldLabel>
-                                    <select
-                                        name="categoryId"
-                                        value={formData.categoryId}
-                                        onChange={handleChange}
-                                        className={sel}
-                                        disabled={loadingCategories}
-                                    >
-                                        <option value={0}>Select…</option>
-                                        {categories.map((c) => (
-                                            <option key={c.id} value={c.id}>
-                                                {c.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div> */}
                 <div>
                   <FieldLabel required ok={formData.authorId !== 0}>
                     Author
@@ -711,11 +644,6 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                       );
                     })()}
                 </div>
-                {/* Reading time — visible, defaults to "5 min read" */}
-                {/* <div>
-                                    <FieldLabel>Reading time</FieldLabel>
-                                    <Input name="timeToRead" value={formData.timeToRead} onChange={handleChange} placeholder="5 min read" className={inp} />
-                                </div> */}
               </div>
             </div>
           </section>
@@ -743,7 +671,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
               <div className="bg-white border border-slate-200 rounded-xl p-5">
                 <SectionHeading label="Thumbnail" />
                 <p className="text-[11px] text-slate-400 mb-3">
-                  Max size: <strong>1 MB</strong>
+                  Max size: <strong>{IMAGE_MAX_MB} MB</strong>
                 </p>
 
                 <ImageUploader
@@ -813,7 +741,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
               <div className="bg-white border border-slate-200 rounded-xl p-5">
                 <SectionHeading label="Banner Image" />
                 <p className="text-[11px] text-slate-400 mb-3">
-                  Max size: <strong>1 MB</strong>
+                  Max size: <strong>{IMAGE_MAX_MB} MB</strong>
                 </p>
 
                 <ImageUploader
@@ -1099,7 +1027,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                 <li>H2/H3 headings auto-build the TOC.</li>
                 <li>
                   Images must be under{" "}
-                  <strong className="text-slate-500">1 MB</strong>.
+                  <strong className="text-slate-500">{IMAGE_MAX_MB} MB</strong>.
                 </li>
                 <li>Author role appears on the published blog page.</li>
               </ul>

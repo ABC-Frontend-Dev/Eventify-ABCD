@@ -27,11 +27,14 @@ const FOLDER_MAP: Record<string, string> = {
   "services/videos": "eventify/services/videos",
 };
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 const FOLDER_SIZE_LIMITS: Record<string, { image?: number; video?: number }> = {
   authors: {
-    image: 1 * 1024 * 1024, // ← add this: 1 MB hard limit
+    image: 2 * 1024 * 1024, // 2 MB
+  },
+  team: {
+    image: 4 * 1024 * 1024, // 4 MB
   },
   hero: {
     image: 5 * 1024 * 1024,
@@ -44,23 +47,23 @@ const FOLDER_SIZE_LIMITS: Record<string, { image?: number; video?: number }> = {
     image: 2 * 1024 * 1024,
   },
   awards: {
-    image: 1 * 1024 * 1024,
+    image: 2 * 1024 * 1024,
   },
   blogs: {
-    image: 1 * 1024 * 1024, // 1 MB
+    image: 2 * 1024 * 1024, // 2 MB
   },
   projects: {
-    image: 1 * 1024 * 1024,
+    image: 2 * 1024 * 1024,
     video: 1 * 1024 * 1024 * 1024,
   },
   "services/banners": {
-    image: 1 * 1024 * 1024, // 1 MB
+    image: 2 * 1024 * 1024, // 2 MB
   },
   "services/comparisons": {
     image: 2 * 1024 * 1024, // 2 MB
   },
   "services/posters": {
-    image: 500 * 1024, // 500 KB
+    image: 2 * 1024 * 1024, // 2 MB
   },
   "services/videos": {
     video: 100 * 1024 * 1024,

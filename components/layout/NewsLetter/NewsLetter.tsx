@@ -73,7 +73,7 @@ export default function NewsLetter() {
                         }}
                         placeholder="Enter your email address"
                         required
-                        className="flex-1 w-full h-10 md:h-10 xl:h-12 pl-8 md:pl-12 pr-2.5 py-2.5 bg-white/10 border border-white/20 text-white placeholder:text-white/40 placeholder:font-helvetica placeholder:text-sm md:placeholder:text-base font-helvetica text-sm md:text-base focus:outline-none focus:border-white/50 focus:bg-white/15 transition-all"
+                        className="flex-1 w-full h-10 md:h-10 xl:h-12 pl-8 sm:pl-10 md:pl-12 pr-2.5 py-2.5 bg-white/10 border border-white/20 text-white placeholder:text-white/40 placeholder:font-helvetica placeholder:text-sm md:placeholder:text-base font-helvetica text-sm md:text-base focus:outline-none focus:border-white/50 focus:bg-white/15 transition-all"
                     />
                     <div className="absolute top-1/2 left-2.5 -translate-y-1/2">
                         <Image
