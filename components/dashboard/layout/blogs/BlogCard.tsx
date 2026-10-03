@@ -100,7 +100,7 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
                     {/* Title */}
                     <p className="text-xs leading-3 italic text-muted-foreground">
                         <Link href={`/blogs/${slug}`} target="_blank" className=" underline hover:text-primary transition-colors">
-                            {`https://yourdomain.com/blogs/${slug}`}
+                            {`https://eventifyentertainment.com/blogs/${slug}`}
                         </Link>
                     </p>
                     {/* Title */}

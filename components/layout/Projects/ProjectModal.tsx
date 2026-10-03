@@ -97,7 +97,7 @@ export function ProjectModal({ isOpen, onClose, project, activeInnerTab, onActiv
                             <div className="w-full shrink-0">
                                 <p className="font-helvetica-medium text-lg lg:text-[22px] font-semibold leading-6.5 tracking-wide text-footer-bg">{project.title}</p>
                             </div>
-                            <div className="mt-2.5 max-w-full w-full shrink-0 flex gap-y-2.5 justify-between">
+                            <div className="mt-2.5 max-w-full w-full shrink-0 flex flex-col sm:flex-row gap-y-2.5 justify-between">
                                 {project.description && <p className="font-helvetica-neue-roman text-sm leading-4.5 tracking-wide text-footer-bg">{project.description}</p>}
                                 {project.hasTabs && project.tabs.length > 0 && (
                                     <TabsList className="max-w-max w-full mt-0 p-0 rounded-none bg-white gap-1 justify-start">
