@@ -27,6 +27,7 @@ import {
   toDateInputValue,
   todayDateInputValue,
 } from "@/lib/blog-date";
+import { getCanonicalUrl } from "@/lib/constants";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB (matches API's blogs limit)
@@ -424,7 +425,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
             metaDescription: formData.metaDescription || formData.description,
             canonical:
               formData.canonical ||
-              `https://yoursite.com/blogs/${formData.slug}`,
+              `https://eventifyentertainment.com/blogs/${formData.slug}`,
             thumbnailAlt:
               formData.thumbnailAlt || formData.metaTitle || formData.title,
             bannerImageAlt:
@@ -969,7 +970,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                   name="canonical"
                   value={formData.canonical}
                   onChange={handleChange}
-                  placeholder={`https://yoursite.com/blogs/${formData.slug || "your-slug"}`}
+                  placeholder={`https://eventifyentertainment.com/blogs/${formData.slug || "your-slug"}`}
                   className={`${inp} font-mono text-[12px]`}
                 />
               </div>

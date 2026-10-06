@@ -1,77 +1,76 @@
+// hooks/useActiveSection.ts
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 /**
- * Watches section elements and returns the ID of the section currently
- * most visible near the top of the viewport. Returns null when the hero
- * (top of the page) is in view — i.e. the "Home" state.
+ * Returns the id of the section the visitor is currently reading, or null
+ * when they're at the top of the page (the "Home" state).
+ *
+ * How it decides: a "reading line" sits 35% of the way down the viewport.
+ * The active section is the one whose top edge is closest ABOVE that line.
+ * This depends only on where things are right now, so it gives the same
+ * answer scrolling up or down, for tall and short sections alike, and it
+ * doesn't matter what order the ids are listed in.
+ *
+ * It re-checks on scroll, on resize, and whenever the page height changes —
+ * which is what happens when sections like Projects or Clients finish
+ * loading their data and push everything below them down.
  */
+const READING_LINE = 0.35;
+
 export function useActiveSection(sectionIds: string[]) {
     const [activeSection, setActiveSection] = useState<string | null>(null);
+    const pathname = usePathname(); // re-run when navigating back to the home page
 
     useEffect(() => {
         if (typeof window === "undefined") return;
 
-        let observer: IntersectionObserver | null = null;
-        const observedIds = new Set<string>();
+        let frame = 0;
 
-        const setup = () => {
-            const sections = sectionIds.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => el !== null);
+        const compute = () => {
+            frame = 0;
+            const line = window.innerHeight * READING_LINE;
 
-            // Skip if we're already observing exactly this set of sections.
-            const ids = sections.map((s) => s.id);
-            const unchanged = ids.length === observedIds.size && ids.every((id) => observedIds.has(id));
-            if (unchanged) return;
+            let current: string | null = null;
+            let closestTop = -Infinity;
 
-            observedIds.clear();
-            ids.forEach((id) => observedIds.add(id));
+            for (const id of sectionIds) {
+                const el = document.getElementById(id);
+                if (!el) continue; // section not on this page / not rendered yet
 
-            observer?.disconnect();
-            observer = null;
+                const top = el.getBoundingClientRect().top;
+                if (top <= line && top > closestTop) {
+                    closestTop = top;
+                    current = id;
+                }
+            }
 
-            if (!sections.length) return;
-
-            observer = new IntersectionObserver(
-                (entries) => {
-                    const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-                    if (visible.length > 0) {
-                        setActiveSection(visible[0].target.id);
-                        return;
-                    }
-
-                    // Nothing in the detection band: if every section sits below
-                    // it, we're at the hero → Home.
-                    const allBelow = sections.every((el) => el.getBoundingClientRect().top > window.innerHeight * 0.3);
-                    if (allBelow) setActiveSection(null);
-                },
-                {
-                    threshold: [0, 0.25, 0.5, 0.75, 1],
-                    // Bias detection toward the top portion of the viewport.
-                    rootMargin: "-20% 0px -60% 0px",
-                },
-            );
-
-            sections.forEach((section) => observer!.observe(section));
+            setActiveSection(current); // React ignores it if the value didn't change
         };
 
-        setup();
+        const schedule = () => {
+            if (!frame) frame = requestAnimationFrame(compute);
+        };
 
-        // Sections that fetch data (e.g. `projects`) only render their
-        // <section id="…"> AFTER the fetch resolves — after this effect first
-        // ran. Watch the DOM and re-observe when a missing section appears.
-        const mutationObserver = new MutationObserver(() => {
-            const missing = sectionIds.some((id) => !document.getElementById(id));
-            if (missing) setup();
-        });
-        mutationObserver.observe(document.body, { childList: true, subtree: true });
+        window.addEventListener("scroll", schedule, { passive: true });
+        window.addEventListener("resize", schedule);
+
+        // Fires immediately on observe, and again whenever the page grows/shrinks
+        // (e.g. a section finishes loading its data).
+        const resizeObserver = new ResizeObserver(schedule);
+        resizeObserver.observe(document.body);
+
+        schedule();
 
         return () => {
-            observer?.disconnect();
-            mutationObserver.disconnect();
+            window.removeEventListener("scroll", schedule);
+            window.removeEventListener("resize", schedule);
+            resizeObserver.disconnect();
+            if (frame) cancelAnimationFrame(frame);
         };
-    }, [sectionIds]);
+    }, [sectionIds, pathname]);
 
     return activeSection;
 }

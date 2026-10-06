@@ -997,7 +997,7 @@ export default function ServiceForm({ mode, serviceId, initialData }: ServiceFor
                                 <Input
                                     value={form.canonical}
                                     onChange={(e) => setForm((p) => ({ ...p, canonical: e.target.value }))}
-                                    placeholder={`https://yoursite.com/services/${form.url || "your-slug"}`}
+                                    placeholder={`https://eventifyentertainment.com/services/${form.url || "your-slug"}`}
                                     className={`${inp} font-mono text-[12px]`}
                                 />
                             </div>
