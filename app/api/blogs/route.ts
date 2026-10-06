@@ -1,6 +1,7 @@
 // app/api/blogs/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { resolvePublishedAt } from "@/lib/blog-date";
 
 // ── Default fallback names ────────────────────────────────────────────────────
 const DEFAULT_AUTHOR_NAME = "Eventify";
@@ -200,7 +201,7 @@ export async function POST(request: NextRequest) {
                 description: body.description,
                 content: body.content,
                 status: body.status || BlogStatus.DRAFT,
-                publishedAt: body.status === BlogStatus.PUBLISHED ? new Date() : null,
+                publishedAt: resolvePublishedAt(body.publishedAt, body.status),
                 metaTitle: body.metaTitle || body.title,
                 metaDescription: body.metaDescription || body.description,
                 keywords: body.keywords || [],

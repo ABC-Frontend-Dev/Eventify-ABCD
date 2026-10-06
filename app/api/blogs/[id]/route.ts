@@ -1,6 +1,7 @@
 // app/api/blogs/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { resolvePublishedAt } from "@/lib/blog-date";
 
 const DEFAULT_AUTHOR_NAME = "Eventify";
 const DEFAULT_CATEGORY_NAME = "Activations";
@@ -17,7 +18,8 @@ type UpdateBlogBody = {
     description?: string;
     content?: string;
     status?: BlogStatus;
-    publishedAt?: Date | null;
+    // Sent by the form as an ISO string, e.g. "2026-10-05T12:00:00.000Z"
+    publishedAt?: string | null;
     metaTitle?: string;
     metaDescription?: string;
     keywords?: string[];
@@ -28,8 +30,8 @@ type UpdateBlogBody = {
     canonical?: string;
     schemaScript?: string;
     timeToRead?: string;
-    authorId?: number | null; // ✅ optional
-    categoryId?: number | null; // ✅ optional
+    authorId?: number | null;
+    categoryId?: number | null;
 };
 
 function isValidSlug(slug: string): boolean {
@@ -46,6 +48,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ success: false, error: "Invalid blog ID." }, { status: 400 });
         }
 
+        // Return the whole blog — the edit form needs every field, including publishedAt
         const blog = await prisma.blog.findUnique({
             where: { id: blogId },
             include: { author: true, category: true },
@@ -134,13 +137,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             if (defaultCategory) resolvedCategoryId = defaultCategory.id;
         }
 
-        // ── Publish date handling ─────────────────────────────────────────────
-        let publishedAt = existingBlog.publishedAt;
-        if (body.status === BlogStatus.PUBLISHED && existingBlog.status !== BlogStatus.PUBLISHED) {
-            publishedAt = new Date();
-        } else if (body.status && body.status !== BlogStatus.PUBLISHED) {
-            publishedAt = null;
-        }
+        // ── Publish date ──────────────────────────────────────────────────────
+        // 1. Date chosen in the form wins
+        // 2. Otherwise keep the blog's current publishedAt
+        // 3. Otherwise, if it's being published now, use "now"
+        const finalStatus = body.status ?? (existingBlog.status as BlogStatus);
+        const publishedAt = resolvePublishedAt(body.publishedAt, finalStatus, existingBlog.publishedAt);
 
         const updatedBlog = await prisma.blog.update({
             where: { id: blogId },
@@ -149,7 +151,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 slug: body.slug ?? existingBlog.slug,
                 description: body.description ?? existingBlog.description,
                 content: body.content ?? existingBlog.content,
-                status: body.status ?? existingBlog.status,
+                status: finalStatus,
                 publishedAt,
                 metaTitle: body.metaTitle ?? existingBlog.metaTitle,
                 metaDescription: body.metaDescription ?? existingBlog.metaDescription,
@@ -160,7 +162,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 bannerImageAlt: body.bannerImageAlt ?? existingBlog.bannerImageAlt,
                 canonical: body.canonical ?? existingBlog.canonical,
                 schemaScript: body.schemaScript ?? existingBlog.schemaScript,
-                // ✅ keep existing value or fall back to "5 min read"
                 timeToRead: body.timeToRead ?? existingBlog.timeToRead ?? "5 min read",
                 authorId: resolvedAuthorId,
                 categoryId: resolvedCategoryId,

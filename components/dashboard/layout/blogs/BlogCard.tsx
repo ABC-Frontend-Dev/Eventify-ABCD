@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Trash2, Edit, MoreVertical, Eye, Calendar, User, FolderOpen } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { formatBlogDate, getDisplayDate } from "@/lib/blog-date";
 
 enum BlogStatus {
     DRAFT = "DRAFT",
@@ -21,6 +22,7 @@ interface BlogCardProps {
     description: string;
     banner_image: string;
     status: BlogStatus;
+    publishedAt: string | null;
     createdAt: string;
     updatedAt: string;
     author: {
@@ -34,7 +36,7 @@ interface BlogCardProps {
     onDelete?: (id: number) => void;
 }
 
-export function BlogCard({ id, title, slug, description, banner_image, status, createdAt, author, category, onDelete }: BlogCardProps) {
+export function BlogCard({ id, title, slug, description, banner_image, status, publishedAt, createdAt, author, category, onDelete }: BlogCardProps) {
     const getStatusColor = (status: BlogStatus) => {
         switch (status) {
             case BlogStatus.PUBLISHED:
@@ -48,14 +50,8 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
         }
     };
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        });
-    };
+    // The date the admin chose; falls back to creation date for older blogs
+    const displayDate = formatBlogDate(getDisplayDate({ publishedAt, createdAt }));
 
     return (
         <div className="group relative rounded-lg border border-slate-200 bg-card transition-all hover:shadow-lg">
@@ -91,13 +87,13 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
             </div>
             <div className="p-4 flex flex-row items-start gap-4 w-full">
                 {/* Banner Image */}
-                <div className="relative h-50 max-w-80 w-full overflow-hidden bg-slate-100 rounded-lg overflow-hidden">
+                <div className="relative h-50 max-w-80 w-full overflow-hidden bg-slate-100 rounded-lg">
                     <Image src={banner_image || "/placeholder-blog.png"} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                 </div>
 
                 {/* Content */}
                 <div className="block min-w-min w-full">
-                    {/* Title */}
+                    {/* URL */}
                     <p className="text-xs leading-3 italic text-muted-foreground">
                         <Link href={`/blogs/${slug}`} target="_blank" className=" underline hover:text-primary transition-colors">
                             {`https://eventifyentertainment.com/blogs/${slug}`}
@@ -121,24 +117,9 @@ export function BlogCard({ id, title, slug, description, banner_image, status, c
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Calendar className="h-3.5 w-3.5" />
-                            <span>{formatDate(createdAt)}</span>
+                            <span>{displayDate}</span>
                         </div>
                     </div>
-
-                    {/* Actions */}
-                    {/* <div className="flex gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1" asChild>
-                            <Link href={`/dashboard/blogs/${id}/edit`}>
-                                <Edit className="mr-2 h-3.5 w-3.5" />
-                                Edit
-                            </Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href={`/blogs/${slug}`} target="_blank">
-                                <Eye className="h-3.5 w-3.5" />
-                            </Link>
-                        </Button>
-                    </div> */}
                 </div>
             </div>
         </div>

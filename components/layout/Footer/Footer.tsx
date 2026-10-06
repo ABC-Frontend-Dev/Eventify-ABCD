@@ -93,12 +93,12 @@ export default function Footer() {
 
                 <div className="mt-8 sm:mt-8 lg:mt-10 xl:mt-16 1-xl:mt-20.75 flex items-start justify-between">
                     <div className="flex justify-between items-end w-full">
-                        <div className="w-full text-4xl md:text-7xl lg:text-[85px] xl:text-[154px] text-white leading-9 md:leading-18 lg:leading-21.25 xl:leading-38.5 font-helvetica-heavy font-extrabold uppercase flex gap-1 xs:gap-x-1.5 sm:gap-x-3 md:gap-x-4 xl:gap-x-7 lg:flex items-start md:items-center flex-wrap">
+                        <div className="w-full text-3xl 375:text-4xl 425:text-5xl 641px:text-6xl md:text-7xl lg:text-[85px] xl:text-[154px] text-white leading-9 md:leading-18 lg:leading-21.25 xl:leading-38.5 font-helvetica-heavy font-extrabold uppercase flex gap-2 xs:gap-x-1.5 sm:gap-x-3 md:gap-x-4 xl:gap-x-7 lg:flex items-start xs:items-center md:items-center flex-wrap">
                             <div>lets</div>
-                            <div className="flex items-end justify-between w-full sm:w-fit lg:w-fit">
+                            <div className="flex items-end justify-between w-fit sm:w-fit lg:w-fit">
                                 <div className="flex items-center gap-0">
                                     <span>ev </span>
-                                    <span className="block w-9 md:w-20 xl:w-34 h-9 md:h-20 xl:h-36 -translate-y-1.25 md:-translate-y-3.5 lg:-translate-y-3.5">
+                                    <span className="block w-8 375:w-9 425:w-11 641px:w-14 md:w-20 xl:w-34 h-8 375:h-9 425:h-11 641px:h-14 md:h-20 xl:h-36 -translate-y-1.25 md:-translate-y-3.5 lg:-translate-y-3.5">
                                         <Image
                                             src="https://res.cloudinary.com/afdhm38k/image/upload/v1787055266/favicon_bl7tpm.png"
                                             alt="Eventify light logo"

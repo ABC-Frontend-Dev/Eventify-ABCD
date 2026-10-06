@@ -10,23 +10,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useToasts } from "@/components/ui/toast";
 import {
-  ArrowLeft,
   Save,
   Loader2,
   X,
   AlertCircle,
   CheckCircle2,
   Eye,
-  ChevronRight,
 } from "lucide-react";
-import Link from "next/link";
 import TiptapEditor from "@/components/Editor/TiptapEditor";
 import TableOfContents, {
   HeadingItem,
 } from "@/components/Editor/TableOfContents";
+import {
+  dateInputToISO,
+  formatBlogDate,
+  toDateInputValue,
+  todayDateInputValue,
+} from "@/lib/blog-date";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // ✅ 2 MB (matches API's blogs limit)
+const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB (matches API's blogs limit)
 const IMAGE_MAX_MB = 2;
 
 const DEFAULT_AUTHOR_NAME = "Eventify";
@@ -61,7 +64,7 @@ interface BlogFormProps {
     description: string;
     content: string;
     status: BlogStatus;
-    publishedAt: Date | null;
+    publishedAt: Date | string | null;
     metaTitle: string;
     metaDescription: string;
     keywords: string[];
@@ -86,7 +89,14 @@ const NAV = [
   { id: "seo", label: "SEO" },
 ] as const;
 
-// ─── Small UI helpers ─────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 function FieldLabel({
   children,
   required,
@@ -119,7 +129,7 @@ function SectionHeading({ label }: { label: string }) {
 // ─── Client-side image size guard ─────────────────────────────────────────────
 function validateImageFile(file: File): string | null {
   if (file.size > IMAGE_MAX_BYTES) {
-    return `"${file.name}" exceeds the ${IMAGE_MAX_MB} MB image limit.`; // ✅ Dynamic
+    return `"${file.name}" exceeds the ${IMAGE_MAX_MB} MB image limit.`;
   }
   return null;
 }
@@ -157,6 +167,8 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
   const [editorContent, setEditorContent] = useState("");
   const [keywordInput, setKeywordInput] = useState("");
   const [slugError, setSlugError] = useState<string | null>(null);
+  // Once the admin types in the slug field, stop overwriting it from the title
+  const [slugTouched, setSlugTouched] = useState(false);
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -164,6 +176,10 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     description: initialData?.description || "",
     content: initialData?.content || "",
     status: initialData?.status || BlogStatus.DRAFT,
+    // "YYYY-MM-DD" for <input type="date">; defaults to today for new blogs
+    publishedAt: initialData?.publishedAt
+      ? toDateInputValue(initialData.publishedAt)
+      : todayDateInputValue(),
     metaTitle: initialData?.metaTitle || "",
     metaDescription: initialData?.metaDescription || "",
     keywords: initialData?.keywords || [],
@@ -173,9 +189,8 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     bannerImageAlt: initialData?.bannerImageAlt || "",
     canonical: initialData?.canonical || "",
     schemaScript: initialData?.schemaScript || "",
-    // ✅ default to "5 min read"
     timeToRead: initialData?.timeToRead || "5 min read",
-    // ✅ 0 means "not yet resolved from API" — will be set after fetch
+    // 0 means "not yet resolved from API" — set after fetch
     authorId: initialData?.authorId || 0,
     categoryId: initialData?.categoryId || 0,
   });
@@ -183,8 +198,9 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
   const completion = useMemo(
     () => [
       { label: "Title", ok: !!formData.title.trim() },
-      { label: "Slug", ok: !!formData.slug.trim() && !slugError }, // was: !!formData.slug.trim()
+      { label: "Slug", ok: !!formData.slug.trim() && !slugError },
       { label: "Description", ok: !!formData.description.trim() },
+      { label: "Publish date", ok: !!dateInputToISO(formData.publishedAt) },
       { label: "Content", ok: !!formData.content.trim() },
       { label: "Thumbnail", ok: !!formData.thumbnail },
       { label: "Banner", ok: !!formData.banner_image },
@@ -211,7 +227,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         if (cData.success) {
           setCategories(cData.data);
 
-          // ✅ Auto-select "Activations" for new blogs only
+          // Auto-select "Activations" for new blogs only
           if (mode === "create" && !initialData?.categoryId) {
             const defaultCat = (cData.data as BlogCategory[]).find(
               (c) =>
@@ -226,7 +242,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         if (aData.success) {
           setAuthors(aData.data);
 
-          // ✅ Auto-select "Eventify" for new blogs only
+          // Auto-select "Eventify" for new blogs only
           if (mode === "create" && !initialData?.authorId) {
             const defaultAuthor = (aData.data as Author[]).find(
               (a) => a.name.toLowerCase() === DEFAULT_AUTHOR_NAME.toLowerCase(),
@@ -246,20 +262,6 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    if (/\s/.test(raw)) {
-      setSlugError(
-        "Spaces are not allowed in the URL slug - use hyphens instead.",
-      );
-    } else {
-      setSlugError(null);
-    }
-    // Strip any whitespace immediately so it can never actually end up in the slug
-    const cleaned = raw.replace(/\s+/g, "");
-    setFormData((p) => ({ ...p, slug: cleaned }));
-  };
-
   // ─── Edit mode: load existing blog ───────────────────────────────────────
   useEffect(() => {
     if (mode !== "edit" || !blogId) return;
@@ -277,6 +279,11 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
           description: b.description,
           content: b.content,
           status: b.status,
+          // Older blogs have no publishedAt yet → prefill with their creation date
+          publishedAt:
+            toDateInputValue(b.publishedAt) ||
+            toDateInputValue(b.createdAt) ||
+            todayDateInputValue(),
           metaTitle: b.metaTitle,
           metaDescription: b.metaDescription,
           keywords: b.keywords || [],
@@ -293,30 +300,31 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
         setEditorContent(b.content);
       })
       .catch(() => toast.error("Failed to load blog data"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, blogId]);
 
+  // ─── Create mode: auto-generate slug from title (until slug is edited) ───
   useEffect(() => {
-    if (mode !== "create") return;
-    setFormData((p) => {
-      if (!p.title) return p;
-      const slug = p.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-      return { ...p, slug };
-    });
-  }, [formData.title, mode]);
+    if (mode !== "create" || slugTouched) return;
+    const slug = slugify(formData.title);
+    setFormData((p) => (p.slug === slug ? p : { ...p, slug }));
+  }, [formData.title, mode, slugTouched]);
 
-  useEffect(() => {
-    if (mode !== "create" || !formData.title) return;
-    setFormData((p) => ({
-      ...p,
-      slug: p.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, ""),
-    }));
-  }, [formData.title]);
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (/\s/.test(raw)) {
+      setSlugError(
+        "Spaces are not allowed in the URL slug - use hyphens instead.",
+      );
+    } else {
+      setSlugError(null);
+    }
+    // Strip whitespace immediately so it can never end up in the slug
+    const cleaned = raw.replace(/\s+/g, "");
+    // Clearing the field hands control back to the title → slug generator
+    setSlugTouched(cleaned !== "");
+    setFormData((p) => ({ ...p, slug: cleaned }));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -410,6 +418,8 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
           body: JSON.stringify({
             ...formData,
             status: finalStatus,
+            // "2026-10-05" → "2026-10-05T12:00:00.000Z"
+            publishedAt: dateInputToISO(formData.publishedAt),
             metaTitle: formData.metaTitle || formData.title,
             metaDescription: formData.metaDescription || formData.description,
             canonical:
@@ -459,12 +469,15 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
   const sel =
     "w-full h-9 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:border-slate-400 text-slate-700 disabled:opacity-50";
 
+  const publishDatePreview = formatBlogDate(
+    dateInputToISO(formData.publishedAt),
+  );
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-50/60">
       {/* ── Sticky top bar ── */}
       <div className="sticky top-0 z-30 bg-white border-b border-slate-200">
-        {/* Section tabs */}
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 flex justify-between items-center gap-0 border-t border-slate-100">
           <div className="">
             {NAV.map((s) => (
@@ -590,8 +603,47 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                 </p>
               </div>
 
-              {/* Reading time only — category & author are commented out */}
-              <div className="grid grid-cols-1 gap-3">
+              {/* Publish date + Author */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Publish date */}
+                <div>
+                  <FieldLabel
+                    required
+                    ok={!!dateInputToISO(formData.publishedAt)}
+                  >
+                    Publish date
+                  </FieldLabel>
+                  <div className="flex gap-2">
+                    <Input
+                      type="date"
+                      name="publishedAt"
+                      value={formData.publishedAt}
+                      onChange={handleChange}
+                      className={inp}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setFormData((p) => ({
+                          ...p,
+                          publishedAt: todayDateInputValue(),
+                        }))
+                      }
+                      className="h-9 text-xs shrink-0"
+                    >
+                      Today
+                    </Button>
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    {publishDatePreview
+                      ? `Readers will see "${publishDatePreview}" on the blog card and page.`
+                      : "Pick the date readers will see on this blog."}
+                  </p>
+                </div>
+
+                {/* Author */}
                 <div>
                   <FieldLabel required ok={formData.authorId !== 0}>
                     Author
@@ -613,7 +665,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                     ))}
                   </select>
 
-                  {/* Author preview — shows avatar + role when selected */}
+                  {/* Author preview — avatar + role when selected */}
                   {formData.authorId !== 0 &&
                     (() => {
                       const selected = authors.find(
@@ -1029,6 +1081,7 @@ export default function BlogForm({ initialData, blogId, mode }: BlogFormProps) {
                   Images must be under{" "}
                   <strong className="text-slate-500">{IMAGE_MAX_MB} MB</strong>.
                 </li>
+                <li>The publish date is the date readers see and the order blogs are listed in.</li>
                 <li>Author role appears on the published blog page.</li>
               </ul>
             </div>

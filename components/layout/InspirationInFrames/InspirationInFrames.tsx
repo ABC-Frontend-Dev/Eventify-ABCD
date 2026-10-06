@@ -24,94 +24,7 @@ interface InstagramPost {
 
 const AUTOPLAY_DELAY = 2500;
 
-// ─── Shared FrameItem (desktop grid + mobile bento) ───────────────────────────
-interface FrameItemProps {
-  index: number;
-  post: InstagramPost;
-  onMouseEnter?: (index: number, e: React.MouseEvent<HTMLLIElement>) => void;
-}
-
-function FrameItem({ index, post, onMouseEnter }: FrameItemProps) {
-  const [hovered, setHovered] = useState(false);
-  const [ratio, setRatio] = useState(1); // fallback square until real image loads
-
-  return (
-    <li
-      className="frame-item group w-full h-46 375:h-53 425:h-56 xs:h-75 md:h-78.5 flex items-center justify-center relative overflow-hidden cursor-pointer"
-      style={{ aspectRatio: ratio }}
-      onMouseEnter={(e) => {
-        setHovered(true);
-        onMouseEnter?.(index, e);
-      }}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <a
-        href={post.permalink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="absolute inset-0 z-40"
-        aria-label={post.caption ?? `Instagram post ${index + 1}`}
-      />
-
-      <Image
-        src={post.image}
-        alt={post.caption ?? `Inspiration frame ${index + 1}`}
-        width={1000}
-        height={1000}
-        className="frame-image w-full h-full object-cover will-change-transform"
-        unoptimized
-        onLoad={(e) => {
-          const img = e.currentTarget;
-          if (img.naturalWidth && img.naturalHeight) {
-            setRatio(img.naturalWidth / img.naturalHeight);
-          }
-        }}
-      />
-
-      {post.isVideo && (
-        <div className="absolute top-2 right-2 z-20 pointer-events-none">
-          <Play className="w-4 h-4 text-white fill-white drop-shadow" />
-        </div>
-      )}
-
-      {/* Overlay */}
-      <div
-        className="absolute inset-0 z-10 pointer-events-none bg-black/25"
-        style={{
-          transform: hovered ? "translateY(0%)" : "translateY(100%)",
-          transition: "transform 0.5s cubic-bezier(0.22,1,0.36,1) 0.15s",
-        }}
-      />
-
-      {/* Instagram icon */}
-      <div
-        className="absolute top-1/2 left-1/2 z-30 pointer-events-none"
-        style={{
-          transform: hovered
-            ? "translate(-50%, -50%) scale(1)"
-            : "translate(-50%, -50%) scale(0.5)",
-          opacity: hovered ? 1 : 0,
-          transition: hovered
-            ? "transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.3s, opacity 0.35s ease 0.3s"
-            : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
-        }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-7 lg:w-10.5 h-7 lg:h-10.5"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="#fff"
-            d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
-          />
-        </svg>
-      </div>
-    </li>
-  );
-}
-
-// ─── FrameItemInner (inside Embla tablet carousel) ────────────────────────────
+// ─── FrameItemInner (inside Embla carousels) ─────────────────────────────────
 function FrameItemInner({
   post,
   index,
@@ -124,7 +37,7 @@ function FrameItemInner({
 
   return (
     <div
-      className="w-full relative overflow-hidden h-78.5 flex items-center justify-center bg-slate-50"
+      className="w-full relative overflow-hidden h-100 375:h-110 425:h-64 xs:h-75 641px:h-85 md:h-78.5 flex items-center justify-center bg-slate-50"
       style={{ aspectRatio: ratio }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -142,7 +55,7 @@ function FrameItemInner({
         alt={post.caption ?? `Inspiration frame ${index + 1}`}
         width={1000}
         height={1000}
-        className="w-full h-full object-cover will-change-transform"
+        className="frame-image w-full h-full object-cover will-change-transform"
         unoptimized
         onLoad={(e) => {
           const img = e.currentTarget;
@@ -193,8 +106,13 @@ function FrameItemInner({
   );
 }
 
-// ─── Tablet Carousel ──────────────────────────────────────────────────────────
-function TabletCarousel({ posts }: { posts: InstagramPost[] }) {
+// ─── Carousel Component (reusable for tablet & mobile) ─────────────────────────
+interface CarouselProps {
+  posts: InstagramPost[];
+  slidesToShow: number;
+}
+
+function Carousel({ posts, slidesToShow }: CarouselProps) {
   const autoplayPlugin = useRef(
     Autoplay({
       delay: AUTOPLAY_DELAY,
@@ -208,7 +126,7 @@ function TabletCarousel({ posts }: { posts: InstagramPost[] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
-      align: "center",
+      align: "start",
       dragFree: false,
       skipSnaps: false,
       containScroll: false,
@@ -259,6 +177,8 @@ function TabletCarousel({ posts }: { posts: InstagramPost[] }) {
     };
   }, [emblaApi, onSelect]);
 
+  const slidePercentage = 100 / slidesToShow;
+
   return (
     <div className="relative w-full">
       <div className="overflow-hidden" ref={emblaRef}>
@@ -266,7 +186,10 @@ function TabletCarousel({ posts }: { posts: InstagramPost[] }) {
           {posts.map((post, index) => (
             <li
               key={post.id}
-              className="flex-[0_0_33.333%] min-w-0 h-78.5 px-0.75"
+              className="flex-[0_0_calc(100%)] min-w-0 h-auto px-0.75 sm:flex-[0_0_calc(100%/3)] md:flex-[0_0_calc(100%/3)]"
+              style={{
+                flex: `0 0 calc(${slidePercentage}% - ${(slidesToShow - 1) * 0.75}px / ${slidesToShow})`,
+              }}
             >
               <FrameItemInner post={post} index={index} />
             </li>
@@ -313,9 +236,7 @@ function InspirationSkeleton() {
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function InspirationInFrames() {
   const sectionRef = useRef<HTMLElement>(null);
-  const desktopGridRef = useRef<HTMLUListElement>(null);
-  const mobileRow1Ref = useRef<HTMLUListElement>(null);
-  // const mobileRow2Ref = useRef<HTMLUListEleme  nt>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const [posts, setPosts] = useState<InstagramPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -333,13 +254,6 @@ export default function InspirationInFrames() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
-  const handleCardHover = useCallback(
-    (index: number, e: React.MouseEvent<HTMLLIElement>) => {
-      // Keep existing gsap overlay logic intact
-    },
-    [],
-  );
 
   useEffect(() => {
     if (loading || posts.length === 0) return;
@@ -362,45 +276,42 @@ export default function InspirationInFrames() {
           });
         }
 
-        const animateGrid = (grid: HTMLUListElement | null) => {
-          if (!grid) return;
-          const cards = grid.querySelectorAll(".frame-item");
-          if (!cards.length) return;
+        const carousel = carouselRef.current;
+        if (!carousel) return;
 
-          cards.forEach((card, i) => {
-            const img = card.querySelector(".frame-image");
-            if (!img) return;
+        const cards = carousel.querySelectorAll(".frame-image");
+        if (!cards.length) return;
 
-            gsap.set(card, { opacity: 0, y: 60 });
-            gsap.set(img, { scale: 1.35 });
+        cards.forEach((img, i) => {
+          const card = img.closest("div");
+          if (!card) return;
 
-            const tl = gsap.timeline({
-              scrollTrigger: {
-                trigger: grid,
-                start: "top 85%",
-                toggleActions: "play none none none",
-              },
-              onComplete: () => {
-                gsap.set(card, { clearProps: "all" });
-                gsap.set(img, { clearProps: "all" });
-              },
-            });
+          gsap.set(card, { opacity: 0, y: 60 });
+          gsap.set(img, { scale: 1.35 });
 
-            tl.to(
-              card,
-              { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
-              i * 0.1,
-            );
-            tl.to(
-              img,
-              { scale: 1, duration: 1.2, ease: "power2.out" },
-              i * 0.1 + 0.05,
-            );
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: carousel,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+            onComplete: () => {
+              gsap.set(card, { clearProps: "all" });
+              gsap.set(img, { clearProps: "all" });
+            },
           });
-        };
 
-        animateGrid(desktopGridRef.current);
-        animateGrid(mobileRow1Ref.current);
+          tl.to(
+            card,
+            { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
+            i * 0.1,
+          );
+          tl.to(
+            img,
+            { scale: 1, duration: 1.2, ease: "power2.out" },
+            i * 0.1 + 0.05,
+          );
+        });
       }, sectionRef);
     }, 100);
 
@@ -416,7 +327,7 @@ export default function InspirationInFrames() {
   return (
     <section
       ref={sectionRef}
-      className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9  scroll-mt-6 md:scroll-mt-1"
+      className="max-w-360 w-full mx-auto px-5 lg:px-20 pb-9 lg:py-9 scroll-mt-6 md:scroll-mt-1"
     >
       <header>
         <SubHeading sectionType="SYL" showDescription />
@@ -426,49 +337,31 @@ export default function InspirationInFrames() {
         {loading ? (
           <InspirationSkeleton />
         ) : (
-          <>
-            {/* Desktop 5-col grid */}
-            <ul
-              ref={desktopGridRef}
-              className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative items-start"
-            >
+          <div ref={carouselRef} className="w-full">
+            {/* Mobile carousel (1 slide at a time) */}
+            <div className="block 425:hidden">
+              <Carousel posts={posts} slidesToShow={1} />
+            </div>
+
+            {/* Tablet/Mobile carousel (2 slides at breakpoint 425px and up, but below sm) */}
+            <div className="hidden 425:block sm:hidden">
+              <Carousel posts={posts} slidesToShow={2} />
+            </div>
+
+            {/* Tablet carousel (3 slides) - hidden on lg */}
+            <div className="hidden sm:block lg:hidden">
+              <Carousel posts={posts} slidesToShow={3} />
+            </div>
+
+            {/* Desktop 5-col grid - only on lg and up */}
+            <ul className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative items-start">
               {posts.map((post, index) => (
-                <FrameItem
-                  key={post.id}
-                  index={index}
-                  post={post}
-                  onMouseEnter={handleCardHover}
-                />
+                <li key={post.id} className="w-full h-auto">
+                  <FrameItemInner post={post} index={index} />
+                </li>
               ))}
             </ul>
-
-            {/* Tablet carousel */}
-            <div className="hidden sm:block lg:hidden relative">
-              <TabletCarousel posts={posts} />
-            </div>
-
-            {/* Mobile bento */}
-            <div className="flex flex-col gap-1.5 sm:hidden">
-              {/* <ul
-                ref={mobileRow1Ref}
-                className="grid grid-cols-2 gap-1.5 items-start"
-              >
-                {posts.slice(0, 2).map((post, index) => (
-                  <FrameItem key={post.id} index={index} post={post} />
-                ))}
-              </ul> */}
-              <div className="sm:hidden">
-                <ul
-                  ref={mobileRow1Ref}
-                  className="grid grid-cols-2 gap-1.5 items-start"
-                >
-                  {posts.slice(0, 4).map((post, index) => (
-                    <FrameItem key={post.id} index={index} post={post} />
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </>
+          </div>
         )}
       </div>
     </section>

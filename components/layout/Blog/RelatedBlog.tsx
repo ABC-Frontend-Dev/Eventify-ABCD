@@ -6,6 +6,7 @@ import Link from "next/link";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { formatBlogDate, getDisplayDate } from "@/lib/blog-date";
 
 interface Blog {
     id: number;
@@ -14,6 +15,7 @@ interface Blog {
     description: string;
     thumbnail: string;
     thumbnailAlt?: string | null;
+    publishedAt?: string | null; // date chosen in the admin form
     createdAt: string;
     timeToRead?: string | null;
     author?: { name: string } | null;
@@ -24,27 +26,16 @@ interface RelatedBlogListProps {
     blogs: Blog[];
 }
 
-const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
-
 const AUTOPLAY_DELAY = 2500;
 
 // ─── Blog card (shared between carousel and grid) ─────────────────────────────
 
 function BlogCard({ blog }: { blog: Blog }) {
-    const metaItems = [formatDate(blog.createdAt)].filter(Boolean) as string[];
+    // Chosen publish date, falling back to creation date for older blogs
+    const metaItems = [formatBlogDate(getDisplayDate(blog))].filter(Boolean) as string[];
 
     return (
         <Link href={`/blogs/${blog.slug}`} className="group block h-full">
-            {/* Category badge */}
-            {/* <div className="absolute top-3 right-3 z-40 border border-primary/80 bg-primary/80 rounded-[6px] px-2 py-1 capitalize text-xs lg:text-sm font-helvetica tracking-wide font-light w-fit text-white">
-                {blog.category?.name ?? "Blog"}
-            </div> */}
-
             {/* Thumbnail */}
             <figure className="h-60 sm:h-65 md:h-70 lg:h-80 w-full overflow-hidden">
                 <Image
@@ -160,8 +151,6 @@ function RelatedBlogCarousel({ blogs }: { blogs: Blog[] }) {
                                 "min-w-0 relative shrink-0",
                                 // mobile: 1 at a time | tablet sm→lg: 2 at a time
                                 "flex-[0_0_100%] sm:flex-[0_0_50%]",
-                                // gap between slides via padding
-                                "",
                             ].join(" ")}
                         >
                             <BlogCard blog={blog} />

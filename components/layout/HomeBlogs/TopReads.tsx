@@ -238,7 +238,7 @@ export default function TopReads() {
                 Below xl (h-28 rows, gap-1.5=6px): 3×112 + 2×6 = 348px  → h-[348px]
                 xl+     (h-41 rows, gap-1.5=6px): 4×164 + 3×6 = 674px  → xl:h-[674px]
             */}
-            <div ref={viewportRef} className="relative overflow-hidden h-[348px] 740px:h-[420px] md:h-[348px] 1-xl:h-[674px] xl:h-full">
+            <div ref={viewportRef} className="relative overflow-hidden h-87 641px:h-104.5 740px:h-[420px] md:h-[348px] 1-xl:h-[674px] xl:h-full">
                 <div ref={trackRef} className="absolute top-0 left-0 right-0 flex flex-col gap-1.5 will-change-transform" style={{ transform: "translate3d(0,0,0)" }}>
                     {blogs.map((blog) => (
                         <div key={blog.id} data-blog-row className="shrink-0">

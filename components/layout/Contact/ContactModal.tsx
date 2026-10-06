@@ -367,10 +367,10 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                                             >
                                                 {/* className="max-w-50 mx-auto mt-4 block h-10 w-fit px-6 text-center rounded-[4px] bg-[#252525] font-helvetica-medium text-xl font-bold uppercase text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" */}
                                                 {submitting ? (
-                                                    <>
+                                                    <div className="flex items-center justify-center">
                                                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                                                         Submitting...
-                                                    </>
+                                                    </div>
                                                 ) : (
                                                     "Submit"
                                                 )}

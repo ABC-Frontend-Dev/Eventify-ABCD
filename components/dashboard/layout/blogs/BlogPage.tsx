@@ -1,9 +1,9 @@
 // components/dashboard/layout/blogs/BlogPage.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useDebounce } from "@/hooks/use-debounce"; // We'll create this
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,7 @@ interface Blog {
     description: string;
     banner_image: string;
     status: BlogStatus;
+    publishedAt: string | null; // the date chosen in the form (shown on cards)
     createdAt: string;
     updatedAt: string;
     author: {
@@ -79,11 +80,13 @@ export default function BlogPage() {
     // Initial data load
     useEffect(() => {
         fetchCategoriesAndAuthors();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Fetch blogs when filters change
     useEffect(() => {
         fetchBlogs();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedSearch, selectedStatus, selectedCategory, selectedAuthor, sortBy]);
 
     const fetchCategoriesAndAuthors = async () => {
@@ -109,7 +112,6 @@ export default function BlogPage() {
         }
 
         try {
-            // Build query params
             const params = new URLSearchParams();
 
             if (debouncedSearch) {
@@ -124,6 +126,7 @@ export default function BlogPage() {
             if (selectedAuthor !== "ALL") {
                 params.append("authorId", selectedAuthor.toString());
             }
+            // "latest"/"oldest" are sorted by publish date on the server
             params.append("sortBy", sortBy);
 
             const response = await axios.get(`/api/blogs?${params.toString()}`);
@@ -155,7 +158,6 @@ export default function BlogPage() {
                     const response = await axios.delete(`/api/blogs/${id}`);
 
                     if (response.data.success) {
-                        // Refresh blogs after delete
                         fetchBlogs();
                         toast.success("Blog deleted successfully!");
                     } else {
@@ -169,7 +171,6 @@ export default function BlogPage() {
         });
     };
 
-    // Clear all filters
     const clearFilters = () => {
         setSelectedStatus("ALL");
         setSelectedCategory("ALL");
@@ -178,7 +179,6 @@ export default function BlogPage() {
         setSearchQuery("");
     };
 
-    // Check if any filter is active
     const hasActiveFilters = selectedStatus !== "ALL" || selectedCategory !== "ALL" || selectedAuthor !== "ALL" || sortBy !== "latest" || searchQuery !== "";
 
     if (loading) {
@@ -260,60 +260,6 @@ export default function BlogPage() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-
-                        {/* Category Filter */}
-                        {/* <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-9">
-                                    <Filter className="mr-2 h-4 w-4" />
-                                    Category
-                                    {selectedCategory !== "ALL" && (
-                                        <Badge variant="secondary" className="ml-2 h-5 px-1">
-                                            1
-                                        </Badge>
-                                    )}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => setSelectedCategory("ALL")} className={selectedCategory === "ALL" ? "bg-accent" : ""}>
-                                    All Categories
-                                </DropdownMenuItem>
-                                {categories.map((category) => (
-                                    <DropdownMenuItem key={category.id} onClick={() => setSelectedCategory(category.id)} className={selectedCategory === category.id ? "bg-accent" : ""}>
-                                        {category.name}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu> */}
-
-                        {/* Author Filter */}
-                        {/* <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-9">
-                                    <Filter className="mr-2 h-4 w-4" />
-                                    Author
-                                    {selectedAuthor !== "ALL" && (
-                                        <Badge variant="secondary" className="ml-2 h-5 px-1">
-                                            1
-                                        </Badge>
-                                    )}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuLabel>Filter by Author</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => setSelectedAuthor("ALL")} className={selectedAuthor === "ALL" ? "bg-accent" : ""}>
-                                    All Authors
-                                </DropdownMenuItem>
-                                {authors.map((author) => (
-                                    <DropdownMenuItem key={author.id} onClick={() => setSelectedAuthor(author.id)} className={selectedAuthor === author.id ? "bg-accent" : ""}>
-                                        {author.name}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu> */}
 
                         {/* Sort Filter */}
                         <DropdownMenu>
