@@ -24,21 +24,19 @@ interface InstagramPost {
 
 const AUTOPLAY_DELAY = 2500;
 
-// ─── FrameItemInner (inside Embla carousels) ─────────────────────────────────
-function FrameItemInner({
-  post,
-  index,
-}: {
-  post: InstagramPost;
-  index: number;
-}) {
+// One row, always: 3 tiles visible below lg, 4 on lg, 5 on xl and up.
+// The carousel slides through up to MAX_POSTS posts.
+const MAX_POSTS = 10;
+const SLIDE_BASIS = "basis-1/3 lg:basis-1/4 xl:basis-1/5";
+
+// ─── Single tile ──────────────────────────────────────────────────────────────
+// Instagram-style 4:5 tile, picture fills the whole tile (object-cover).
+function FrameItem({ post, index }: { post: InstagramPost; index: number }) {
   const [hovered, setHovered] = useState(false);
-  const [ratio, setRatio] = useState(1);
 
   return (
     <div
-      className="w-full relative overflow-hidden h-100 375:h-110 425:h-64 xs:h-75 641px:h-85 md:h-78.5 flex items-center justify-center bg-slate-50"
-      style={{ aspectRatio: ratio }}
+      className="relative w-full aspect-4/5 overflow-hidden bg-slate-100"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -48,6 +46,7 @@ function FrameItemInner({
         rel="noopener noreferrer"
         className="absolute inset-0 z-40"
         aria-label={post.caption ?? `Instagram post ${index + 1}`}
+        draggable={false}
       />
 
       <Image
@@ -55,18 +54,13 @@ function FrameItemInner({
         alt={post.caption ?? `Inspiration frame ${index + 1}`}
         width={1000}
         height={1000}
-        className="frame-image w-full h-full object-cover will-change-transform"
+        className="frame-image w-full h-full object-cover will-change-transform select-none"
+        draggable={false}
         unoptimized
-        onLoad={(e) => {
-          const img = e.currentTarget;
-          if (img.naturalWidth && img.naturalHeight) {
-            setRatio(img.naturalWidth / img.naturalHeight);
-          }
-        }}
       />
 
       {post.isVideo && (
-        <div className="absolute top-2 right-2 z-20 pointer-events-none">
+        <div className="absolute top-1.5 right-1.5 z-20 pointer-events-none">
           <Play className="w-4 h-4 text-white fill-white drop-shadow" />
         </div>
       )}
@@ -91,11 +85,7 @@ function FrameItemInner({
             : "transform 0.25s ease 0s, opacity 0.2s ease 0s",
         }}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-7 h-7"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" viewBox="0 0 24 24">
           <path
             fill="#fff"
             d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
@@ -106,13 +96,8 @@ function FrameItemInner({
   );
 }
 
-// ─── Carousel Component (reusable for tablet & mobile) ─────────────────────────
-interface CarouselProps {
-  posts: InstagramPost[];
-  slidesToShow: number;
-}
-
-function Carousel({ posts, slidesToShow }: CarouselProps) {
+// ─── Carousel ─────────────────────────────────────────────────────────────────
+function Carousel({ posts }: { posts: InstagramPost[] }) {
   const autoplayPlugin = useRef(
     Autoplay({
       delay: AUTOPLAY_DELAY,
@@ -130,12 +115,10 @@ function Carousel({ posts, slidesToShow }: CarouselProps) {
       dragFree: false,
       skipSnaps: false,
       containScroll: false,
+      slidesToScroll: 1,
     },
     [autoplayPlugin.current],
   );
-
-  const [prevDisabled, setPrevDisabled] = useState(false);
-  const [nextDisabled, setNextDisabled] = useState(false);
 
   const scrollPrev = useCallback(() => {
     if (!emblaApi) return;
@@ -149,6 +132,7 @@ function Carousel({ posts, slidesToShow }: CarouselProps) {
     autoplayPlugin.current.reset();
   }, [emblaApi]);
 
+  // Restart autoplay after the user lets go of a drag
   useEffect(() => {
     if (!emblaApi) return;
     const onPointerUp = () => {
@@ -160,61 +144,51 @@ function Carousel({ posts, slidesToShow }: CarouselProps) {
     };
   }, [emblaApi]);
 
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setPrevDisabled(!emblaApi.canScrollPrev());
-    setNextDisabled(!emblaApi.canScrollNext());
-  }, [emblaApi]);
-
+  // Nothing to slide when every post already fits in the row
+  const [canSlide, setCanSlide] = useState(true);
   useEffect(() => {
     if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
+    const update = () => setCanSlide(emblaApi.scrollSnapList().length > 1 && (emblaApi.canScrollNext() || emblaApi.canScrollPrev()));
+    update();
+    emblaApi.on("reInit", update);
+    emblaApi.on("resize", update);
     return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("reInit", onSelect);
+      emblaApi.off("reInit", update);
+      emblaApi.off("resize", update);
     };
-  }, [emblaApi, onSelect]);
-
-  const slidePercentage = 100 / slidesToShow;
+  }, [emblaApi, posts.length]);
 
   return (
     <div className="relative w-full">
       <div className="overflow-hidden" ref={emblaRef}>
-        <ul className="flex items-start">
+        {/* -mx offsets the per-slide padding so the row lines up with the section edges */}
+        <ul className="flex -mx-0.5 sm:-mx-0.75">
           {posts.map((post, index) => (
-            <li
-              key={post.id}
-              className="flex-[0_0_calc(100%)] min-w-0 h-auto px-0.75 sm:flex-[0_0_calc(100%/3)] md:flex-[0_0_calc(100%/3)]"
-              style={{
-                flex: `0 0 calc(${slidePercentage}% - ${(slidesToShow - 1) * 0.75}px / ${slidesToShow})`,
-              }}
-            >
-              <FrameItemInner post={post} index={index} />
+            <li key={post.id} className={`${SLIDE_BASIS} shrink-0 grow-0 min-w-0 px-0.5 sm:px-0.75`}>
+              <FrameItem post={post} index={index} />
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[103%] h-fit flex items-center justify-between pointer-events-none">
-        <button
-          onClick={scrollPrev}
-          disabled={prevDisabled}
-          className="pointer-events-auto w-10 h-10 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group/btn hover:bg-primary disabled:hover:bg-white"
-          aria-label="Previous"
-        >
-          <ChevronLeft className="w-5 h-5 text-primary group-hover/btn:text-white transition-colors duration-200" />
-        </button>
-        <button
-          onClick={scrollNext}
-          disabled={nextDisabled}
-          className="pointer-events-auto w-10 h-10 rounded-full bg-white shadow-md cursor-pointer hover:shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center group/btn hover:bg-primary disabled:hover:bg-white"
-          aria-label="Next"
-        >
-          <ChevronRight className="w-5 h-5 text-primary group-hover/btn:text-white transition-colors duration-200" />
-        </button>
-      </div>
+      {canSlide && (
+        <div className="absolute top-1/2 -translate-y-1/2 w-[105%] left-1/2 -translate-x-1/2 flex items-center justify-between pointer-events-none">
+          <button
+            onClick={scrollPrev}
+            className="pointer-events-auto w-5 425:w-6 h-5 425:h-6 sm:w-10 sm:h-10 rounded-full bg-white/95 shadow-md cursor-pointer hover:shadow-lg transition-all duration-200 flex items-center justify-center group/btn hover:bg-primary"
+            aria-label="Previous"
+          >
+            <ChevronLeft className="w-3 425:w-4 h-3 425:h-4 sm:w-5 sm:h-5 text-primary group-hover/btn:text-white transition-colors duration-200" />
+          </button>
+          <button
+            onClick={scrollNext}
+            className="pointer-events-auto w-5 425:w-6 h-5 425:h-6 sm:w-10 sm:h-10 rounded-full bg-white/95 shadow-md cursor-pointer hover:shadow-lg transition-all duration-200 flex items-center justify-center group/btn hover:bg-primary"
+            aria-label="Next"
+          >
+            <ChevronRight className="w-3 425:w-4 h-3 425:h-4 sm:w-5 sm:h-5 text-primary group-hover/btn:text-white transition-colors duration-200" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -222,12 +196,11 @@ function Carousel({ posts, slidesToShow }: CarouselProps) {
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function InspirationSkeleton() {
   return (
-    <div className="hidden lg:grid lg:grid-cols-5 gap-1.5">
+    <div className="flex -mx-0.5 sm:-mx-0.75 overflow-hidden">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          className="aspect-square bg-slate-100 animate-pulse rounded-sm"
-        />
+        <div key={i} className={`${SLIDE_BASIS} shrink-0 grow-0 px-0.5 sm:px-0.75 ${i === 3 ? "hidden lg:block" : ""} ${i === 4 ? "hidden xl:block" : ""}`}>
+          <div className="aspect-4/5 bg-slate-100 animate-pulse" />
+        </div>
       ))}
     </div>
   );
@@ -247,8 +220,7 @@ export default function InspirationInFrames() {
       .then((r) => r.json())
       .then((data) => {
         if (data.success) {
-          // show up to 5, same cap as before
-          setPosts((data.data as InstagramPost[]).slice(0, 5));
+          setPosts((data.data as InstagramPost[]).slice(0, MAX_POSTS));
         }
       })
       .catch(() => {})
@@ -279,10 +251,10 @@ export default function InspirationInFrames() {
         const carousel = carouselRef.current;
         if (!carousel) return;
 
-        const cards = carousel.querySelectorAll(".frame-image");
-        if (!cards.length) return;
+        const images = carousel.querySelectorAll(".frame-image");
+        if (!images.length) return;
 
-        cards.forEach((img, i) => {
+        images.forEach((img, i) => {
           const card = img.closest("div");
           if (!card) return;
 
@@ -301,16 +273,10 @@ export default function InspirationInFrames() {
             },
           });
 
-          tl.to(
-            card,
-            { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
-            i * 0.1,
-          );
-          tl.to(
-            img,
-            { scale: 1, duration: 1.2, ease: "power2.out" },
-            i * 0.1 + 0.05,
-          );
+          // only the first few tiles are on screen, so stagger just those
+          const delay = Math.min(i, 5) * 0.08;
+          tl.to(card, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, delay);
+          tl.to(img, { scale: 1, duration: 1.2, ease: "power2.out" }, delay + 0.05);
         });
       }, sectionRef);
     }, 100);
@@ -338,29 +304,7 @@ export default function InspirationInFrames() {
           <InspirationSkeleton />
         ) : (
           <div ref={carouselRef} className="w-full">
-            {/* Mobile carousel (1 slide at a time) */}
-            <div className="block 425:hidden">
-              <Carousel posts={posts} slidesToShow={1} />
-            </div>
-
-            {/* Tablet/Mobile carousel (2 slides at breakpoint 425px and up, but below sm) */}
-            <div className="hidden 425:block sm:hidden">
-              <Carousel posts={posts} slidesToShow={2} />
-            </div>
-
-            {/* Tablet carousel (3 slides) - hidden on lg */}
-            <div className="hidden sm:block lg:hidden">
-              <Carousel posts={posts} slidesToShow={3} />
-            </div>
-
-            {/* Desktop 5-col grid - only on lg and up */}
-            <ul className="hidden lg:grid lg:grid-cols-5 gap-1.5 relative items-start">
-              {posts.map((post, index) => (
-                <li key={post.id} className="w-full h-auto">
-                  <FrameItemInner post={post} index={index} />
-                </li>
-              ))}
-            </ul>
+            <Carousel posts={posts} />
           </div>
         )}
       </div>

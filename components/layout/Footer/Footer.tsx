@@ -57,7 +57,7 @@ export default function Footer() {
                                     <p className="text-lg lg:text-2xl font-abc-laica-a-italic-variable-trial font-medium leading-6 lg:leading-7.5 uppercase mb-1 lg:mb-1">ksa</p>
                                     {/* <p className="text-sm lg:text-xl font-helvetica-neue-roman lg:font-helvetica-medium tracking-[1px] font-bold leading-4.5 lg:leading-6  mb-1.5 lg:mb-2.25">Address:</p> */}
                                     <p className="text-xs lg:text-xl font-helvetica-thin font-light leading-4 lg:leading-6 tracking-wider lg:tracking-wide mb-0 md:mb-2.25">
-                                        508, Al Noor Business Center, King Fahd Road, Al Olaya District, PO Box 245671, Riyadh, Saudi Arabia
+                                        Al Noor Business Center, King Fahd Road, Al Olaya District, PO Box 245671, Riyadh, Saudi Arabia
                                     </p>
                                 </div>
                             </div>
@@ -91,8 +91,13 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="mt-8 sm:mt-8 lg:mt-10 xl:mt-16 1-xl:mt-20.75 flex items-start justify-between">
-                    <div className="flex justify-between items-end w-full">
+                <div className="mt-8 sm:mt-8 lg:mt-10 xl:mt-16 1-xl:mt-20.75">
+                 <figure>
+                    <Image
+                        src="https://res.cloudinary.com/afdhm38k/image/upload/v1791444993/Lets-eventify_kbmz8x.svg" width={1000} height={1000} className="w-full h-full object-contain"
+                        alt="Eventify light logo"/>
+                 </figure>
+                    {/* <div className="flex justify-between items-end w-full">
                         <div className="w-full text-3xl 375:text-4xl 425:text-5xl 641px:text-6xl md:text-7xl lg:text-[85px] xl:text-[154px] text-white leading-9 md:leading-18 lg:leading-21.25 xl:leading-38.5 font-helvetica-heavy font-extrabold uppercase flex gap-2 xs:gap-x-1.5 sm:gap-x-3 md:gap-x-4 xl:gap-x-7 lg:flex items-start xs:items-center md:items-center flex-wrap">
                             <div>lets</div>
                             <div className="flex items-end justify-between w-fit sm:w-fit lg:w-fit">
@@ -109,28 +114,10 @@ export default function Footer() {
                                     </span>
                                     <span>ntify!</span>
                                 </div>
-                                {/* <div className="block sm:hidden">
-                                    <ul className="flex gap-1 -translate-y-1.25">
-                                        <li>
-                                            <Link href={"https://www.facebook.com/Eventifyentertainment/"}>
-                                                <FacebookIcon />
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link href={"https://www.instagram.com/eventifyentertainment/"}>
-                                                <InstagramIcon />
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link href={"https://ae.linkedin.com/company/eventifyentertainment"}>
-                                                <LinkedInIcon />
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </div> */}
+                               
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </footer>

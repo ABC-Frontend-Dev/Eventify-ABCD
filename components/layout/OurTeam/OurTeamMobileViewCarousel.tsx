@@ -1,4 +1,4 @@
-// components/layout/blogs/BlogListCarouselCard.tsx
+// components/layout/OurTeam/OurTeamMobileViewCarousel.tsx
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -9,22 +9,20 @@ import axios from "axios";
 
 interface TeamMember {
     id: number;
-    position: number;
     name: string;
     role: string;
     image: string;
+    gridLayout?: { x: number; y: number; width?: number; height?: number } | null;
 }
 
-// These two positions are special decorative slots in the grid (the
-// "EVENTIFY" logo card and the "LETS EVENTIFY!" card), not real team
-// members — keep them out of this carousel.
-const EXCLUDED_POSITIONS = [13, 35];
-
-/** True if the name/role contains placeholder punctuation (".", "-")
- * instead of a real value — these are excluded from the carousel. */
-function hasPlaceholderPunctuation(name: string, role: string): boolean {
-    return /[.-]/.test(name) || /[.-]/.test(role);
-}
+/**
+ * A value is a real value only if it contains at least one letter.
+ * Placeholders like "." or "-" (used by the decorative grid cards, e.g. the
+ * "EVENTIFY" logo card) have no letters, so they are skipped. Real values that
+ * merely contain punctuation ("Sr. Strategist", "Anne-Marie", "Head - UAE")
+ * are kept.
+ */
+const hasLetters = (value?: string | null): boolean => /\p{L}/u.test(value ?? "");
 
 function CarouselCardSkeleton() {
     return (
@@ -38,16 +36,23 @@ export function EmblaCarousel() {
     const [members, setMembers] = useState<TeamMember[]>([]);
     const [loading, setLoading] = useState(true);
     const [isTablet, setIsTablet] = useState(false);
-
+const realCount = members.filter(
+  (m) => /\p{L}/u.test(m.name ?? "") && /\p{L}/u.test(m.role ?? ""),
+).length;
     useEffect(() => {
         const fetchTeam = async () => {
             try {
                 const response = await axios.get("/api/team");
                 if (response.data.success) {
                     const filtered = (response.data.data as TeamMember[])
-                        .filter((m) => !EXCLUDED_POSITIONS.includes(m.position))
-                        .filter((m) => !hasPlaceholderPunctuation(m.name, m.role))
-                        .sort((a, b) => a.position - b.position);
+                        .filter((m) => hasLetters(m.name) && hasLetters(m.role))
+                        // The API has no `position` field, so order by the
+                        // grid layout: row first, then column.
+                        .sort(
+                            (a, b) =>
+                                (a.gridLayout?.y ?? 0) - (b.gridLayout?.y ?? 0) ||
+                                (a.gridLayout?.x ?? 0) - (b.gridLayout?.x ?? 0),
+                        );
 
                     setMembers(filtered);
                 }
@@ -97,17 +102,9 @@ export function EmblaCarousel() {
 
     const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions, [autoplay.current]);
 
-    const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
-    const [nextBtnDisabled, setNextBtnDisabled] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState(0);
-
-    const scrollPrev = useCallback(() => {
-        if (emblaApi) emblaApi.scrollPrev();
-    }, [emblaApi]);
-
-    const scrollNext = useCallback(() => {
-        if (emblaApi) emblaApi.scrollNext();
-    }, [emblaApi]);
+    const [, setPrevBtnDisabled] = useState(true);
+    const [, setNextBtnDisabled] = useState(false);
+    const [, setSelectedIndex] = useState(0);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -140,6 +137,7 @@ export function EmblaCarousel() {
 
     return (
         <div className="relative w-full lg:hidden">
+            {/* <div className="">{realCount} members</div> */}
             <div className="overflow-hidden" ref={emblaRef}>
                 {/* -ml-5 offsets each slide's pl-5, so the FIRST slide isn't
                     pushed in from the viewport edge, while every slide (including

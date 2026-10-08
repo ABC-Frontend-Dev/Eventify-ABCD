@@ -11,9 +11,8 @@ type ClientBody = {
 export async function GET() {
     try {
         const clients = await prisma.clients.findMany({
-            orderBy: {
-                order: "asc", // ← changed from id to order
-            },
+            // `id` breaks ties so clients sharing an `order` value keep a stable position
+            orderBy: [{ order: "asc" }, { id: "asc" }],
         });
 
         return NextResponse.json({ success: true, data: clients, count: clients.length }, { status: 200 });
@@ -31,15 +30,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: "Name and Image are required." }, { status: 400 });
         }
 
-        // New client gets order = current count (added at the end)
-        const count = await prisma.clients.count();
+        // New client goes after the current last one. Using count() here collided with
+        // existing `order` values once clients had been deleted (deletes leave gaps).
+        const { _max } = await prisma.clients.aggregate({ _max: { order: true } });
 
         const newClient = await prisma.clients.create({
             data: {
                 name: body.name,
                 description: body.description || null,
                 image: body.image,
-                order: count,
+                order: (_max.order ?? -1) + 1,
             },
         });
 

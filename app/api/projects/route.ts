@@ -8,8 +8,8 @@ type ProjectBody = {
     bannerImage: string;
     images: string[];
     categoryId: number;
-    clientId?: number | null; // ✅ NEW
-    projectClientLogo?: string | null; // ✅ NEW
+    clientId?: number | null;
+    projectClientLogo?: string | null;
     hasTabs?: boolean;
     tabs?: Array<{
         name: string;
@@ -17,28 +17,76 @@ type ProjectBody = {
     }>;
 };
 
-export async function GET() {
+/**
+ * GET /api/projects
+ *
+ * Optional query params (no params = the saved custom order, which is what the
+ * public website uses):
+ *   ?year=2025            only projects created in that year
+ *   ?sort=custom          the order saved from the dashboard "Rearrange" (default)
+ *   ?sort=newest|oldest   by created date
+ *   ?sort=az|za           by title
+ *
+ * The response also includes `years` (every year that has at least one
+ * project, newest first) so the UI can build the year filter.
+ */
+export async function GET(request: NextRequest) {
     try {
-        const projects = await prisma.project.findMany({
-            orderBy: {
-                id: "desc",
-            },
-            include: {
-                category: true,
-                client: true, // ✅ NEW
-                tabs: {
-                    orderBy: {
-                        order: "asc",
+        const { searchParams } = new URL(request.url);
+
+        const sort = searchParams.get("sort") ?? "custom";
+        const yearParam = searchParams.get("year");
+        const year = yearParam ? Number(yearParam) : null;
+
+        const where =
+            year && Number.isInteger(year)
+                ? {
+                      createdAt: {
+                          gte: new Date(Date.UTC(year, 0, 1)),
+                          lt: new Date(Date.UTC(year + 1, 0, 1)),
+                      },
+                  }
+                : undefined;
+
+        const orderBy =
+            sort === "az"
+                ? [{ title: "asc" as const }]
+                : sort === "za"
+                  ? [{ title: "desc" as const }]
+                  : sort === "oldest"
+                    ? [{ createdAt: "asc" as const }]
+                    : sort === "newest"
+                      ? [{ createdAt: "desc" as const }]
+                      : // custom: saved order first, newest id first for ties
+                        [{ order: "asc" as const }, { id: "desc" as const }];
+
+        const [projects, allDates] = await Promise.all([
+            prisma.project.findMany({
+                where,
+                orderBy,
+                include: {
+                    category: true,
+                    client: true,
+                    tabs: {
+                        orderBy: {
+                            order: "asc",
+                        },
                     },
                 },
-            },
-        });
+            }),
+            // Always computed from ALL projects so the year options don't
+            // disappear when one year is selected.
+            prisma.project.findMany({ select: { createdAt: true } }),
+        ]);
+
+        const years = [...new Set(allDates.map((p) => p.createdAt.getUTCFullYear()))].sort((a, b) => b - a);
 
         return NextResponse.json(
             {
                 success: true,
                 data: projects,
                 count: projects.length,
+                years,
             },
             {
                 status: 200,
@@ -69,7 +117,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // ✅ NEW: Validate client if provided
+        // Validate client if provided
         if (body.clientId) {
             const clientExists = await prisma.clients.findUnique({
                 where: { id: body.clientId },
@@ -79,15 +127,21 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        // New projects go to the top of the custom order (same as before,
+        // when the list was simply newest-first).
+        const first = await prisma.project.aggregate({ _min: { order: true } });
+        const nextOrder = (first._min.order ?? 0) - 1;
+
         const newProject = await prisma.project.create({
             data: {
                 title: body.title,
                 description: body.description?.trim() || null,
                 bannerImage: body.bannerImage,
                 categoryId: body.categoryId,
-                clientId: body.clientId || null, // ✅ NEW
-                projectClientLogo: body.projectClientLogo || null, // ✅ NEW
+                clientId: body.clientId || null,
+                projectClientLogo: body.projectClientLogo || null,
                 hasTabs: body.hasTabs || false,
+                order: nextOrder,
                 images: body.hasTabs ? [] : body.images,
                 tabs: body.hasTabs
                     ? {
@@ -102,7 +156,7 @@ export async function POST(request: NextRequest) {
             },
             include: {
                 category: true,
-                client: true, // ✅ NEW
+                client: true,
                 tabs: true,
             },
         });

@@ -1,4 +1,4 @@
-// app/api/clients/reorder/route.ts
+// app/api/projects/reorder/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -12,7 +12,7 @@ export async function PUT(request: NextRequest) {
 
         await prisma.$transaction(
             body.ids.map((id, index) =>
-                prisma.clients.update({
+                prisma.project.update({
                     where: { id },
                     data: { order: index },
                 }),
@@ -21,7 +21,7 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({ success: true, message: "Order updated successfully" }, { status: 200 });
     } catch (error) {
-        console.error("Reorder clients error:", error);
-        return NextResponse.json({ success: false, error: "Failed to reorder clients" }, { status: 500 });
+        console.error("Reorder projects error:", error);
+        return NextResponse.json({ success: false, error: "Failed to reorder projects" }, { status: 500 });
     }
 }

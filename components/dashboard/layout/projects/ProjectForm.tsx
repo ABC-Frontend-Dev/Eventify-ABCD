@@ -9,9 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageCropper, blobToFile } from "@/components/ui/image-cropper";
 import { Switch } from "@/components/ui/switch";
 import { useToasts } from "@/components/ui/toast";
-import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, AlertCircle, CheckCircle2, Plus, Edit, Trash2, Layers, ChevronRight, Eye } from "lucide-react";
+import { ArrowLeft, Save, Loader2, X, Image as ImageIcon, AlertCircle, CheckCircle2, Plus, Edit, Trash2, Layers, ChevronRight, Eye, GripVertical } from "lucide-react";
 import Link from "next/link";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
@@ -96,6 +99,52 @@ function SectionHeading({ label }: { label: string }) {
     );
 }
 
+// ─── Sortable tab row (drag to reorder the inner categories / years) ──────────
+function SortableTabRow({ tab, onEdit, onDelete }: { tab: ProjectTab; onEdit: () => void; onDelete: () => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: tab.tempId });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 20 : undefined,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-white hover:border-slate-200 transition-colors">
+            <div className="flex items-center gap-3">
+                <button
+                    type="button"
+                    {...attributes}
+                    {...listeners}
+                    className="touch-none cursor-grab active:cursor-grabbing p-1 -ml-1 rounded text-slate-300 hover:text-slate-600 hover:bg-slate-50"
+                    aria-label={`Drag ${tab.name} to reorder`}
+                >
+                    <GripVertical className="h-4 w-4" />
+                </button>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+                    <Layers className="h-4 w-4 text-slate-400" />
+                </div>
+                <div>
+                    <p className="text-xs font-semibold text-slate-800">{tab.name}</p>
+                    <p className="text-[11px] text-slate-400">
+                        {tab.images.length} image
+                        {tab.images.length !== 1 ? "s" : ""}
+                    </p>
+                </div>
+            </div>
+            <div className="flex items-center gap-1">
+                <button type="button" onClick={onEdit} className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                    <Edit className="h-3.5 w-3.5" />
+                </button>
+                <button type="button" onClick={onDelete} className="p-1.5 rounded-md text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+                    <Trash2 className="h-3.5 w-3.5" />
+                </button>
+            </div>
+        </div>
+    );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ProjectForm({ initialData, projectId, mode }: ProjectFormProps) {
     const router = useRouter();
@@ -145,6 +194,23 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
             images: t.images,
         })) || [],
     );
+
+    // ─── Tab drag & drop ──────────────────────────────────────────────────────
+    const tabSensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+
+    const handleTabDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+
+        setTabs((prev) => {
+            const oldIndex = prev.findIndex((t) => t.tempId === active.id);
+            const newIndex = prev.findIndex((t) => t.tempId === over.id);
+            return oldIndex === -1 || newIndex === -1 ? prev : arrayMove(prev, oldIndex, newIndex);
+        });
+    };
 
     // ─── Completion tracker ───────────────────────────────────────────────────
     const completion = useMemo(
@@ -746,40 +812,18 @@ export default function ProjectForm({ initialData, projectId, mode }: ProjectFor
                                     <p className="text-xs text-slate-400">No tabs yet — click Add Tab to start</p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
-                                    {tabs.map((tab) => (
-                                        <div key={tab.tempId} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-slate-200 transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                                                    <Layers className="h-4 w-4 text-slate-400" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-semibold text-slate-800">{tab.name}</p>
-                                                    <p className="text-[11px] text-slate-400">
-                                                        {tab.images.length} image
-                                                        {tab.images.length !== 1 ? "s" : ""}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => openEditTab(tab)}
-                                                    className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
-                                                >
-                                                    <Edit className="h-3.5 w-3.5" />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleDeleteTab(tab.tempId)}
-                                                    className="p-1.5 rounded-md text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-                                                >
-                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                </button>
-                                            </div>
+                                <>
+                                <DndContext sensors={tabSensors} collisionDetection={closestCenter} onDragEnd={handleTabDragEnd}>
+                                    <SortableContext items={tabs.map((t) => t.tempId)} strategy={verticalListSortingStrategy}>
+                                        <div className="space-y-2">
+                                            {tabs.map((tab) => (
+                                                <SortableTabRow key={tab.tempId} tab={tab} onEdit={() => openEditTab(tab)} onDelete={() => handleDeleteTab(tab.tempId)} />
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
+                                    </SortableContext>
+                                </DndContext>
+                                {tabs.length > 1 && <p className="mt-2 text-[11px] text-slate-400">Drag the handle to change the order tabs appear in on the website.</p>}
+                                </>
                             )}
                         </section>
                     ) : (

@@ -38,7 +38,7 @@ export default function Navbar() {
 
     const defaultLogos = {
         default: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-light-logo-with-uae-ksa_m8nbd3.png",
-        scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1787295544/eventify-dark-logo-with-uae-ksa_ht3x8v.png",
+        scrolled: "https://res.cloudinary.com/afdhm38k/image/upload/v1791464095/eventify-dark-logo-with-uae-ksa_yxx8v4.webp",
     };
 
     const getLogosForPage = () => {

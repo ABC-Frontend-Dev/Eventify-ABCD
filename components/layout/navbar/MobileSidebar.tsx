@@ -37,7 +37,7 @@ export default function MenuSidebar({ menus }: MenuSidebarProps) {
         { id: 2, title: "About Us", name: "About Us", url: "/#about-us", dropdown: false },
         { id: 3, title: "Clients", name: "Clients", url: "/#our-clients", dropdown: false },
         { id: 4, title: "Services", name: "Services", url: "/#our-services", dropdown: false },
-        { id: 5, title: "Teams", name: "Teams", url: "/#teams", dropdown: false },
+        { id: 5, title: "Team", name: "Team", url: "/#teams", dropdown: false },
         { id: 6, title: "Projects", name: "Projects", url: "/#projects", dropdown: false },
         { id: 7, title: "Awards", name: "Awards", url: "/#awards", dropdown: false },
         { id: 8, title: "Blogs", name: "Blogs", url: "/#blogs", dropdown: false },
