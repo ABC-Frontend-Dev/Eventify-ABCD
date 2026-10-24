@@ -6,6 +6,10 @@ export const ADDITIONAL_CONTACT_RECIPIENTS = [
     // "manager@eventify.com",
 ];
 
+export const CONTACT_FORM_CC: string[] = [
+    "jumana@eventifyentertainment.com",
+];
+
 export const CONTACT_FORM_CONFIG = {
     // Whether to send emails on contact form submission
     enableEmailNotification: true,

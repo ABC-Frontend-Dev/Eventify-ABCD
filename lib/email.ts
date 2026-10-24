@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import { getSiteUrl } from "@/lib/constants";
 import { contactAutoReplyEmail } from "@/lib/email-templates/contact-auto-reply";
 import { COLORS, SITE_URL, accent, button, callout, detailTable, emailLayout, escapeHtml, eyebrow, heading, paragraph } from "@/lib/email-templates/base-layout";
+import { CONTACT_FORM_CC } from "./config/admin-emails";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -65,6 +66,7 @@ interface ContactEmailData {
 export async function sendContactFormNotificationEmail(
   contactData: ContactEmailData,
   recipientEmails: string[],
+  ccRecipients: string[],
 ) {
   try {
     // Filter out empty emails and remove duplicates
@@ -129,6 +131,7 @@ ${button("View in dashboard", `${getSiteUrl()}/dashboard/contacts`)}`;
         .sendMail({
           from: `"${process.env.EMAIL_FROM_NAME || "Eventify"}" <${process.env.GMAIL_EMAIL}>`,
           to: email,
+          cc: CONTACT_FORM_CC,
           subject: `New Contact Form Submission - ${contactData.name}`,
           html,
         })
@@ -167,6 +170,7 @@ export async function sendContactConfirmationEmail(
     await transporter.sendMail({
       from: `"${process.env.EMAIL_FROM_NAME || "Eventify"}" <${process.env.GMAIL_EMAIL}>`,
       to: email,
+      cc: CONTACT_FORM_CC,
       subject: "We Received Your Message - Eventify",
       html,
     });
@@ -219,6 +223,7 @@ ${button("Visit our website", SITE_URL)}`;
     await transporter.sendMail({
       from: `"Eventify Newsletter" <${process.env.GMAIL_EMAIL}>`,
       to: email,
+      cc: CONTACT_FORM_CC,
       subject: "Welcome to Eventify Newsletter! 🎉",
       html,
     });
@@ -262,6 +267,7 @@ ${button("Log in to dashboard", `${getSiteUrl()}/login`)}`;
     await transporter.sendMail({
       from: `"Eventify" <${process.env.GMAIL_EMAIL}>`,
       to: email,
+      cc: CONTACT_FORM_CC,
       subject: "You've been added as an Eventify Admin",
       html,
     });

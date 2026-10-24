@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendContactFormNotificationEmail, sendContactConfirmationEmail } from "@/lib/email";
-import { ADDITIONAL_CONTACT_RECIPIENTS, CONTACT_FORM_CONFIG } from "@/lib/config/admin-emails";
+import { ADDITIONAL_CONTACT_RECIPIENTS, CONTACT_FORM_CC, CONTACT_FORM_CONFIG } from "@/lib/config/admin-emails";
 
 enum ContactSubmissionStatus {
     NEW = "NEW",
@@ -176,6 +176,7 @@ export async function POST(request: NextRequest) {
                             message: body.message,
                         },
                         recipientEmails,
+                        CONTACT_FORM_CC,
                     );
 
                     if (emailsSent) {
