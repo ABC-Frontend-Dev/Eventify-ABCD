@@ -193,6 +193,7 @@ export async function sendNewsletterEmail(
     await transporter.sendMail({
       from: `"Eventify Newsletter" <${process.env.GMAIL_EMAIL}>`,
       to: subscriberEmail,
+      cc: CONTACT_FORM_CC,
       subject,
       html,
     });
