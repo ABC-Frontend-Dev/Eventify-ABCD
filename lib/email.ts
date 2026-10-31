@@ -131,7 +131,6 @@ ${button("View in dashboard", `${getSiteUrl()}/dashboard/contacts`)}`;
         .sendMail({
           from: `"${process.env.EMAIL_FROM_NAME || "Eventify"}" <${process.env.GMAIL_EMAIL}>`,
           to: email,
-          cc: CONTACT_FORM_CC,
           subject: `New Contact Form Submission - ${contactData.name}`,
           html,
         })

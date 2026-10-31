@@ -4,11 +4,13 @@ export const ADDITIONAL_CONTACT_RECIPIENTS = [
     // "support@eventify.com",
     // "support@eventify.com", // Optional: add here
     // "manager@eventify.com",
-    "jumana@eventifyentertainment.com",
+    // "jumana@eventifyentertainment.com",
+    "prajwal@abcdesigns.in",
 ];
 
 export const CONTACT_FORM_CC: string[] = [
-    "connect@eventifyentertainment.com",
+    // "connect@eventifyentertainment.com",
+    "prince@abcdesigns.in",
 ];
 
 export const CONTACT_FORM_CONFIG = {
